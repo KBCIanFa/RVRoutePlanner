@@ -1616,6 +1616,32 @@
   }
   .btn-help:hover { background: #fef3c7; border-color: #92400e; color: #451a03; }
 
+
+  .btn-clear-trip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #be123c;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-left: auto;
+  }
+  .btn-clear-trip:hover {
+    background: #ffe4e6;
+    border-color: #fb7185;
+    color: #9f1239;
+  }
+  .btn-clear-trip:disabled { opacity: 0.4; cursor: not-allowed; }
+
 </style>
 </head>
 <body>
@@ -1899,6 +1925,7 @@
       <button class="btn-export" onclick="exportJSON()" aria-label="Export route as JSON data file"><span aria-hidden="true">⚙️</span> JSON</button>
       <button class="btn-export" onclick="copyItinerary()" aria-label="Copy route itinerary to clipboard"><span aria-hidden="true">📋</span> Copy Text</button>
       <span class="powered-by">Groq AI · llama-3.3-70b-versatile</span>
+      <button class="btn-clear-trip" id="clearTripBtn" onclick="clearTrip()" disabled aria-label="Clear current trip and start again">🗑 Clear Trip</button>
     </div>
 
   </main><!-- /right-panel -->
@@ -2579,6 +2606,7 @@ function afterPlan() {
   btn.textContent = '🗺 PLAN MY ROUTE';
   planBtn.disabled = !getApiKey();
   planBtn.setAttribute('aria-busy', 'false');
+  setClearEnabled(true);
 }
 
 // Wrap renderRoute: reset plan button + auto fuel recalc
@@ -3047,6 +3075,89 @@ function toggleApiBar() {
     document.getElementById('apiBarCollapsed').style.display = 'flex';
   }
 })();
+
+
+// ──────────────────────────────────────────────
+// CLEAR TRIP
+// ──────────────────────────────────────────────
+function clearTrip() {
+  if (!confirm('Clear the current trip plan and start again?')) return;
+
+  // Reset state
+  lastPlanRaw  = '';
+  lastPlanData = null;
+  chatHistory  = [];
+  currentTab   = 'route';
+
+  // Reset results panel
+  document.getElementById('resultsTitle').textContent = 'PLAN YOUR ADVENTURE';
+  showTab('empty');
+
+  // Reset empty state message in case it was overwritten by an error
+  document.getElementById('emptyState').innerHTML = `
+    <div class="big-icon">🗺️</div>
+    <h3>Ready to Hit the Road</h3>
+    <p>Set your trip details, choose your POIs, then hit Plan My Route — or pick a quick start route above.</p>
+    <p style="margin-top:8px; font-size:0.7rem; color:var(--muted)">Powered by Groq AI · Australian routes &amp; free camps</p>
+  `;
+
+  // Clear chat messages
+  const chatMsgs = document.getElementById('chatMessages');
+  if (chatMsgs) chatMsgs.innerHTML = '';
+
+  // Reset tabs
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
+  const routeTab = document.getElementById('tab-route');
+  if (routeTab) {
+    routeTab.classList.add('active');
+    routeTab.setAttribute('aria-selected', 'true');
+  }
+
+  // Remove fuel cards
+  clearVehicle();
+
+  // Reset waypoints to just start + end (keep the start value)
+  const currentStart = waypoints[0] || 'Sunshine Coast QLD';
+  waypoints = [currentStart, ''];
+  renderWaypoints();
+
+  // Reset trip type buttons to Big Lap default
+  document.querySelectorAll('.trip-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  const bigLapBtn = document.querySelector('[data-type="biglap"]');
+  if (bigLapBtn) {
+    bigLapBtn.classList.add('active');
+    bigLapBtn.setAttribute('aria-pressed', 'true');
+    tripType = 'biglap';
+  }
+
+  // Reset duration to 3 months default
+  const dur = document.getElementById('duration');
+  if (dur) dur.value = '3months';
+
+  // Disable clear button and export buttons again
+  setClearEnabled(false);
+
+  // Scroll results back to top
+  const body = document.getElementById('resultsBody');
+  if (body) body.scrollTop = 0;
+
+  // Focus the start waypoint input
+  setTimeout(() => {
+    const firstInput = document.querySelector('.wp-input');
+    if (firstInput) firstInput.focus();
+  }, 100);
+}
+
+function setClearEnabled(enabled) {
+  const btn = document.getElementById('clearTripBtn');
+  if (btn) btn.disabled = !enabled;
+}
 
 </script>
 
