@@ -730,11 +730,11 @@
 
   .chat-messages {
     flex: 1;
-    overflow-y: auto;         /* only the message list scrolls */
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 20px 24px 16px;
+    padding: 16px 24px 20px;
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
   }
@@ -770,10 +770,10 @@
   .chat-input-row {
     display: flex;
     gap: 8px;
-    padding: 12px 24px 16px;
-    border-top: 1px solid #e2e8f0;
+    padding: 12px 24px;
+    border-bottom: 1px solid #e2e8f0;
     background: #ffffff;
-    flex-shrink: 0;           /* never let the input row shrink away */
+    flex-shrink: 0;
   }
 
   .chat-input-row input {
@@ -1648,6 +1648,64 @@
   }
   .btn-clear-trip:disabled { opacity: 0.4; cursor: not-allowed; }
 
+
+  /* ── DEFAULT START ── */
+  .btn-set-default {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: 1px dashed #cbd5e1;
+    color: #94a3b8;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .btn-set-default:hover {
+    border-color: #b45309;
+    color: #92400e;
+    background: #fffbeb;
+  }
+  .btn-set-default.is-default {
+    border-style: solid;
+    border-color: #b45309;
+    color: #92400e;
+    background: #fffbeb;
+  }
+
+  .default-start-hint {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    color: #92400e;
+    letter-spacing: 0.5px;
+    padding: 2px 0 0 28px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .default-start-hint button {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    transition: color 0.15s;
+  }
+  .default-start-hint button:hover { color: #dc2626; }
+
 </style>
 </head>
 <body>
@@ -1754,7 +1812,7 @@
       <span id="destHint" class="sr-only">Build your route by adding towns to drive through between start and finish</span>
 
       <!-- Hidden compat fields so existing planRoute code still works -->
-      <input type="hidden" id="startFrom" value="Sunshine Coast QLD">
+      <input type="hidden" id="startFrom" value="">
       <input type="hidden" id="destination" value="">
 
       <label class="field-label" for="duration">Trip Duration</label>
@@ -1922,12 +1980,12 @@
 
     <!-- Chat panel lives OUTSIDE results-body so input stays pinned at bottom -->
     <div id="chatTab" style="display:none" class="chat-panel" role="region" aria-label="AI Chat">
-      <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat messages"></div>
       <div class="chat-input-row">
         <label for="chatInput" class="sr-only">Ask a question about your route</label>
         <input type="text" id="chatInput" placeholder="Ask about camps, roads, timing, fuel gaps…" onkeydown="if(event.key==='Enter')sendChat()" aria-label="Chat message input">
         <button class="btn-send" id="sendBtn" onclick="sendChat()" disabled aria-label="Send message">SEND</button>
       </div>
+      <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat messages"></div>
     </div>
 
     <div class="export-bar" role="toolbar" aria-label="Export options">
@@ -2035,6 +2093,9 @@ function renderWaypoints() {
                   : isLast  ? 'e.g. Townsville QLD'
                   : 'e.g. Clermont QLD';
 
+    const savedDefault = localStorage.getItem('rv_default_start') || '';
+    const isDefaultSet = isFirst && savedDefault && wp === savedDefault;
+
     const row = document.createElement('div');
     row.className = 'waypoint-row';
     row.setAttribute('role', 'listitem');
@@ -2052,6 +2113,14 @@ function renderWaypoints() {
           oninput="updateWaypoint(${i}, this.value)"
         >
       </div>
+      ${isFirst ? `
+        <button
+          class="btn-set-default${isDefaultSet ? ' is-default' : ''}"
+          onclick="setDefaultStart()"
+          aria-label="${isDefaultSet ? 'This is your default start location' : 'Save as default start location'}"
+          title="${isDefaultSet ? 'Default start saved' : 'Save as my default start'}"
+        >${isDefaultSet ? '★ Default' : '☆ Set Default'}</button>
+      ` : ''}
       ${(!isFirst && !isLast) ? `
         <button class="btn-wp-remove" onclick="removeWaypoint(${i})" aria-label="Remove stop ${i}">×</button>
       ` : ''}
@@ -2069,6 +2138,24 @@ function renderWaypoints() {
   hint.textContent = stops > 0
     ? `${stops} via town${stops > 1 ? 's' : ''} added · ${remaining} more allowed`
     : `Add towns to drive through on the way`;
+
+  // Show/update the default start hint row
+  let defaultHint = document.getElementById('defaultStartHint');
+  const savedDefault = localStorage.getItem('rv_default_start') || '';
+  if (savedDefault) {
+    if (!defaultHint) {
+      defaultHint = document.createElement('div');
+      defaultHint.id = 'defaultStartHint';
+      defaultHint.className = 'default-start-hint';
+      // Insert after the wp-count-hint
+      hint.parentNode.insertBefore(defaultHint, hint.nextSibling);
+    }
+    defaultHint.innerHTML = `<span>📍 Default start: <strong>${escHtml(savedDefault)}</strong></span>
+      <button onclick="clearDefaultStart()" aria-label="Clear default start location">clear</button>`;
+    defaultHint.style.display = 'flex';
+  } else if (defaultHint) {
+    defaultHint.style.display = 'none';
+  }
 
   // Show/hide add button
   const addBtn = document.querySelector('.btn-wp-add');
@@ -2118,17 +2205,45 @@ function getEnd() { return waypoints[waypoints.length - 1] || ''; }
 // Helper: get middle stops only
 function getStops() { return waypoints.slice(1, -1).filter(w => w.trim()); }
 
-// Init on load
-renderWaypoints();
+// ──────────────────────────────────────────────
+// DEFAULT START LOCATION
+// ──────────────────────────────────────────────
+function setDefaultStart() {
+  const current = waypoints[0] ? waypoints[0].trim() : '';
+  if (!current) {
+    showFuelToast('Enter a start location first, then set it as default.', 3000);
+    return;
+  }
+  localStorage.setItem(DEFAULT_START_KEY, current);
+  showFuelToast(`✅ Default start saved: ${current}`, 2500);
+  renderWaypoints(); // re-render to show ★ state
+}
+
+function clearDefaultStart() {
+  localStorage.removeItem(DEFAULT_START_KEY);
+  showFuelToast('Default start cleared.', 2000);
+  renderWaypoints();
+}
+
+function loadDefaultStart() {
+  const saved = localStorage.getItem(DEFAULT_START_KEY);
+  if (saved && (!waypoints[0] || waypoints[0] === 'Sunshine Coast QLD')) {
+    waypoints[0] = saved;
+    if (document.getElementById('startFrom')) {
+      document.getElementById('startFrom').value = saved;
+    }
+  }
+}
 
 // ──────────────────────────────────────────────
 // STATE
 // ──────────────────────────────────────────────
-let tripType = 'biglap';
+const DEFAULT_START_KEY = 'rv_default_start';
+let tripType    = 'biglap';
 let lastPlanRaw = '';
 let lastPlanData = null;
-let chatHistory = [];
-let currentTab = 'route';
+let chatHistory  = [];
+let currentTab   = 'route';
 
 // ──────────────────────────────────────────────
 // API KEY HANDLING
@@ -3138,8 +3253,9 @@ function clearTrip() {
   // Remove fuel cards
   clearVehicle();
 
-  // Reset waypoints to just start + end (keep the start value)
-  const currentStart = waypoints[0] || 'Sunshine Coast QLD';
+  // Reset waypoints — restore saved default start, or keep current start
+  const savedDefault = localStorage.getItem('rv_default_start');
+  const currentStart = savedDefault || waypoints[0] || 'Sunshine Coast QLD';
   waypoints = [currentStart, ''];
   renderWaypoints();
 
@@ -3178,6 +3294,12 @@ function setClearEnabled(enabled) {
   if (btn) btn.disabled = !enabled;
 }
 
+
+// ──────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────
+loadDefaultStart();
+renderWaypoints();
 </script>
 
 <!-- QR Code Modal -->
