@@ -1706,6 +1706,26 @@
   }
   .default-start-hint button:hover { color: #dc2626; }
 
+
+  /* POI delete button */
+  .btn-poi-delete {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.12s, background 0.12s;
+    margin-left: 2px;
+  }
+  .btn-poi-delete:hover {
+    color: #dc2626;
+    background: #fee2e2;
+  }
+
 </style>
 </head>
 <body>
@@ -2566,11 +2586,11 @@ function renderRoute(plan, from, dest) {
 
     const pois = d.pois || [];
 
-    const poisHtml = pois.map(poi => {
+    const poisHtml = pois.map((poi, pi) => {
       const poiUrl = mapsSearchUrl(poi.name);
       return `
-        <div class="poi-item ${poi.type}">
-          <div class="poi-icon">${poiIcon(poi.type)}</div>
+        <div class="poi-item ${poi.type}" id="poi-${i}-${pi}">
+          <div class="poi-icon" aria-hidden="true">${poiIcon(poi.type)}</div>
           <div class="poi-info">
             <div class="poi-name">${poi.name || ''}</div>
             <div class="poi-detail">${poi.detail || ''}</div>
@@ -2578,6 +2598,12 @@ function renderRoute(plan, from, dest) {
           <a class="poi-maps-link" href="${poiUrl}" target="_blank" rel="noopener" title="Find on Google Maps">
             📍 Maps
           </a>
+          <button
+            class="btn-poi-delete"
+            onclick="deletePoi(${i}, ${pi})"
+            aria-label="Remove ${(poi.name || 'this POI').replace(/"/g, '')}"
+            title="Remove this POI"
+          >×</button>
         </div>
       `;
     }).join('');
@@ -3300,6 +3326,55 @@ function setClearEnabled(enabled) {
 // ──────────────────────────────────────────────
 loadDefaultStart();
 renderWaypoints();
+
+// ──────────────────────────────────────────────
+// DELETE POI
+// ──────────────────────────────────────────────
+function deletePoi(dayIndex, poiIndex) {
+  if (!lastPlanData || !lastPlanData.days[dayIndex]) return;
+
+  const pois = lastPlanData.days[dayIndex].pois;
+  if (!pois || poiIndex < 0 || poiIndex >= pois.length) return;
+
+  // Remove from data
+  pois.splice(poiIndex, 1);
+
+  // Remove from DOM — animate out then remove
+  const el = document.getElementById(`poi-${dayIndex}-${poiIndex}`);
+  if (el) {
+    el.style.transition = 'opacity 0.2s, max-height 0.25s, margin 0.25s, padding 0.25s';
+    el.style.overflow = 'hidden';
+    el.style.opacity = '0';
+    el.style.maxHeight = '0';
+    el.style.marginBottom = '0';
+    el.style.padding = '0';
+    setTimeout(() => {
+      el.remove();
+      // Re-index remaining POI delete buttons in this day card
+      // so their indices stay accurate after removal
+      reindexPois(dayIndex);
+      // Recalculate fuel for this leg if vehicle is set
+      if (vehicle) recalcFuel();
+    }, 260);
+  }
+}
+
+function reindexPois(dayIndex) {
+  // Update onclick and id attributes for remaining POIs in the day card
+  const body = document.querySelector(`#dayCard${dayIndex} .poi-list`);
+  if (!body) return;
+  const items = body.querySelectorAll('.poi-item');
+  items.forEach((item, newIndex) => {
+    item.id = `poi-${dayIndex}-${newIndex}`;
+    const btn = item.querySelector('.btn-poi-delete');
+    if (btn) {
+      const poiName = item.querySelector('.poi-name')?.textContent || 'this POI';
+      btn.setAttribute('onclick', `deletePoi(${dayIndex}, ${newIndex})`);
+      btn.setAttribute('aria-label', `Remove ${poiName}`);
+    }
+  });
+}
+
 </script>
 
 <!-- QR Code Modal -->
