@@ -1857,6 +1857,11 @@
           <span class="chip-icon" aria-hidden="true">🚰</span> Water Refill
         </label>
 
+        <label class="poi-chip" aria-label="Showgrounds and saleyards with overnight camping">
+          <input type="checkbox" value="showgrounds and saleyards that allow overnight caravan camping" aria-label="Showgrounds">
+          <span class="chip-icon" aria-hidden="true">🏟️</span> Showgrounds
+        </label>
+
       </div>
     </div>
 
@@ -2190,9 +2195,11 @@ function setTripType(btn) {
 // POI CHIPS
 // ──────────────────────────────────────────────
 document.querySelectorAll('.poi-chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    chip.classList.toggle('checked');
-    chip.querySelector('input').checked = chip.classList.contains('checked');
+  const input = chip.querySelector('input');
+  // Listen on the INPUT change (fires after the browser toggles checked state)
+  // so we just sync the visual class to match — no double-toggle
+  input.addEventListener('change', () => {
+    chip.classList.toggle('checked', input.checked);
   });
 });
 
