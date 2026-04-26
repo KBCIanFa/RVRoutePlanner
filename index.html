@@ -1,1 +1,3081 @@
 
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="AI-powered caravan and RV route planner for Australia. Plan Big Lap routes, find free camps, fuel stops and points of interest.">
+<meta name="theme-color" content="#f1f5f9">
+<title>RV Route Planner AU — Caravan Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    /* LogMyJourney AU — Light Theme */
+    --earth:     #f8fafc;          /* page background */
+    --canvas:    #ffffff;          /* panel/sidebar bg */
+    --bark:      #f1f5f9;          /* header/section bg */
+    --dust:      #e2e8f0;          /* input bg, subtle fills */
+    --ochre:     #b45309;          /* amber — WCAG AA on white (5:1) */
+    --amber:     #92400e;          /* amber-brown — WCAG AA text colour */
+    --sand:      #fef3c7;          /* amber tint bg — use only as BG, not text */
+    --pale:      #1e293b;          /* primary text */
+    --red-earth: #dc2626;
+    --sage:      #0d9488;          /* teal accent */
+    --sky:       #2563eb;
+    --muted:     #475569;          /* secondary text — WCAG AA on all bg */
+    --border:    #e2e8f0;          /* neutral border */
+    --glow:      rgba(217,119,6,0.08);
+
+    /* Extended */
+    --accent-teal:    #0d9488;
+    --accent-blue:    #2563eb;
+    --accent-red:     #dc2626;
+    --accent-green:   #059669;
+    --card-bg:        #ffffff;
+    --card-border:    #e2e8f0;
+    --input-bg:       #f8fafc;
+    --input-border:   #cbd5e1;
+    --tab-active:     #d97706;
+    --stat-amber:     #d97706;
+    --stat-teal:      #0d9488;
+    --stat-blue:      #2563eb;
+    --stat-green:     #059669;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f1f5f9;
+    color: var(--pale);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    background: #ffffff;
+    backdrop-filter: none;
+    box-shadow: 0 1px 0 #e2e8f0, 0 2px 8px rgba(0,0,0,0.06);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(6px);
+  }
+
+  .logo-mark {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: #080c14;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    font-weight: 900;
+    box-shadow: 0 0 0 1px rgba(245,158,11,0.2), 0 4px 16px rgba(245,158,11,0.2);
+  }
+
+  .header-text h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #1e293b;
+    line-height: 1;
+  }
+
+  .header-text p {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-badge {
+    margin-left: auto;
+    background: rgba(122,148,104,0.15);
+    border: 1px solid rgba(122,148,104,0.35);
+    color: var(--sage);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* ── API KEY BAR ── */
+  .api-bar {
+    background: var(--canvas);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .api-bar label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .api-bar input {
+    flex: 1;
+    min-width: 200px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    font-family: 'Barlow', monospace;
+    font-size: 0.8rem;
+    padding: 5px 12px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .api-bar input:focus { border-color: var(--ochre); }
+
+  .api-status {
+    font-size: 0.68rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .api-status.ok  { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+  .api-status.bad { background: rgba(239,68,68,0.1);  color: #f87171;  border: 1px solid rgba(239,68,68,0.25); }
+  .api-status.none{ background: rgba(156,163,175,0.1);color: var(--muted);border: 1px solid rgba(156,163,175,0.2); }
+
+  .btn-hide-key {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-hide-key:hover { border-color: var(--ochre); color: #78350f; }
+
+  /* Collapsed API bar pill */
+  .api-bar-collapsed {
+    background: var(--canvas);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 5px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
+  }
+
+  /* ── LAYOUT ── */
+  .app-body {
+    display: flex;
+    flex-direction: row;
+    min-height: calc(100vh - 96px);
+    overflow: hidden;
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    width: 360px;
+    min-width: 360px;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    background: var(--canvas);
+    overflow-y: auto;
+  }
+
+  .panel-section {
+    padding: 16px 18px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #92400e;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(245,158,11,0.3), transparent);
+  }
+
+  /* Trip type toggle */
+  .trip-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .trip-btn {
+    background: var(--dust);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .trip-btn:hover { border-color: var(--ochre); color: #78350f; }
+  .trip-btn.active {
+    background: rgba(245,158,11,0.12);
+    border-color: var(--ochre);
+    color: var(--amber);
+  }
+
+  /* Form fields */
+  label.field-label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+    margin-top: 10px;
+  }
+
+  input[type="text"], select, textarea {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: #1e293b;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.85rem;
+    padding: 7px 12px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input[type="text"]:focus, select:focus, textarea:focus {
+    border-color: var(--ochre);
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.12);
+  }
+  select option { background: var(--bark); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* POI checkboxes */
+  .poi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .poi-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--dust);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .poi-chip input { display: none; }
+  .poi-chip .chip-icon { font-size: 1rem; }
+  .poi-chip:hover { border-color: var(--ochre); color: #78350f; }
+  .poi-chip.checked {
+    background: rgba(245,158,11,0.1);
+    border-color: var(--ochre);
+    color: var(--amber);
+  }
+
+  /* Rig type */
+  .rig-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  /* Go button */
+  .btn-plan {
+    width: 100%;
+    margin-top: 14px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border: none;
+    color: #080c14;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(245,158,11,0.3), 0 1px 0 rgba(255,255,255,0.1) inset;
+  }
+  .btn-plan:hover:not(:disabled) {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    box-shadow: 0 6px 28px rgba(245,158,11,0.45);
+    transform: translateY(-1px);
+  }
+  .btn-plan:active:not(:disabled) { transform: translateY(0); }
+  .btn-plan:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Quick routes */
+  .quick-routes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .quick-route-btn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 3px solid #d97706;
+    color: #1e293b;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.82rem;
+    padding: 9px 12px;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .quick-route-btn:hover {
+    border-left-color: #78350f;
+    background: #fffbeb;
+    color: #78350f;
+  }
+  .quick-route-btn .qr-dist {
+    margin-left: auto;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .results-header {
+    padding: 0 24px;
+    border-bottom: 2px solid #e2e8f0;
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    background: #ffffff;
+  }
+
+  .results-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+  }
+
+  .tab-row {
+    display: flex;
+    gap: 0;
+    margin-left: auto;
+    align-items: stretch;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #475569;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 18px 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    margin-bottom: -2px;
+  }
+  .tab-btn:hover { color: #78350f; border-bottom-color: #fcd34d; }
+  .tab-btn.active {
+    color: #92400e;
+    border-bottom-color: #b45309;
+    background: transparent;
+  }
+
+  .results-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  /* Empty / loading state */
+  .state-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 300px;
+    color: var(--muted);
+    text-align: center;
+    gap: 12px;
+  }
+
+  .state-empty .big-icon { font-size: 3.5rem; opacity: 0.4; }
+  .state-empty h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #475569;
+  }
+  .state-empty p { font-size: 0.8rem; max-width: 280px; line-height: 1.6; color: #475569; }
+
+  /* Loading spinner */
+  .loading-spinner {
+    display: inline-block;
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--ochre);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Route result card */
+  .result-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: fadeUp 0.4s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Route summary card */
+  .route-summary {
+    background: var(--canvas);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .route-summary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red-earth), var(--ochre), var(--amber));
+  }
+
+  .route-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 4px;
+    color: var(--amber);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .route-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 10px 0 14px;
+  }
+
+  .route-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .route-stat .stat-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ochre);
+  }
+  .route-stat .stat-key {
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .route-desc {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: #78350f;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+
+  /* Day cards */
+  .days-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .day-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-left: 3px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .day-card:hover {
+    border-left-color: #d97706;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .day-card.open { border-left-color: #d97706; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .day-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #78350f;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 4px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+
+  .day-route {
+    flex: 1;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #1e293b;
+  }
+
+  .day-dist {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  .day-chevron {
+    color: var(--muted);
+    transition: transform 0.2s;
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+  .day-card.open .day-chevron { transform: rotate(180deg); color: #d97706; opacity: 1; }
+
+  .day-body {
+    display: none;
+    padding: 14px 16px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .day-card.open .day-body { display: block; }
+
+  .day-body p { font-size: 0.82rem; line-height: 1.75; color: #475569; margin-bottom: 12px; }
+
+  /* POI list within day */
+  .poi-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .poi-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+    font-size: 0.8rem;
+    transition: background 0.15s;
+  }
+  .poi-item:hover { background: #f1f5f9; }
+  .poi-item.camp  { border-left-color: #0d9488; }
+  .poi-item.fuel  { border-left-color: #3b82f6; }
+  .poi-item.dump  { border-left-color: #8b5cf6; }
+  .poi-item.sight { border-left-color: #f59e0b; }
+  .poi-item.food  { border-left-color: #f97316; }
+  .poi-item.water { border-left-color: #06b6d4; }
+
+  .poi-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.5; }
+  .poi-info { flex: 1; }
+  .poi-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.87rem; font-weight: 600; color: #1e293b; letter-spacing: 0.5px; }
+  .poi-detail { color: #475569; font-size: 0.72rem; margin-top: 2px; line-height: 1.5; }
+
+  /* Tips section */
+  .tips-card {
+    background: rgba(192,57,43,0.12);
+    border: 1px solid rgba(192,57,43,0.3);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .tips-card h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #e07a5f;
+    margin-bottom: 10px;
+  }
+  .tips-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .tips-card li {
+    font-size: 0.8rem;
+    color: #78350f;
+    line-height: 1.6;
+    padding-left: 14px;
+    position: relative;
+  }
+  .tips-card li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--ochre);
+    font-size: 0.75rem;
+  }
+
+  /* Chat tab */
+  .chat-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 400px;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .chat-msg {
+    display: flex;
+    gap: 10px;
+    animation: fadeUp 0.3s ease;
+  }
+  .chat-msg.user { flex-direction: row-reverse; }
+
+  .chat-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .chat-msg.ai .chat-avatar   { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; }
+  .chat-msg.user .chat-avatar { background: #f0fdfa; border: 1px solid #99f6e4; color: #0f766e; }
+
+  .chat-bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+  .chat-msg.ai   .chat-bubble { background: #f8fafc; border: 1px solid #e2e8f0; color: #1e293b; border-bottom-left-radius: 2px; }
+  .chat-msg.user .chat-bubble { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; border-bottom-right-radius: 2px; }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 12px;
+  }
+
+  .chat-input-row input {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.82rem;
+    padding: 9px 14px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .chat-input-row input:focus { border-color: #d97706; box-shadow: 0 0 0 3px rgba(217,119,6,0.1); }
+
+  .btn-send {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border: none;
+    color: #080c14;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 9px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-send:hover:not(:disabled) { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+  .btn-send:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Google Maps links */
+  .maps-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0 4px;
+    flex-wrap: wrap;
+  }
+
+  .maps-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .btn-maps {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f0fdfa;
+    border: 1px solid #99f6e4;
+    color: #0f766e;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-maps:hover {
+    background: #ccfbf1;
+    border-color: #0d9488;
+    color: #0f766e;
+  }
+  .btn-maps.route-link {
+    background: rgba(245,158,11,0.1);
+    border-color: rgba(245,158,11,0.3);
+    color: var(--amber);
+  }
+  .btn-maps.route-link:hover {
+    background: rgba(245,158,11,0.2);
+    color: var(--pale);
+  }
+
+  .poi-maps-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: auto;
+    flex-shrink: 0;
+    background: rgba(74,127,165,0.1);
+    border: 1px solid rgba(74,127,165,0.25);
+    color: #0f766e;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .poi-maps-link:hover {
+    background: rgba(74,127,165,0.25);
+    color: #0f766e;
+  }
+
+  /* Export bar */
+  .export-bar {
+    padding: 8px 20px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .export-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .btn-export {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-export:hover { border-color: #b45309; color: #78350f; background: #fffbeb; }
+
+  .powered-by {
+    margin-left: auto;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    opacity: 0.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .app-body { flex-direction: column; }
+    .left-panel { border-right: none; border-bottom: 1px solid var(--border); }
+    header { padding: 12px 16px; }
+    .results-body { padding: 16px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  /* QR button */
+  .btn-qr {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(122,148,104,0.12);
+    border: 1px solid rgba(122,148,104,0.35);
+    color: var(--sage);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-qr:hover {
+    background: rgba(122,148,104,0.25);
+    border-color: var(--sage);
+    color: #a8c89a;
+  }
+
+  /* QR Modal overlay */
+  .qr-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,8,6,0.82);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.15s ease;
+  }
+  .qr-overlay.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .qr-modal {
+    background: var(--bark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    max-width: 460px;
+    width: 92%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,158,11,0.08);
+    animation: slideUp 0.2s ease;
+    overflow: hidden;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .qr-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #f8fafc 0%, transparent 100%);
+    gap: 10px;
+  }
+  .qr-modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+  .qr-modal-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .qr-close {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .qr-close:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+
+  .qr-modal-body {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Tab switcher inside modal */
+  .qr-tabs {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    border-radius: 5px;
+    padding: 3px;
+  }
+  .qr-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .qr-tab.active {
+    background: #fef3c7;
+    color: #78350f;
+  }
+  .qr-tab:hover:not(.active) { color: #78350f; }
+
+  .qr-pane { display: none; flex-direction: column; align-items: center; gap: 12px; }
+  .qr-pane.active { display: flex; }
+
+  .qr-canvas-wrap {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+  }
+  .qr-canvas-wrap canvas,
+  .qr-canvas-wrap img { display: block; }
+
+  .qr-url-box {
+    width: 100%;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: 'Barlow', monospace;
+    font-size: 0.6rem;
+    color: #475569;
+    word-break: break-all;
+    line-height: 1.5;
+    max-height: 52px;
+    overflow: hidden;
+  }
+
+  .qr-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn-qr-action {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn-qr-action:hover { border-color: var(--ochre); color: #78350f; }
+  .btn-qr-action.primary {
+    background: #fef3c7;
+    border-color: #b45309;
+    color: #78350f;
+  }
+  .btn-qr-action.primary:hover { background: #fde68a; }
+
+  .qr-hint {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.5;
+    opacity: 0.8;
+  }
+
+
+  /* ── FUEL PANEL ── */
+  .fuel-import-bar {
+    background: var(--canvas);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #f8fafc;
+  }
+  .fuel-import-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .btn-import-triplog {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(74,127,165,0.15);
+    border: 1px solid rgba(74,127,165,0.4);
+    color: #0f766e;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-import-triplog:hover {
+    background: #ccfbf1;
+    border-color: #0d9488;
+    color: #0f766e;
+  }
+  .vehicle-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(13,148,136,0.1);
+    border: 1px solid rgba(13,148,136,0.25);
+    border-radius: 20px;
+    padding: 4px 12px 4px 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    color: #0f766e;
+    letter-spacing: 0.5px;
+  }
+  .vehicle-pill .pill-icon { font-size: 1rem; }
+  .vehicle-pill .pill-clear {
+    margin-left: 4px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.7rem;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .vehicle-pill .pill-clear:hover { opacity: 1; color: var(--red-earth); }
+
+  /* Manual vehicle inputs */
+  .fuel-manual-row {
+    display: none;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+  .fuel-manual-row.open { display: flex; }
+  .fuel-manual-row label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .fuel-manual-row .mini-field {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .fuel-manual-row input, .fuel-manual-row select {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    outline: none;
+    width: auto;
+  }
+  .fuel-manual-row input[type=number] { width: 72px; }
+  .fuel-manual-row input:focus, .fuel-manual-row select:focus { border-color: var(--ochre); }
+
+  /* Fuel summary card in route result */
+  .fuel-summary-card {
+    background: var(--canvas);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  .fuel-summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #e8962a, #f5c842);
+  }
+  .fuel-summary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(245,158,11,0.06);
+    border-bottom: 1px solid var(--border);
+  }
+  .fuel-summary-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    color: var(--amber);
+  }
+  .fuel-summary-rig {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .fuel-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0;
+  }
+  .fuel-stat-cell {
+    padding: 12px 14px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .fuel-stat-cell:last-child { border-right: none; }
+  .fuel-stat-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .fuel-stat-key {
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* Per-leg fuel badge in day header */
+  .leg-fuel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    color: #92400e;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Fuel price row in day body */
+  .leg-fuel-detail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 8px 10px;
+    background: #fffbeb;
+    border-radius: 4px;
+    border: 1px solid #fde68a;
+    margin-bottom: 10px;
+    font-size: 0.78rem;
+    color: #78350f;
+  }
+  .leg-fuel-detail span { display: flex; align-items: center; gap: 4px; }
+  .leg-fuel-detail .lfd-val { color: #d97706; font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; }
+
+  /* Fuel price input in export bar */
+  .fuel-price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 8px 20px;
+    border-bottom: 1px solid var(--border);
+    background: #fffbeb;
+  }
+  .fuel-price-row label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .fuel-price-row input {
+    background: #ffffff;
+    border: 1px solid #d97706;
+    color: #92400e;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    outline: none;
+    width: 80px;
+    transition: border-color 0.2s;
+  }
+  .fuel-price-row input:focus { border-color: var(--ochre); }
+  .fuel-price-row .fuel-price-hint {
+    font-size: 0.68rem;
+    color: var(--muted);
+    font-family: 'Barlow', sans-serif;
+  }
+  .fuel-price-row .btn-recalc {
+    background: rgba(245,158,11,0.1);
+    border: 1px solid var(--ochre);
+    color: var(--amber);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .fuel-price-row .btn-recalc:hover { background: rgba(245,158,11,0.2); }
+
+
+  /* ── ACCESSIBILITY ── */
+  /* Skip navigation link */
+  .skip-link {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    background: #d97706;
+    color: #ffffff;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 0 0 6px 0;
+    z-index: 9999;
+    transition: top 0.15s;
+  }
+  .skip-link:focus { top: 0; outline: 3px solid var(--amber); outline-offset: 2px; }
+
+  /* Screen-reader only utility */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* High-contrast focus ring on all interactive elements */
+  :focus-visible {
+    outline: 2px solid #b45309;
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+  /* Remove default outline only when focus-visible is supported */
+  :focus:not(:focus-visible) { outline: none; }
+
+  /* Ensure inputs still show border on focus (on top of focus-visible) */
+  input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 0;
+    border-color: var(--ochre);
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (forced-colors: active) {
+    .btn-plan, .trip-btn.active, .poi-chip.checked {
+      border: 2px solid ButtonText;
+    }
+  }
+
+  /* Minimum touch target size (44×44px per WCAG 2.5.5) */
+  button, [role="button"], input[type="checkbox"], select {
+    min-height: 36px;
+  }
+  .poi-chip { min-height: 40px; }
+  .trip-btn { min-height: 40px; }
+  .quick-route-btn { min-height: 44px; }
+
+
+  /* ── WAYPOINT BUILDER ── */
+  .waypoint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .waypoint-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+  }
+
+  /* Vertical connector line between waypoints */
+  .waypoint-row:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 100%;
+    width: 2px;
+    height: 8px;
+    background: #e2e8f0;
+    z-index: 1;
+  }
+
+  .wp-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid #b45309;
+    background: #fff;
+    margin: 0 4px;
+    position: relative;
+    z-index: 2;
+  }
+  .waypoint-row:first-child .wp-dot { background: #b45309; }
+  .waypoint-row:last-child  .wp-dot { background: #0d9488; border-color: #0d9488; }
+
+  .wp-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0;
+  }
+
+  .wp-input {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.84rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    min-width: 0;
+  }
+  .wp-input:focus {
+    border-color: #b45309;
+    box-shadow: 0 0 0 3px rgba(180,83,9,0.1);
+  }
+  .wp-input::placeholder { color: #94a3b8; font-size: 0.8rem; }
+
+  .wp-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    white-space: nowrap;
+    min-width: 28px;
+  }
+  .waypoint-row:first-child .wp-label { color: #b45309; }
+  .waypoint-row:last-child  .wp-label { color: #0d9488; }
+
+  .btn-wp-remove {
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-wp-remove:hover { color: #dc2626; background: #fee2e2; }
+
+  .wp-add-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 0 2px 28px;
+  }
+
+  .btn-wp-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: 1px dashed #cbd5e1;
+    color: #475569;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-wp-add:hover {
+    border-color: #b45309;
+    color: #92400e;
+    background: #fffbeb;
+  }
+
+  .wp-count-hint {
+    font-size: 0.65rem;
+    color: #94a3b8;
+    text-align: right;
+    margin-top: 2px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+
+  .btn-help {
+    margin-left: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fffbeb;
+    border: 1px solid #b45309;
+    color: #78350f;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-help:hover { background: #fef3c7; border-color: #92400e; color: #451a03; }
+
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<header role="banner" aria-label="RV Route Planner AU">
+  <div class="logo-mark" aria-hidden="true">RV</div>
+  <div class="header-text">
+    <h1>Route Planner AU</h1>
+    <p class="sr-only">Caravan and RV Companion — AI-powered Australian route planning</p>
+  </div>
+  <div class="header-badge" aria-label="AI Powered feature">AI Powered</div>
+  <a href="rv-route-planner-help.html" target="_blank" class="btn-help" aria-label="Open help guide">❓ Help</a>
+</header>
+
+<!-- API Key Bar (collapsible) -->
+<div class="api-bar" id="apiBar" role="region" aria-label="API Configuration">
+  <label for="apiKey">GROQ API KEY</label>
+  <input type="password" id="apiKey" placeholder="gsk_••••••••••••••••••••••" autocomplete="off" aria-describedby="apiStatusDesc" spellcheck="false">
+  <span class="api-status none" id="apiStatus" role="status" aria-live="polite">NOT SET</span>
+  <span id="apiStatusDesc" class="sr-only">Enter your Groq API key to enable AI route planning</span>
+  <button class="btn-hide-key" id="hideKeyBtn" onclick="toggleApiBar()" aria-label="Hide API key bar" aria-expanded="true" aria-controls="apiBar">Hide ▲</button>
+</div>
+
+<!-- Collapsed API key pill (shown when hidden) -->
+<div class="api-bar-collapsed" id="apiBarCollapsed" style="display:none">
+  <span id="apiCollapsedStatus" class="api-status ok" style="font-size:0.65rem">KEY LOADED</span>
+  <button class="btn-hide-key" onclick="toggleApiBar()" title="Show API key bar">API Key ▼</button>
+</div>
+
+<!-- Vehicle Import Bar -->
+<div class="fuel-import-bar" id="fuelImportBar">
+  <span class="fuel-import-label">🚗 Vehicle:</span>
+  <button class="btn-import-triplog" onclick="importFromTriplog()" title="Read vehicle data from LogMyJourney AU (same browser)">
+    ⬇ Import from LogMyJourney
+  </button>
+  <button class="btn-import-triplog" style="background:#f8fafc;border-color:#e2e8f0;color:#64748b" onclick="toggleManualFuel()" id="manualFuelBtn">
+    ✏️ Enter Manually
+  </button>
+  <span id="vehiclePillSlot"></span>
+
+  <!-- Manual entry row (hidden by default) -->
+  <div class="fuel-manual-row" id="manualFuelRow">
+    <div class="mini-field">
+      <label>Consumption</label>
+      <input type="number" id="manualL100" placeholder="12.5" step="0.1" min="1" max="50" value="15" oninput="updateManualVehicle()">
+      <label>L/100km</label>
+    </div>
+    <div class="mini-field">
+      <label>Tank</label>
+      <input type="number" id="manualTank" placeholder="80" step="1" min="10" max="400" value="80" oninput="updateManualVehicle()">
+      <label>L</label>
+    </div>
+    <div class="mini-field">
+      <label>Fuel type</label>
+      <select id="manualFuelType" onchange="updateManualVehicle()">
+        <option value="diesel">Diesel</option>
+        <option value="unleaded">Unleaded (91)</option>
+        <option value="premium">Premium (95/98)</option>
+        <option value="e10">E10</option>
+        <option value="lpg">LPG</option>
+      </select>
+    </div>
+    <div class="mini-field">
+      <label>Rig name</label>
+      <input type="text" id="manualRigName" placeholder="e.g. LandCruiser + van" style="width:150px" oninput="updateManualVehicle()">
+    </div>
+  </div>
+</div>
+
+<!-- Fuel price bar (shown when vehicle is set) -->
+<div class="fuel-price-row" id="fuelPriceRow" style="display:none">
+  <label>⛽ Fuel Price:</label>
+  <span style="color:var(--muted);font-size:0.8rem">$</span>
+  <input type="number" id="fuelPriceInput" value="2.15" step="0.01" min="0.50" max="5.00" oninput="recalcFuel()">
+  <span class="fuel-price-hint">per litre (AUD) · Updates all estimates instantly</span>
+  <button class="btn-recalc" onclick="recalcFuel()">↻ Recalculate</button>
+</div>
+
+<div class="app-body" id="main-content">
+
+  <!-- LEFT PANEL -->
+  <nav class="left-panel" aria-label="Trip planning controls">
+
+    <div class="panel-section">
+      <div class="section-label" id="tripTypeLabel">Trip Type</div>
+      <div class="trip-toggle" role="group" aria-labelledby="tripTypeLabel">
+        <button class="trip-btn active" data-type="biglap" onclick="setTripType(this)" aria-pressed="true"><span aria-hidden="true">🔄</span> Big Lap</button>
+        <button class="trip-btn" data-type="regional" onclick="setTripType(this)" aria-pressed="false"><span aria-hidden="true">📍</span> Regional Loop</button>
+        <button class="trip-btn" data-type="coastal" onclick="setTripType(this)" aria-pressed="false"><span aria-hidden="true">🌊</span> Coastal Run</button>
+        <button class="trip-btn" data-type="custom" onclick="setTripType(this)" aria-pressed="false"><span aria-hidden="true">✏️</span> Custom</button>
+      </div>
+
+      <div class="section-label" id="waypointLabel">Route Waypoints</div>
+      <p style="font-size:0.72rem;color:#475569;margin-bottom:8px;line-height:1.5">Add towns you want to drive <em>through</em> — e.g. add Clermont to route Gladstone → Clermont → Townsville.</p>
+      <div class="waypoint-list" id="waypointList" role="list" aria-labelledby="waypointLabel"></div>
+      <div class="wp-add-row">
+        <button class="btn-wp-add" onclick="addWaypoint()" aria-label="Add a via town to the route">
+          + Add Via Town
+        </button>
+      </div>
+      <div class="wp-count-hint" id="wpCountHint"></div>
+      <span id="destHint" class="sr-only">Build your route by adding towns to drive through between start and finish</span>
+
+      <!-- Hidden compat fields so existing planRoute code still works -->
+      <input type="hidden" id="startFrom" value="Sunshine Coast QLD">
+      <input type="hidden" id="destination" value="">
+
+      <label class="field-label" for="duration">Trip Duration</label>
+      <select id="duration">
+        <option value="weekend">Weekend (2–3 days)</option>
+        <option value="week">One week</option>
+        <option value="2weeks">Two weeks</option>
+        <option value="month">One month</option>
+        <option value="3months" selected>3 months</option>
+        <option value="6months">6 months</option>
+        <option value="12months">Full year (Big Lap)</option>
+      </select>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-label">Rig</div>
+      <div class="rig-row">
+        <div>
+          <label class="field-label" for="rigType">Rig Type</label>
+          <select id="rigType">
+            <option value="caravan">Caravan</option>
+            <option value="motorhome">Motorhome</option>
+            <option value="campervan">Campervan</option>
+            <option value="canopy">Ute Canopy / Swag</option>
+            <option value="5th-wheel">5th Wheeler</option>
+            <option value="popup">Pop-top</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="rigLength">Rig Length (approx)</label>
+          <select id="rigLength">
+            <option value="short">Under 6m</option>
+            <option value="medium" selected>6–8m</option>
+            <option value="long">8–10m</option>
+            <option value="xlong">10m+</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <label class="field-label" for="prefs">Preferences and Notes</label>
+        <textarea id="prefs" placeholder="e.g. prefer free camps, avoid steep grades, travelling with dogs, solar setup, need dump points every 3 days..."></textarea>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-label" id="poiGroupLabel">Points of Interest</div>
+      <div class="poi-grid" id="poiGrid" role="group" aria-labelledby="poiGroupLabel">
+
+        <label class="poi-chip checked" aria-label="Free camps and bush camping, selected">
+          <input type="checkbox" value="free camps and bush camping spots (WikiCamps, rest areas, station stays)" checked aria-label="Free camps">
+          <span class="chip-icon" aria-hidden="true">⛺</span> Free Camps
+        </label>
+
+        <label class="poi-chip checked" aria-label="Powered caravan parks and holiday parks, selected">
+          <input type="checkbox" value="powered caravan parks and holiday parks" checked aria-label="Caravan Parks">
+          <span class="chip-icon" aria-hidden="true">🏕️</span> Caravan Parks
+        </label>
+
+        <label class="poi-chip checked" aria-label="National parks and conservation areas, selected">
+          <input type="checkbox" value="national parks and conservation areas" checked aria-label="National Parks">
+          <span class="chip-icon" aria-hidden="true">🌿</span> National Parks
+        </label>
+
+        <label class="poi-chip checked" aria-label="Dump points and grey water disposal, selected">
+          <input type="checkbox" value="dump points and grey water disposal stations" checked aria-label="Dump Points">
+          <span class="chip-icon" aria-hidden="true">🚿</span> Dump Points
+        </label>
+
+        <label class="poi-chip" aria-label="Fuel stops and service stations">
+          <input type="checkbox" value="fuel stops and service stations" aria-label="Fuel Stops">
+          <span class="chip-icon" aria-hidden="true">⛽</span> Fuel Stops
+        </label>
+
+        <label class="poi-chip" aria-label="Roadhouses and outback diners">
+          <input type="checkbox" value="roadhouses and outback diners" aria-label="Roadhouses">
+          <span class="chip-icon" aria-hidden="true">🍳</span> Roadhouses
+        </label>
+
+        <label class="poi-chip checked" aria-label="Lookouts and scenic spots, selected">
+          <input type="checkbox" value="lookouts and scenic spots" checked aria-label="Lookouts">
+          <span class="chip-icon" aria-hidden="true">🏔️</span> Lookouts
+        </label>
+
+        <label class="poi-chip" aria-label="Swimming holes and waterholes">
+          <input type="checkbox" value="swimming holes and waterholes" aria-label="Swimming Holes">
+          <span class="chip-icon" aria-hidden="true">💧</span> Swimming
+        </label>
+
+        <label class="poi-chip" aria-label="Wineries and local produce">
+          <input type="checkbox" value="wineries and local produce" aria-label="Wineries">
+          <span class="chip-icon" aria-hidden="true">🍷</span> Wineries
+        </label>
+
+        <label class="poi-chip" aria-label="4WD tracks and off-road routes">
+          <input type="checkbox" value="4WD tracks and off-road routes" aria-label="4WD Tracks">
+          <span class="chip-icon" aria-hidden="true">🛤️</span> 4WD Tracks
+        </label>
+
+        <label class="poi-chip" aria-label="Heritage and history sites">
+          <input type="checkbox" value="heritage and history sites" aria-label="Heritage Sites">
+          <span class="chip-icon" aria-hidden="true">🏛️</span> Heritage
+        </label>
+
+        <label class="poi-chip" aria-label="Water tank refill points">
+          <input type="checkbox" value="water tank refill points and fresh water sources" aria-label="Water Refill">
+          <span class="chip-icon" aria-hidden="true">🚰</span> Water Refill
+        </label>
+
+      </div>
+    </div>
+
+    <div class="panel-section" style="border-bottom:none; flex:1">
+      <button class="btn-plan" id="planBtn" onclick="planRoute()" disabled aria-label="Plan my route using AI" aria-busy="false">
+        <span id="planBtnText">🗺 PLAN MY ROUTE</span>
+      </button>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-label" id="quickStartLabel">Quick Start Routes</div>
+      <div class="quick-routes" role="list" aria-labelledby="quickStartLabel">
+        <div role="listitem"><button class="quick-route-btn" onclick="quickRoute('biglap')">🔄 <span>Classic Big Lap (clockwise)</span><span class="qr-dist">~14,000km</span></button>
+        <div role="listitem"><button class="quick-route-btn" onclick="quickRoute('kimberley')">🌅 <span>Kimberley Explorer</span><span class="qr-dist">~3,500km</span></button>
+        <div role="listitem"><button class="quick-route-btn" onclick="quickRoute('outback-qld')">🌵 <span>Outback Queensland</span><span class="qr-dist">~2,800km</span></button>
+        <div role="listitem"><button class="quick-route-btn" onclick="quickRoute('great-ocean')">🌊 <span>Great Ocean Road &amp; SA</span><span class="qr-dist">~2,200km</span></button>
+        <div role="listitem"><button class="quick-route-btn" onclick="quickRoute('red-centre')">🔴 <span>Red Centre Loop</span><span class="qr-dist">~2,000km</span></button>
+      </div>
+    </div>
+
+  </nav><!-- /left-panel -->
+
+  <!-- RIGHT PANEL -->
+  <main class="right-panel" aria-label="Route planning results">
+
+    <div class="results-header">
+      <h2 class="results-title" id="resultsTitle">PLAN YOUR ADVENTURE</h2>
+      <div class="tab-row" role="tablist" aria-label="View options">
+        <button class="tab-btn active" id="tab-route" onclick="switchTab('route')" role="tab" aria-selected="true" aria-controls="routeResult">Route</button>
+        <button class="tab-btn" id="tab-chat" onclick="switchTab('chat')" role="tab" aria-selected="false" aria-controls="chatTab">AI Chat</button>
+      </div>
+    </div>
+
+    <div class="results-body" id="resultsBody">
+      <div class="state-empty" id="emptyState" role="status" aria-live="polite">
+        <div class="big-icon">🗺️</div>
+        <h3>Ready to Hit the Road</h3>
+        <p>Set your trip details, choose your POIs, then hit Plan My Route — or pick a quick start route above.</p>
+        <p style="margin-top:8px; font-size:0.7rem; color:var(--muted)">Powered by Groq AI · Australian routes &amp; free camps</p>
+      </div>
+
+      <div id="loadingState" style="display:none" role="status" aria-live="assertive" aria-label="Planning your route, please wait">
+        <div class="state-empty">
+          <div class="loading-spinner"></div>
+          <h3>Mapping Your Route</h3>
+          <p>The AI is plotting roads, camps, and points of interest across Australia…</p>
+        </div>
+      </div>
+
+      <div id="routeResult" style="display:none" class="result-content" role="region" aria-label="Planned route" aria-live="polite"></div>
+
+      <!-- Chat Tab (hidden initially) -->
+      <div id="chatTab" style="display:none" class="chat-panel" role="region" aria-label="AI Chat">
+        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat messages"></div>
+        <div class="chat-input-row">
+          <label for="chatInput" class="sr-only">Ask a question about your route</label>
+          <input type="text" id="chatInput" placeholder="Ask about camps, roads, timing, fuel gaps…" onkeydown="if(event.key==='Enter')sendChat()" aria-label="Chat message input">
+          <button class="btn-send" id="sendBtn" onclick="sendChat()" disabled aria-label="Send message">SEND</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="export-bar" role="toolbar" aria-label="Export options">
+      <span class="export-label">Export:</span>
+      <button class="btn-export" onclick="exportMarkdown()" aria-label="Export route as Markdown file"><span aria-hidden="true">📄</span> Markdown</button>
+      <button class="btn-export" onclick="exportJSON()" aria-label="Export route as JSON data file"><span aria-hidden="true">⚙️</span> JSON</button>
+      <button class="btn-export" onclick="copyItinerary()" aria-label="Copy route itinerary to clipboard"><span aria-hidden="true">📋</span> Copy Text</button>
+      <span class="powered-by">Groq AI · llama-3.3-70b-versatile</span>
+    </div>
+
+  </main><!-- /right-panel -->
+
+</div><!-- /app-body -->
+
+<script>
+
+// ══════════════════════════════════════════════════════════════════════
+// AUSTRALIAN FORMAT HELPERS
+// ══════════════════════════════════════════════════════════════════════
+
+// Currency: AUD with $ prefix, comma thousands, 2dp
+// e.g. 1234.5 → "$1,234.50"
+function auCurrency(val, decimals = 2) {
+  return val.toLocaleString('en-AU', {
+    style: 'currency',
+    currency: 'AUD',
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+// Currency compact — no cents for large amounts, always cents for small
+// e.g. 1234.5 → "$1,234.50"  |  0.45 → "$0.45"
+function auMoney(val) {
+  if (val >= 1000) return auCurrency(val, 0);
+  return auCurrency(val, 2);
+}
+
+// Fuel price per litre: 3dp, e.g. "$2.149/L"
+function auFuelPrice(val) {
+  return val.toLocaleString('en-AU', {
+    style: 'currency',
+    currency: 'AUD',
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
+  }) + '/L';
+}
+
+// Number with thousands comma, Australian locale
+// e.g. 14500 → "14,500"
+function auNum(val, decimals = 0) {
+  return val.toLocaleString('en-AU', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+// Distance: e.g. 320 → "320 km"  |  14500 → "14,500 km"
+function auKm(val) {
+  return auNum(val) + ' km';
+}
+
+// Litres: e.g. 45.3 → "45.3 L"
+function auLitres(val, dp = 1) {
+  return auNum(val, dp) + ' L';
+}
+
+// Date in Australian format DD/MM/YYYY
+function auDate(date) {
+  if (!(date instanceof Date)) date = new Date(date);
+  return date.toLocaleDateString('en-AU', {
+    day: '2-digit', month: '2-digit', year: 'numeric'
+  });
+}
+
+// Filename-safe AU date: DDMMYYYY
+function auDateFile(date) {
+  if (!(date instanceof Date)) date = new Date(date);
+  const d = String(date.getDate()).padStart(2,'0');
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const y = date.getFullYear();
+  return `${d}${m}${y}`;
+}
+
+
+// ══════════════════════════════════════════════════════════════════════
+// WAYPOINT BUILDER
+// ══════════════════════════════════════════════════════════════════════
+let waypoints = ['Sunshine Coast QLD', '', ''];  // [start, ...stops, end]
+const MAX_WAYPOINTS = 10;
+
+function renderWaypoints() {
+  const list = document.getElementById('waypointList');
+  const hint = document.getElementById('wpCountHint');
+  if (!list) return;
+
+  list.innerHTML = '';
+
+  waypoints.forEach((wp, i) => {
+    const isFirst = i === 0;
+    const isLast  = i === waypoints.length - 1;
+    const label   = isFirst ? 'START' : isLast ? 'END' : `VIA ${i}`;
+    const ph      = isFirst ? 'e.g. Gladstone QLD'
+                  : isLast  ? 'e.g. Townsville QLD'
+                  : 'e.g. Clermont QLD';
+
+    const row = document.createElement('div');
+    row.className = 'waypoint-row';
+    row.setAttribute('role', 'listitem');
+    row.innerHTML = `
+      <span class="wp-dot" aria-hidden="true"></span>
+      <div class="wp-input-wrap">
+        <span class="wp-label">${label}</span>
+        <input
+          class="wp-input"
+          type="text"
+          value="${escHtml(wp)}"
+          placeholder="${ph}"
+          aria-label="${label} location"
+          data-index="${i}"
+          oninput="updateWaypoint(${i}, this.value)"
+        >
+      </div>
+      ${(!isFirst && !isLast) ? `
+        <button class="btn-wp-remove" onclick="removeWaypoint(${i})" aria-label="Remove stop ${i}">×</button>
+      ` : ''}
+    `;
+    list.appendChild(row);
+  });
+
+  // Sync hidden compat fields
+  document.getElementById('startFrom').value  = waypoints[0] || '';
+  document.getElementById('destination').value = waypoints[waypoints.length - 1] || '';
+
+  // Update count hint
+  const stops = waypoints.length - 2;
+  const remaining = MAX_WAYPOINTS - waypoints.length;
+  hint.textContent = stops > 0
+    ? `${stops} via town${stops > 1 ? 's' : ''} added · ${remaining} more allowed`
+    : `Add towns to drive through on the way`;
+
+  // Show/hide add button
+  const addBtn = document.querySelector('.btn-wp-add');
+  if (addBtn) addBtn.style.display = waypoints.length >= MAX_WAYPOINTS ? 'none' : 'flex';
+}
+
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function updateWaypoint(i, val) {
+  waypoints[i] = val;
+  // Keep compat fields in sync without full re-render
+  if (i === 0) document.getElementById('startFrom').value = val;
+  if (i === waypoints.length - 1) document.getElementById('destination').value = val;
+}
+
+function addWaypoint() {
+  if (waypoints.length >= MAX_WAYPOINTS) return;
+  // Insert before the last (destination) entry
+  waypoints.splice(waypoints.length - 1, 0, '');
+  renderWaypoints();
+  // Focus the new input
+  const inputs = document.querySelectorAll('.wp-input');
+  if (inputs.length >= 2) inputs[inputs.length - 2].focus();
+}
+
+function removeWaypoint(i) {
+  if (waypoints.length <= 2) return;  // always keep start + end
+  waypoints.splice(i, 1);
+  renderWaypoints();
+}
+
+// Helper for planRoute: build a full route string from waypoints
+function getRouteString() {
+  const filled = waypoints.filter(w => w.trim());
+  if (filled.length <= 1) return filled[0] || '';
+  return filled.join(' → ');
+}
+
+// Helper: get start point
+function getStart() { return waypoints[0] || 'Sunshine Coast QLD'; }
+
+// Helper: get final destination
+function getEnd() { return waypoints[waypoints.length - 1] || ''; }
+
+// Helper: get middle stops only
+function getStops() { return waypoints.slice(1, -1).filter(w => w.trim()); }
+
+// Init on load
+renderWaypoints();
+
+// ──────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────
+let tripType = 'biglap';
+let lastPlanRaw = '';
+let lastPlanData = null;
+let chatHistory = [];
+let currentTab = 'route';
+
+// ──────────────────────────────────────────────
+// API KEY HANDLING
+// ──────────────────────────────────────────────
+const apiKeyInput = document.getElementById('apiKey');
+const apiStatus   = document.getElementById('apiStatus');
+const planBtn     = document.getElementById('planBtn');
+const sendBtn     = document.getElementById('sendBtn');
+
+// Load saved key
+const savedKey = localStorage.getItem('rv_groq_key');
+if (savedKey) { apiKeyInput.value = savedKey; updateApiStatus(true); }
+
+apiKeyInput.addEventListener('input', () => {
+  const val = apiKeyInput.value.trim();
+  if (val.startsWith('gsk_') && val.length > 20) {
+    localStorage.setItem('rv_groq_key', val);
+    updateApiStatus(true);
+  } else {
+    updateApiStatus(false);
+  }
+});
+
+function updateApiStatus(ok) {
+  if (ok) {
+    apiStatus.textContent = 'CONNECTED';
+    apiStatus.className = 'api-status ok';
+    planBtn.disabled = false;
+    sendBtn.disabled = false;
+    // Auto-collapse bar 1.5s after key is confirmed
+    if (!document.getElementById('apiBar')._autoHidden) {
+      document.getElementById('apiBar')._autoHidden = true;
+      setTimeout(() => {
+        if (localStorage.getItem('rv_apibar_hidden') !== '0') toggleApiBar();
+      }, 1500);
+    }
+  } else {
+    apiStatus.textContent = 'NOT SET';
+    apiStatus.className = 'api-status none';
+    planBtn.disabled = true;
+    sendBtn.disabled = true;
+  }
+}
+
+function getApiKey() { return apiKeyInput.value.trim(); }
+
+// ──────────────────────────────────────────────
+// TRIP TYPE
+// ──────────────────────────────────────────────
+function setTripType(btn) {
+  document.querySelectorAll('.trip-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-pressed', 'false');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
+  tripType = btn.dataset.type;
+
+  if (tripType === 'biglap') {
+    waypoints = [waypoints[0] || 'Sunshine Coast QLD', 'Full Australia loop'];
+    document.getElementById('duration').value = '12months';
+    renderWaypoints();
+  } else if (tripType === 'coastal') {
+    waypoints = [waypoints[0] || 'Sunshine Coast QLD', 'Australian coastline'];
+    renderWaypoints();
+  }
+}
+
+// ──────────────────────────────────────────────
+// POI CHIPS
+// ──────────────────────────────────────────────
+document.querySelectorAll('.poi-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('checked');
+    chip.querySelector('input').checked = chip.classList.contains('checked');
+  });
+});
+
+function getSelectedPOIs() {
+  return [...document.querySelectorAll('.poi-chip.checked input')].map(i => i.value).join(', ');
+}
+
+// ──────────────────────────────────────────────
+// QUICK ROUTES
+// ──────────────────────────────────────────────
+const quickRouteData = {
+  biglap: {
+    from: 'Sunshine Coast QLD',
+    stops: ['Brisbane QLD', 'Sydney NSW', 'Melbourne VIC', 'Adelaide SA', 'Perth WA', 'Broome WA', 'Darwin NT', 'Cairns QLD'],
+    dest: 'Sunshine Coast QLD',
+    dur: '12months', rig: 'caravan'
+  },
+  kimberley: {
+    from: 'Perth WA',
+    stops: ['Geraldton WA', 'Carnarvon WA', 'Broome WA', 'Fitzroy Crossing WA', 'Kununurra WA'],
+    dest: 'Perth WA',
+    dur: '3weeks', rig: 'caravan'
+  },
+  'outback-qld': {
+    from: 'Brisbane QLD',
+    stops: ['Toowoomba QLD', 'Roma QLD', 'Charleville QLD', 'Longreach QLD', 'Mt Isa QLD'],
+    dest: 'Brisbane QLD',
+    dur: '2weeks', rig: 'caravan'
+  },
+  'great-ocean': {
+    from: 'Melbourne VIC',
+    stops: ['Geelong VIC', 'Apollo Bay VIC', 'Port Fairy VIC', 'Adelaide SA'],
+    dest: 'Flinders Ranges SA',
+    dur: '2weeks', rig: 'caravan'
+  },
+  'red-centre': {
+    from: 'Alice Springs NT',
+    stops: ['Uluru NT', 'Kings Canyon NT'],
+    dest: 'Alice Springs NT',
+    dur: '2weeks', rig: 'caravan'
+  },
+};
+
+function quickRoute(key) {
+  const r = quickRouteData[key];
+  if (!r) return;
+  // Reset waypoints to just start + end
+  waypoints = [r.from, ...(r.stops || []), r.dest];
+  renderWaypoints();
+  document.getElementById('duration').value = r.dur || '2weeks';
+  document.getElementById('rigType').value  = r.rig || 'caravan';
+  planRoute();
+}
+
+// ──────────────────────────────────────────────
+// GROQ API CALL
+// ──────────────────────────────────────────────
+async function groqCall(messages, systemPrompt) {
+  const key = getApiKey();
+  if (!key) throw new Error('No API key set. Enter your Groq API key at the top of the page.');
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.7,
+      max_tokens: 3500,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ]
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const msg = err?.error?.message || `HTTP ${res.status}`;
+    throw new Error(`Groq API error: ${msg}`);
+  }
+  const data = await res.json();
+  if (!data.choices || !data.choices[0]) throw new Error('Empty response from Groq API');
+  return data.choices[0].message.content;
+}
+
+// ──────────────────────────────────────────────
+// PLAN ROUTE
+// ──────────────────────────────────────────────
+async function planRoute() {
+  if (!getApiKey()) return;
+
+  const from    = getStart() || 'Sunshine Coast QLD';
+  const dest    = getEnd()   || 'around Australia';
+  const stops   = getStops();
+  const routeStr = getRouteString() || `${from} to ${dest}`;
+  const dur     = document.getElementById('duration');
+  const durText = dur.options[dur.selectedIndex].text;
+  const rig     = document.getElementById('rigType');
+  const rigText = rig.options[rig.selectedIndex].text;
+  const rigLen  = document.getElementById('rigLength').value;
+  const prefs   = document.getElementById('prefs').value;
+  const pois    = getSelectedPOIs();
+
+  showLoading();
+
+  const systemPrompt = `You are an expert Australian caravan and RV travel planner with deep knowledge of:
+- Australian highways, back roads, outback tracks, and coastal routes
+- Free camping spots (WikiCamps, Campermate, rest areas, station stays)
+- Dump points and grey water facilities across Australia
+- Fuel gaps and remote driving considerations
+- National parks, state forests, and conservation areas
+- Seasonal considerations (wet season, fire season, heat, school holidays)
+- Rig suitability for different roads (GVM, turning radius, sealed vs unsealed)
+- Wildlife, road conditions, and safety considerations specific to Australia
+
+FORMATTING RULES — always follow these:
+- Currency: Australian dollars, AUD, use $ symbol (e.g. $2.15/L, $450)
+- Distances: kilometres only, abbreviated km (e.g. 320 km, 14,500 km)
+- Dates and seasons: Australian calendar — summer is Dec-Feb, dry season Apr-Oct
+- Date format when used: DD/MM/YYYY (e.g. 25/04/2025)
+- Fuel: litres (L), consumption in L/100km
+- Speeds: km/h
+- Temperatures: Celsius (°C)
+- Always use Australian English spelling (colour, centre, travelling, etc.)
+- Focus on practical, real information a caravanner would need.
+
+When planning routes, structure your response as valid JSON only (no markdown, no preamble) with this exact format:
+{
+  "routeName": "Name of the route",
+  "totalDistance": "e.g. 14,500 km",
+  "estimatedDays": "e.g. 90–120 days",
+  "bestSeason": "e.g. April–October",
+  "difficulty": "Easy / Moderate / Challenging",
+  "summary": "2-3 sentence overview",
+  "days": [
+    {
+      "dayRange": "Day 1–3",
+      "from": "Town A",
+      "to": "Town B",
+      "distance": "320 km",
+      "description": "Brief description of the leg",
+      "pois": [
+        { "type": "camp", "name": "POI name", "detail": "Brief detail" },
+        { "type": "fuel", "name": "...", "detail": "..." },
+        { "type": "sight", "name": "...", "detail": "..." }
+      ]
+    }
+  ],
+  "tips": ["tip 1", "tip 2", "tip 3", "tip 4"]
+}
+POI types: camp, fuel, dump, sight, food, water`;
+
+  const userMsg = `Plan a caravan trip:
+- FROM: ${from}
+- ROUTE: ${routeStr}${stops.length ? '\n- VIA TOWNS (must route through each in order, use each as a leg start/end point): ' + stops.join(' → ') : ''}
+- DURATION: ${durText}
+- RIG: ${rigText}, ${rigLen === 'xlong' ? '10m+' : rigLen === 'long' ? '8-10m' : rigLen === 'medium' ? '6-8m' : 'under 6m'}
+- PREFERENCES: ${prefs || 'none specified'}
+- POIs WANTED: ${pois || 'free camps, national parks, lookouts'}
+
+Create a practical day-by-day itinerary. Group days into logical legs (e.g. "Day 1–3"). Include 3–6 POIs per leg. Keep tips practical and Australian-specific.`;
+
+  try {
+    const raw = await groqCall([{ role: 'user', content: userMsg }], systemPrompt);
+    lastPlanRaw = raw;
+    
+    // Parse JSON
+    let plan;
+    try {
+      const jsonStr = raw.replace(/```json\n?|\n?```/g, '').trim();
+      plan = JSON.parse(jsonStr);
+    } catch {
+      // Fallback: extract JSON
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (match) plan = JSON.parse(match[0]);
+      else throw new Error('Could not parse route plan');
+    }
+
+    lastPlanData = plan;
+    // Seed chat history with context
+    chatHistory = [
+      { role: 'user', content: userMsg },
+      { role: 'assistant', content: raw }
+    ];
+
+    renderRoute(plan, from, dest);
+    document.getElementById('resultsTitle').textContent = plan.routeName || 'YOUR ROUTE';
+
+  } catch (err) {
+    showError(err.message);
+  }
+}
+
+// ──────────────────────────────────────────────
+// GOOGLE MAPS URL HELPERS
+// ──────────────────────────────────────────────
+
+// Directions: from → optional waypoints → to (driving, max 8 waypoints in free tier)
+function mapsDirectionsUrl(origin, destination, waypoints = []) {
+  const base = 'https://www.google.com/maps/dir/?api=1';
+  const params = new URLSearchParams({
+    origin,
+    destination,
+    travelmode: 'driving',
+  });
+  // Waypoints: pipe-separated list, max 8 for free Maps
+  const wps = waypoints.slice(0, 8);
+  if (wps.length) params.set('waypoints', wps.join('|'));
+  return `${base}&${params.toString()}`;
+}
+
+// Search for a single place
+function mapsSearchUrl(query) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query + ' Australia')}`;
+}
+
+// POI waypoints removed — POIs open as individual search links only
+
+// ──────────────────────────────────────────────
+// RENDER ROUTE
+// ──────────────────────────────────────────────
+function renderRoute(plan, from, dest) {
+  showTab('route');
+  document.getElementById('emptyState').style.display   = 'none';
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('chatTab').style.display      = 'none';
+
+  const el = document.getElementById('routeResult');
+  el.style.display = 'flex';
+
+  const diffColor = { Easy: 'var(--sage)', Moderate: 'var(--amber)', Challenging: 'var(--red-earth)' };
+
+  const daysHtml = (plan.days || []).map((d, i) => {
+    const legFrom = d.from || from;
+    const legTo   = d.to   || dest;
+
+    // Directions URL: from → to (direct leg)
+    const directionsUrl = mapsDirectionsUrl(
+      `${legFrom} Australia`,
+      `${legTo} Australia`
+    );
+
+    const pois = d.pois || [];
+
+    const poisHtml = pois.map(poi => {
+      const poiUrl = mapsSearchUrl(poi.name);
+      return `
+        <div class="poi-item ${poi.type}">
+          <div class="poi-icon">${poiIcon(poi.type)}</div>
+          <div class="poi-info">
+            <div class="poi-name">${poi.name || ''}</div>
+            <div class="poi-detail">${poi.detail || ''}</div>
+          </div>
+          <a class="poi-maps-link" href="${poiUrl}" target="_blank" rel="noopener" title="Find on Google Maps">
+            📍 Maps
+          </a>
+        </div>
+      `;
+    }).join('');
+
+    return `
+    <div class="day-card" id="dayCard${i}">
+      <div class="day-header" onclick="toggleDay(${i})">
+        <div class="day-num">${d.dayRange || `LEG ${i+1}`}</div>
+        <div class="day-route">${legFrom} → ${legTo}</div>
+        <div class="day-dist">${d.distance || ''}</div>
+        <div class="day-chevron">▾</div>
+      </div>
+      <div class="day-body">
+        <p>${d.description || ''}</p>
+
+        <!-- Maps action bar for the leg -->
+        <div class="maps-bar">
+          <span class="maps-label">🗺 Open in Maps:</span>
+          <a class="btn-maps route-link" href="${directionsUrl}" target="_blank" rel="noopener">
+            ↗ Drive ${legFrom} → ${legTo}
+          </a>
+
+          <button class="btn-qr"
+            data-leg="${legFrom} → ${legTo}"
+            data-direct="${directionsUrl}"
+            onclick="openQrModalFromBtn(this)"
+            aria-label="Show QR code for this leg">
+            ▣ QR Code
+          </button>
+        </div>
+
+        <div class="poi-list">${poisHtml}</div>
+      </div>
+    </div>
+    `;
+  }).join('');
+
+  // Full trip overview link (origin → final destination, no waypoints — avoids URL length issues)
+  // Thread all waypoints into the full trip Google Maps URL
+  const allWpMid = waypoints.slice(1, -1).filter(w => w.trim()).map(w => w + ' Australia');
+  const fullTripUrl = mapsDirectionsUrl(`${from} Australia`, `${dest} Australia`, allWpMid.slice(0, 8));
+
+  const tipsHtml = plan.tips?.length ? `
+    <div class="tips-card">
+      <h4>⚠️ Essential Tips for This Route</h4>
+      <ul>${plan.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+    </div>
+  ` : '';
+
+  el.innerHTML = `
+    <div class="route-summary">
+      <div class="route-name">${plan.routeName || 'YOUR ROUTE'}</div>
+      <div style="color:var(--muted);font-size:0.75rem;letter-spacing:1px;margin-bottom:6px">${from} → ${dest}</div>
+      <div class="route-meta">
+        <div class="route-stat"><div class="stat-val">${plan.totalDistance || '—'}</div><div class="stat-key">Total Distance</div></div>
+        <div class="route-stat"><div class="stat-val">${plan.estimatedDays || '—'}</div><div class="stat-key">Days</div></div>
+        <div class="route-stat"><div class="stat-val" style="color:${diffColor[plan.difficulty] || 'var(--ochre)'}">${plan.difficulty || '—'}</div><div class="stat-key">Difficulty</div></div>
+        <div class="route-stat"><div class="stat-val">${plan.bestSeason || '—'}</div><div class="stat-key">Best Season</div></div>
+      </div>
+      <div class="route-desc">${plan.summary || ''}</div>
+      <!-- Full trip Maps link -->
+      <div class="maps-bar" style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">
+        <span class="maps-label">Full trip:</span>
+        <a class="btn-maps route-link" href="${fullTripUrl}" target="_blank" rel="noopener">
+          🗺 Open Full Route in Google Maps
+        </a>
+      </div>
+    </div>
+    <div class="days-grid">${daysHtml}</div>
+    ${tipsHtml}
+  `;
+
+  // Open first day
+  if (plan.days?.length) toggleDay(0);
+}
+
+function poiIcon(type) {
+  return { camp:'⛺', fuel:'⛽', dump:'🚿', sight:'🏔️', food:'🍳', water:'💧' }[type] || '📍';
+}
+
+function toggleDay(i) {
+  const card = document.getElementById(`dayCard${i}`);
+  if (card) card.classList.toggle('open');
+}
+
+// ──────────────────────────────────────────────
+// CHAT TAB
+// ──────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
+  const activeTab = document.getElementById(`tab-${tab}`);
+  activeTab.classList.add('active');
+  activeTab.setAttribute('aria-selected', 'true');
+
+  if (tab === 'chat') {
+    showTab('chat');
+    // Ensure welcome message is present
+    const msgs = document.getElementById('chatMessages');
+    if (msgs && msgs.children.length === 0) {
+      addChatMsg('ai', "G\'day! I am your RV travel advisor. Ask me anything — free camps, fuel gaps, seasonal timing, road conditions, best spots to see. What do you need?");
+    }
+    // Focus the input
+    setTimeout(() => {
+      const inp = document.getElementById('chatInput');
+      if (inp) inp.focus();
+    }, 50);
+  } else if (lastPlanData) {
+    showTab('route');
+  } else {
+    showTab('empty');
+  }
+}
+
+function showTab(which) {
+  document.getElementById('emptyState').style.display   = which === 'empty'  ? 'flex'  : 'none';
+  document.getElementById('loadingState').style.display = which === 'loading' ? 'flex'  : 'none';
+  document.getElementById('routeResult').style.display  = which === 'route'   ? 'flex'  : 'none';
+  document.getElementById('chatTab').style.display      = which === 'chat'    ? 'flex'  : 'none';
+}
+
+function showLoading() {
+  document.getElementById('emptyState').style.display   = 'none';
+  document.getElementById('routeResult').style.display  = 'none';
+  document.getElementById('chatTab').style.display      = 'none';
+  document.getElementById('loadingState').style.display = 'flex';
+
+  const btn = document.getElementById('planBtnText');
+  btn.textContent = '⏳ PLANNING...';
+  planBtn.disabled = true;
+  planBtn.setAttribute('aria-busy', 'true');
+}
+
+function showError(msg) {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('emptyState').style.display   = 'flex';
+  document.getElementById('emptyState').innerHTML = `
+    <div class="big-icon">⚠️</div>
+    <h3>Something went wrong</h3>
+    <p>${msg}</p>
+    <p style="margin-top:8px; font-size:0.7rem; color:var(--muted)">Check your API key and try again.</p>
+  `;
+  const btn = document.getElementById('planBtnText');
+  btn.textContent = '🗺 PLAN MY ROUTE';
+  planBtn.disabled = false;
+}
+
+// Re-enable plan button after success
+function afterPlan() {
+  const btn = document.getElementById('planBtnText');
+  btn.textContent = '🗺 PLAN MY ROUTE';
+  planBtn.disabled = !getApiKey();
+  planBtn.setAttribute('aria-busy', 'false');
+}
+
+// Wrap renderRoute: reset plan button + auto fuel recalc
+const _renderRoute = renderRoute;
+window.renderRoute = function(...args) {
+  _renderRoute(...args);
+  afterPlan();
+  if (vehicle) setTimeout(recalcFuel, 80);
+};
+
+// ──────────────────────────────────────────────
+// CHAT
+// ──────────────────────────────────────────────
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  if (!input) return;
+  const msg = input.value.trim();
+  if (!msg) return;
+  if (!getApiKey()) {
+    addChatMsg('ai', 'Please enter your Groq API key at the top of the page first.');
+    return;
+  }
+  input.value = '';
+
+  addChatMsg('user', msg);
+  chatHistory.push({ role: 'user', content: msg });
+
+  sendBtn.disabled = true;
+  const thinkEl = addChatMsg('ai', '…', true);
+
+  const systemPrompt = `You are an expert Australian caravan travel advisor. Help with questions about camps, roads, fuel, timing, weather, road conditions, free camping spots, dump points, and other practical matters for Australian RV travel. Always use: AUD ($) for currency, km for distances, L/100km for fuel consumption, Celsius for temperature, DD/MM/YYYY for dates, and Australian English spelling. Be concise, practical, and use genuine Australian place names.`;
+
+  try {
+    const reply = await groqCall(chatHistory, systemPrompt);
+    chatHistory.push({ role: 'assistant', content: reply });
+    thinkEl.querySelector('.chat-bubble').textContent = reply;
+  } catch (err) {
+    thinkEl.querySelector('.chat-bubble').textContent = `Error: ${err.message}`;
+  }
+
+  sendBtn.disabled = !getApiKey();
+  document.getElementById('chatMessages').scrollTop = 9999;
+}
+
+function addChatMsg(role, text, temp = false) {
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  div.innerHTML = `
+    <div class="chat-avatar">${role === 'ai' ? '🗺' : '👤'}</div>
+    <div class="chat-bubble">${text}</div>
+  `;
+  document.getElementById('chatMessages').appendChild(div);
+  document.getElementById('chatMessages').scrollTop = 9999;
+  return div;
+}
+
+// ──────────────────────────────────────────────
+// EXPORT
+// ──────────────────────────────────────────────
+function getRouteText() {
+  if (!lastPlanData) return 'No route planned yet.';
+  const p = lastPlanData;
+  let out = `# ${p.routeName}\n\n`;
+  out += `**Distance:** ${p.totalDistance} | **Days:** ${p.estimatedDays} | **Difficulty:** ${p.difficulty}\n`;
+  out += `**Currency:** AUD\n`;
+  out += `**Best Season:** ${p.bestSeason}\n\n${p.summary}\n\n`;
+  out += `## Itinerary\n\n`;
+  (p.days || []).forEach(d => {
+    out += `### ${d.dayRange}: ${d.from} → ${d.to} (${d.distance})\n${d.description}\n`;
+    (d.pois || []).forEach(poi => { out += `- **${poi.type.toUpperCase()}** ${poi.name}: ${poi.detail}\n`; });
+    out += '\n';
+  });
+  if (p.tips?.length) { out += `## Tips\n`; p.tips.forEach(t => { out += `- ${t}\n`; }); }
+  return out;
+}
+
+function exportMarkdown() {
+  const text = getRouteText();
+  const blob = new Blob([text], { type: 'text/markdown' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `rv-route-${auDateFile(new Date())}.md`; a.click();
+}
+
+function exportJSON() {
+  if (!lastPlanData) return alert('Plan a route first.');
+  const blob = new Blob([JSON.stringify(lastPlanData, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `rv-route-${auDateFile(new Date())}.json`; a.click();
+}
+
+function copyItinerary() {
+  const text = getRouteText();
+  navigator.clipboard.writeText(text).then(() => alert('Itinerary copied to clipboard!'));
+}
+
+// Init chat welcome message
+// Chat init handled inside switchTab
+
+// ──────────────────────────────────────────────
+// QR CODE MODAL
+// ──────────────────────────────────────────────
+let _qrDirectUrl = '';
+const QR_SIZE = 180;
+
+function openQrModalFromBtn(btn) {
+  const leg    = btn.dataset.leg;
+  const direct = btn.dataset.direct;
+  openQrModal({ stopPropagation: ()=>{} }, leg, direct);
+}
+
+function openQrModal(evt, legLabel, directUrl) {
+  evt.stopPropagation();
+  _qrDirectUrl = directUrl;
+
+  document.getElementById('qrModalTitle').textContent = legLabel;
+  document.getElementById('qrDirectUrl').textContent  = directUrl;
+  document.getElementById('qrDirectOpen').href        = directUrl;
+
+  // Build QR for the direct route
+  buildQr('qrDirect', directUrl);
+
+  document.getElementById('qrOverlay').classList.add('open');
+}
+
+function buildQr(containerId, url) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = ''; // clear previous
+  try {
+    new QRCode(wrap, {
+      text: url,
+      width: QR_SIZE,
+      height: QR_SIZE,
+      colorDark: '#1a1410',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch(e) {
+    wrap.innerHTML = '<div style="width:180px;height:180px;display:flex;align-items:center;justify-content:center;color:#8b3a1a;font-size:0.75rem;">QR Error</div>';
+  }
+}
+
+// switchQrTab removed — single QR per leg
+
+function closeQrModal(evt) {
+  if (evt && evt.target !== document.getElementById('qrOverlay')) return;
+  document.getElementById('qrOverlay').classList.remove('open');
+}
+
+function downloadQr(containerId, filename) {
+  const wrap = document.getElementById(containerId);
+  const canvas = wrap.querySelector('canvas');
+  const img    = wrap.querySelector('img');
+  if (canvas) {
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = filename + '-qr.png';
+    a.click();
+  } else if (img) {
+    // QRCode.js sometimes renders an img instead of canvas
+    const a = document.createElement('a');
+    a.href = img.src;
+    a.download = filename + '-qr.png';
+    a.click();
+  }
+}
+
+function copyQrUrl(which) {
+  const url = _qrDirectUrl;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+// Close on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('qrOverlay').classList.remove('open');
+});
+
+
+// ══════════════════════════════════════════════════════════════════════
+// VEHICLE & FUEL CALCULATOR
+// ══════════════════════════════════════════════════════════════════════
+
+// Active vehicle profile
+let vehicle = null;  // { name, l100km, tankL, fuelType }
+
+// ── Import from LogMyJourney localStorage ─────────────────────────────
+function importFromTriplog() {
+  try {
+    const raw = localStorage.getItem('triplog_settings');
+    if (!raw) {
+      showFuelToast('⚠️ No LogMyJourney data found in this browser. Open LogMyJourney AU in this browser first, then try again.', 4000);
+      return;
+    }
+    const s = JSON.parse(raw);
+
+    // Build vehicle profile from triplog_settings fields
+    const model    = s.vehModel    || s.vehicleModel    || '';
+    const year     = s.vehYear     || s.vehicleYear     || '';
+    const fuelType = s.vehFuelType || s.vehicleFuelType || 'diesel';
+    const tankL    = parseFloat(s.vehTankSize || s.vehicleTankSize || 80);
+    // L/100km — triplog stores this in settings as fuelConsumption or targetL100
+    const l100raw  = s.fuelConsumption || s.targetL100 || s.l100km || 15;
+    const l100km   = parseFloat(l100raw);
+
+    // Caravan / towing adds ~30–40% fuel penalty automatically
+    const setupType = s.setupType || 'solo';
+    const towingPenalty = (setupType === 'caravan' || setupType === 'towing') ? 1.35 : 1.0;
+    const l100Adjusted = +(l100km * towingPenalty).toFixed(1);
+
+    const name = [year, model].filter(Boolean).join(' ') || 'Your Vehicle';
+
+    vehicle = {
+      name,
+      l100km: l100Adjusted,
+      l100Base: l100km,
+      tankL,
+      fuelType,
+      towing: towingPenalty > 1,
+      source: 'triplog'
+    };
+
+    renderVehiclePill();
+    showFuelPriceBar();
+    if (lastPlanData) recalcFuel();
+
+    const towMsg = vehicle.towing ? ' (+35% towing penalty applied)' : '';
+    showFuelToast('✅ Imported: ' + name + ' · ' + auNum(l100Adjusted,1) + ' L/100km' + towMsg, 3500);
+
+  } catch(e) {
+    showFuelToast('⚠️ Could not read LogMyJourney data: ' + e.message, 4000);
+  }
+}
+
+// ── Manual entry ──────────────────────────────────────────────────────
+function toggleManualFuel() {
+  const row = document.getElementById('manualFuelRow');
+  row.classList.toggle('open');
+  if (row.classList.contains('open')) updateManualVehicle();
+}
+
+function updateManualVehicle() {
+  const l100km   = parseFloat(document.getElementById('manualL100').value)    || 15;
+  const tankL    = parseFloat(document.getElementById('manualTank').value)     || 80;
+  const fuelType = document.getElementById('manualFuelType').value;
+  const name     = document.getElementById('manualRigName').value.trim()       || 'My Rig';
+  vehicle = { name, l100km, l100Base: l100km, tankL, fuelType, towing: false, source: 'manual' };
+  renderVehiclePill();
+  showFuelPriceBar();
+  if (lastPlanData) recalcFuel();
+}
+
+// ── Vehicle pill ──────────────────────────────────────────────────────
+function renderVehiclePill() {
+  if (!vehicle) { document.getElementById('vehiclePillSlot').innerHTML = ''; return; }
+  const icon = fuelTypeIcon(vehicle.fuelType);
+  const towTag = vehicle.towing ? ' <span style="color:var(--ochre)">+ towing</span>' : '';
+  document.getElementById('vehiclePillSlot').innerHTML = `
+    <span class="vehicle-pill">
+      <span class="pill-icon">${icon}</span>
+      <strong>${vehicle.name}</strong>
+      &nbsp;·&nbsp;${auNum(vehicle.l100km,1)} L/100km${towTag}
+      &nbsp;·&nbsp;${auLitres(vehicle.tankL,0)} tank
+      <button class="pill-clear" onclick="clearVehicle()" title="Clear vehicle">✕</button>
+    </span>
+  `;
+}
+
+function clearVehicle() {
+  vehicle = null;
+  document.getElementById('vehiclePillSlot').innerHTML = '';
+  document.getElementById('fuelPriceRow').style.display = 'none';
+  // Remove fuel cards from rendered route
+  document.querySelectorAll('.fuel-summary-card, .leg-fuel-detail, .leg-fuel-badge').forEach(el => el.remove());
+}
+
+function fuelTypeIcon(type) {
+  const icons = { diesel:'🛢️', unleaded:'⛽', premium:'⛽', e10:'🌿', lpg:'🔵', ev:'⚡', hybrid:'🔋' };
+  return icons[type] || '⛽';
+}
+
+function showFuelPriceBar() {
+  document.getElementById('fuelPriceRow').style.display = vehicle ? 'flex' : 'none';
+}
+
+// ── Main recalc ───────────────────────────────────────────────────────
+function recalcFuel() {
+  if (!vehicle || !lastPlanData) return;
+
+  const pricePerL = parseFloat(document.getElementById('fuelPriceInput').value) || 2.15;
+  const plan      = lastPlanData;
+  const legs      = plan.days || [];
+
+  // Parse km from distance strings like "320 km", "1,200km", "~800 km"
+  function parseKm(str) {
+    if (!str) return 0;
+    const n = parseFloat(str.replace(/[^0-9.]/g, ''));
+    return isNaN(n) ? 0 : n;
+  }
+
+  let totalKm    = 0;
+  let totalL     = 0;
+  let totalCost  = 0;
+  const legData  = [];
+
+  legs.forEach(leg => {
+    const km      = parseKm(leg.distance);
+    const litres  = +(km * vehicle.l100km / 100).toFixed(1);
+    const cost    = +(litres * pricePerL).toFixed(2);
+    const stops   = vehicle.tankL > 0 ? Math.ceil(litres / vehicle.tankL) : 1;
+    totalKm      += km;
+    totalL       += litres;
+    totalCost    += cost;
+    legData.push({ km, litres, cost, stops });
+  });
+
+  totalL    = +totalL.toFixed(1);
+  totalCost = +totalCost.toFixed(2);
+
+  // ── Render fuel summary card (insert/replace at top of route result) ──
+  renderFuelSummaryCard(plan, totalKm, totalL, totalCost, pricePerL);
+
+  // ── Inject per-leg badges + detail rows ──
+  legs.forEach((leg, i) => {
+    const d = legData[i];
+    if (!d || d.km === 0) return;
+
+    // Badge in day header
+    const header = document.querySelector(`#dayCard${i} .day-dist`);
+    if (header) {
+      let badge = header.parentElement.querySelector('.leg-fuel-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'leg-fuel-badge';
+        header.after(badge);
+      }
+      badge.textContent = `⛽ ${auMoney(d.cost)}`;
+    }
+
+    // Detail row inside day body (above maps bar)
+    const body = document.querySelector(`#dayCard${i} .day-body`);
+    if (body) {
+      let detail = body.querySelector('.leg-fuel-detail');
+      if (!detail) {
+        detail = document.createElement('div');
+        detail.className = 'leg-fuel-detail';
+        // Insert before the maps-bar
+        const mapsBar = body.querySelector('.maps-bar');
+        if (mapsBar) body.insertBefore(detail, mapsBar);
+        else body.prepend(detail);
+      }
+      const refillNote = d.stops > 1
+        ? `<span>🪣 <span class="lfd-val">~${d.stops} refills</span></span>`
+        : `<span>🪣 <span class="lfd-val">1 fill-up</span></span>`;
+      detail.innerHTML = `
+        <span>⛽ <span class="lfd-val">${auLitres(d.litres)}</span></span>
+        <span>💰 <span class="lfd-val">${auCurrency(d.cost)}</span></span>
+        <span>📏 <span class="lfd-val">${auKm(d.km)}</span></span>
+        ${refillNote}
+        <span style="color:var(--muted);font-size:0.68rem">@ ${auFuelPrice(pricePerL)} · ${auNum(vehicle.l100km,1)} L/100km</span>
+      `;
+    }
+  });
+}
+
+function renderFuelSummaryCard(plan, totalKm, totalL, totalCost, pricePerL) {
+  const el = document.getElementById('routeResult');
+  if (!el) return;
+
+  // Remove existing fuel card if present
+  const existing = el.querySelector('.fuel-summary-card');
+  if (existing) existing.remove();
+
+  const avgL100 = totalKm > 0 ? (totalL / totalKm * 100).toFixed(1) : vehicle.l100km;
+  const tankFills = vehicle.tankL > 0 ? Math.ceil(totalL / vehicle.tankL) : '—';
+  const costPerKm = totalKm > 0 ? (totalCost / totalKm) : null;
+  const towNote = vehicle.towing
+    ? `<span style="color:var(--ochre);font-size:0.65rem">⚠️ Includes 35% towing estimate (base: ${vehicle.l100Base} L/100km)</span>`
+    : '';
+
+  const card = document.createElement('div');
+  card.className = 'fuel-summary-card';
+  card.innerHTML = `
+    <div class="fuel-summary-header">
+      <div>
+        <div class="fuel-summary-title">⛽ Fuel Estimate · ${plan.routeName || 'Route'}</div>
+        <div class="fuel-summary-rig">${vehicle.name} · ${vehicle.l100km} L/100km · ${vehicle.tankL}L tank · $${pricePerL.toFixed(3)}/L</div>
+      </div>
+      ${towNote}
+    </div>
+    <div class="fuel-stats-grid">
+      <div class="fuel-stat-cell">
+        <div class="fuel-stat-val">${auKm(totalKm)}</div>
+        <div class="fuel-stat-key">Total Distance</div>
+      </div>
+      <div class="fuel-stat-cell">
+        <div class="fuel-stat-val">${auLitres(totalL)}</div>
+        <div class="fuel-stat-key">Total Fuel</div>
+      </div>
+      <div class="fuel-stat-cell">
+        <div class="fuel-stat-val">${auCurrency(totalCost)}</div>
+        <div class="fuel-stat-key">Est. Cost (AUD)</div>
+      </div>
+      <div class="fuel-stat-cell">
+        <div class="fuel-stat-val">${tankFills}</div>
+        <div class="fuel-stat-key">Fill-ups</div>
+      </div>
+      <div class="fuel-stat-cell">
+        <div class="fuel-stat-val">${costPerKm !== null ? auCurrency(costPerKm, 2)+'/km' : '—'}</div>
+        <div class="fuel-stat-key">Cost per km</div>
+      </div>
+      <div class="fuel-stat-cell">
+        <div class="fuel-stat-val">${auNum(+avgL100, 1)} L/100km</div>
+        <div class="fuel-stat-key">Avg Consumption</div>
+      </div>
+    </div>
+  `;
+
+  // Insert as first child of route result (before route-summary)
+  el.insertBefore(card, el.firstChild);
+}
+
+// ── Toast helper specific to fuel ─────────────────────────────────────
+function showFuelToast(msg, duration = 3000) {
+  let toast = document.getElementById('fuelToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'fuelToast';
+    toast.style.cssText = `
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 4px 16px rgba(0,0,0,0.12);
+      color:#1e293b;padding:10px 20px;border-radius:6px;
+      font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;
+      letter-spacing:0.5px;z-index:999;
+      box-shadow:0 8px 24px rgba(0,0,0,0.5);
+      transition:opacity 0.3s;max-width:90vw;text-align:center;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, duration);
+}
+
+
+
+
+// ── API KEY BAR TOGGLE ────────────────────────────────────────────────
+function toggleApiBar() {
+  const bar      = document.getElementById('apiBar');
+  const collapsed= document.getElementById('apiBarCollapsed');
+  const hidden   = bar.style.display === 'none';
+  bar.style.display       = hidden ? 'flex' : 'none';
+  collapsed.style.display = hidden ? 'none' : 'flex';
+  localStorage.setItem('rv_apibar_hidden', hidden ? '0' : '1');
+}
+
+// Restore hidden state on load
+(function() {
+  if (localStorage.getItem('rv_apibar_hidden') === '1') {
+    document.getElementById('apiBar').style.display       = 'none';
+    document.getElementById('apiBarCollapsed').style.display = 'flex';
+  }
+})();
+
+</script>
+
+<!-- QR Code Modal -->
+<div class="qr-overlay" id="qrOverlay" onclick="closeQrModal(event)" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+  <div class="qr-modal" id="qrModal">
+    <div class="qr-modal-header">
+      <div>
+        <div class="qr-modal-title" id="qrModalTitle">QR CODE</div>
+        <div class="qr-modal-sub" id="qrModalSub">Scan to open in Google Maps</div>
+      </div>
+      <button class="qr-close" onclick="closeQrModal()" aria-label="Close QR code dialog">✕</button>
+    </div>
+    <div class="qr-modal-body">
+      <!-- Single QR for the direct leg route -->
+      <div class="qr-pane active" id="qrPaneDirect">
+        <div class="qr-canvas-wrap"><div id="qrDirect"></div></div>
+        <div class="qr-url-box" id="qrDirectUrl"></div>
+        <div class="qr-actions">
+          <a class="btn-qr-action primary" id="qrDirectOpen" href="#" target="_blank" rel="noopener">🗺 Open in Maps</a>
+          <button class="btn-qr-action" onclick="downloadQr('qrDirect', 'route-leg')">⬇ Save QR</button>
+          <button class="btn-qr-action" onclick="copyQrUrl('direct')">📋 Copy URL</button>
+        </div>
+      </div>
+      <div class="qr-hint">📱 Scan with your phone camera or Google Maps app</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
