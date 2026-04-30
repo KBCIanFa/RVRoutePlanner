@@ -1825,6 +1825,81 @@
   /* Predictive input wrapper */
   .wp-input-wrap { position: relative; }
 
+
+  /* ── WAYPOINT AUTOCOMPLETE ── */
+  .wp-autocomplete {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+    z-index: 999;
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  .wp-autocomplete.open { display: block; animation: acDrop 0.12s ease; }
+  @keyframes acDrop {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .ac-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.82rem;
+    color: #1e293b;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .ac-item:last-child { border-bottom: none; }
+  .ac-item:hover, .ac-item.ac-active {
+    background: #fffbeb;
+    color: #78350f;
+  }
+  .ac-item .ac-state {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #b45309;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 3px;
+    padding: 1px 5px;
+    flex-shrink: 0;
+    min-width: 28px;
+    text-align: center;
+  }
+  .ac-item .ac-match { font-weight: 600; }
+  .ac-empty {
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-style: italic;
+  }
+  .ac-count {
+    padding: 5px 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    border-top: 1px solid #f1f5f9;
+    background: #fafafa;
+    border-radius: 0 0 8px 8px;
+  }
+
 </style>
 </head>
 <body>
@@ -1901,9 +1976,9 @@
 <div class="fuel-price-row" id="fuelPriceRow" style="display:none">
   <label>⛽ Fuel Price:</label>
   <span style="color:var(--muted);font-size:0.8rem">$</span>
-  <input type="number" id="fuelPriceInput" value="2.15" step="0.01" min="0.50" max="5.00" oninput="recalcFuel()">
+  <input type="number" id="fuelPriceInput" value="2.15" step="0.01" min="0.50" max="5.00" onchange="recalcFuelFromInput()" onkeydown="if(event.key==='Enter')recalcFuelFromInput()">
   <span class="fuel-price-hint">per litre (AUD) · Updates all estimates instantly</span>
-  <button class="btn-recalc" onclick="recalcFuel()">↻ Recalculate</button>
+  <button class="btn-recalc" id="recalcBtn" onclick="recalcFuelFromInput()">↻ Recalculate</button>
 </div>
 
 <div class="app-body" id="main-content">
@@ -2277,11 +2352,17 @@ function renderWaypoints() {
           placeholder="${ph}"
           aria-label="${label} location"
           data-index="${i}"
-          list="auTowns"
           autocomplete="off"
           spellcheck="false"
-          oninput="updateWaypoint(${i}, this.value)"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-haspopup="listbox"
+          oninput="onWpInput(this, ${i})"
+          onkeydown="onWpKeydown(event, this, ${i})"
+          onblur="onWpBlur(this)"
         >
+        <div class="wp-autocomplete" role="listbox" aria-label="${label} suggestions"></div>
       </div>
       ${isFirst ? `
         <button
@@ -2598,6 +2679,228 @@ function updateRigCapabilityBadge(profile, is4wd) {
 document.addEventListener ? (() => {
   // Defer until DOM ready via existing INIT block
 })() : null;
+
+
+// ══════════════════════════════════════════════════════════════════════
+// WAYPOINT AUTOCOMPLETE
+// ══════════════════════════════════════════════════════════════════════
+
+const AU_TOWNS = [
+  // QLD
+  'Brisbane QLD','Gold Coast QLD','Sunshine Coast QLD','Cairns QLD','Townsville QLD',
+  'Toowoomba QLD','Rockhampton QLD','Mackay QLD','Bundaberg QLD','Gladstone QLD',
+  'Hervey Bay QLD','Maryborough QLD','Gympie QLD','Longreach QLD','Mount Isa QLD',
+  'Charleville QLD','Roma QLD','Clermont QLD','Charters Towers QLD','Emerald QLD',
+  'Biloela QLD','Winton QLD','Barcaldine QLD','Cloncurry QLD','Normanton QLD',
+  'Weipa QLD','Cooktown QLD','Port Douglas QLD','Mission Beach QLD','Cardwell QLD',
+  'Ingham QLD','Bowen QLD','Proserpine QLD','Airlie Beach QLD','Yeppoon QLD',
+  'Agnes Water QLD','1770 QLD','Rainbow Beach QLD','Noosa QLD','Maryborough QLD',
+  'Kilcoy QLD','Nanango QLD','Chinchilla QLD','Miles QLD','Mitchell QLD',
+  'Cunnamulla QLD','Thargomindah QLD','Birdsville QLD','Bedourie QLD',
+  'Cape York QLD','Gulf of Carpentaria QLD','Fraser Island QLD','Whitsundays QLD',
+  'Daintree QLD','Great Barrier Reef QLD',
+  // NSW
+  'Sydney NSW','Newcastle NSW','Wollongong NSW','Coffs Harbour NSW','Port Macquarie NSW',
+  'Tamworth NSW','Dubbo NSW','Orange NSW','Wagga Wagga NSW','Albury NSW',
+  'Byron Bay NSW','Lismore NSW','Armidale NSW','Broken Hill NSW','Bourke NSW',
+  'Cobar NSW','Griffith NSW','Bathurst NSW','Mudgee NSW','Maitland NSW',
+  'Cessnock NSW','Ballina NSW','Tweed Heads NSW','Grafton NSW','Kempsey NSW',
+  'Taree NSW','Forster NSW','Batemans Bay NSW','Eden NSW','Merimbula NSW',
+  'Nowra NSW','Goulburn NSW','Yass NSW','Tumut NSW','Cooma NSW',
+  'Jindabyne NSW','Narrandera NSW','Deniliquin NSW','Hay NSW','Wilcannia NSW',
+  'Lightning Ridge NSW','Narrabri NSW','Moree NSW','Inverell NSW','Glen Innes NSW',
+  'Blue Mountains NSW','Hunter Valley NSW','Snowy Mountains NSW',
+  // VIC
+  'Melbourne VIC','Geelong VIC','Ballarat VIC','Bendigo VIC','Shepparton VIC',
+  'Wodonga VIC','Warrnambool VIC','Mildura VIC','Swan Hill VIC','Echuca VIC',
+  'Horsham VIC','Bairnsdale VIC','Sale VIC','Traralgon VIC','Apollo Bay VIC',
+  'Lorne VIC','Torquay VIC','Port Fairy VIC','Portland VIC','Hamilton VIC',
+  'Ararat VIC','Daylesford VIC','Castlemaine VIC','Mallacoota VIC','Orbost VIC',
+  'Omeo VIC','Bright VIC','Myrtleford VIC','Wangaratta VIC','Seymour VIC',
+  'Great Ocean Road VIC',
+  // SA
+  'Adelaide SA','Port Augusta SA','Port Lincoln SA','Whyalla SA','Mount Gambier SA',
+  'Ceduna SA','Coober Pedy SA','Port Pirie SA','Renmark SA','Bordertown SA',
+  'Murray Bridge SA','Victor Harbor SA','Gawler SA','Barossa Valley SA','Clare SA',
+  'Hawker SA','Parachilna SA','Lyndhurst SA','Marree SA','Innamincka SA',
+  'Flinders Ranges SA','Nullarbor SA',
+  // WA
+  'Perth WA','Fremantle WA','Mandurah WA','Bunbury WA','Busselton WA',
+  'Albany WA','Geraldton WA','Kalgoorlie WA','Broome WA','Port Hedland WA',
+  'Karratha WA','Exmouth WA','Carnarvon WA','Esperance WA','Merredin WA',
+  'Northam WA','Collie WA','Denmark WA','Margaret River WA','Pemberton WA',
+  'Norseman WA','Kununurra WA','Fitzroy Crossing WA','Derby WA','Newman WA',
+  'Tom Price WA','Monkey Mia WA','Kalbarri WA','Jurien Bay WA','Lancelin WA',
+  'Cervantes WA','Dongara WA','Meekatharra WA','Wiluna WA','Laverton WA',
+  'Leonora WA','Coolgardie WA','Eucla WA','Kimberley WA','Pilbara WA',
+  'Nullarbor WA',
+  // NT
+  'Darwin NT','Alice Springs NT','Katherine NT','Tennant Creek NT','Nhulunbuy NT',
+  'Uluru NT','Kings Canyon NT','Litchfield NT','Kakadu NT','Mataranka NT',
+  'Daly Waters NT','Three Ways NT','Camooweal QLD','Barkly Tablelands NT',
+  'Red Centre NT','Top End NT',
+  // TAS
+  'Hobart TAS','Launceston TAS','Devonport TAS','Burnie TAS','Queenstown TAS',
+  'Strahan TAS','Bicheno TAS','Swansea TAS','St Helens TAS','Port Arthur TAS',
+  'Huonville TAS','Geeveston TAS','Cradle Mountain TAS','Dove Lake TAS',
+  // ACT
+  'Canberra ACT',
+];
+
+// Parse state abbreviation from a town string e.g. "Cairns QLD" → "QLD"
+function getStateAbbr(town) {
+  const m = town.match(/(QLD|NSW|VIC|SA|WA|NT|TAS|ACT)/);
+  return m ? m[1] : '';
+}
+
+// Filter towns — matches anywhere in the name, case-insensitive
+function filterTowns(query, maxResults = 8) {
+  if (!query || query.length < 2) return [];
+  const q = query.toLowerCase().trim();
+  const exact = [], startsWith = [], contains = [];
+  for (const t of AU_TOWNS) {
+    const tl = t.toLowerCase();
+    const cityPart = tl.replace(/\s+(qld|nsw|vic|sa|wa|nt|tas|act)$/i, '').trim();
+    if (cityPart === q)                   exact.push(t);
+    else if (cityPart.startsWith(q))      startsWith.push(t);
+    else if (tl.includes(q))             contains.push(t);
+  }
+  return [...exact, ...startsWith, ...contains].slice(0, maxResults);
+}
+
+// Highlight matched portion of text
+function highlightMatch(text, query) {
+  const idx = text.toLowerCase().indexOf(query.toLowerCase());
+  if (idx === -1) return escHtml(text);
+  return escHtml(text.slice(0, idx))
+    + '<span class="ac-match">' + escHtml(text.slice(idx, idx + query.length)) + '</span>'
+    + escHtml(text.slice(idx + query.length));
+}
+
+// Show dropdown
+function showAcDropdown(input, matches, query) {
+  const wrap = input.closest('.wp-input-wrap');
+  const drop = wrap?.querySelector('.wp-autocomplete');
+  if (!drop) return;
+
+  if (matches.length === 0) {
+    drop.innerHTML = '<div class="ac-empty">No matching Australian locations found</div>';
+    drop.classList.add('open');
+    input.setAttribute('aria-expanded', 'true');
+    return;
+  }
+
+  drop.innerHTML = matches.map((town, idx) => {
+    const state = getStateAbbr(town);
+    const city  = town.replace(/\s+(QLD|NSW|VIC|SA|WA|NT|TAS|ACT)$/, '').trim();
+    return `<div class="ac-item" role="option" data-value="${escHtml(town)}" data-ac-idx="${idx}" onmousedown="selectAcItem(event, this)">
+      <span class="ac-state" aria-hidden="true">${state}</span>
+      <span>${highlightMatch(city, query)}</span>
+    </div>`;
+  }).join('') + (matches.length >= 8 ? `<div class="ac-count">Showing top 8 — type more to narrow</div>` : '');
+
+  drop.classList.add('open');
+  input.setAttribute('aria-expanded', 'true');
+}
+
+function hideAcDropdown(input) {
+  const wrap = input?.closest?.('.wp-input-wrap');
+  const drop = wrap?.querySelector('.wp-autocomplete');
+  if (drop) {
+    drop.classList.remove('open');
+    drop.querySelectorAll('.ac-item.ac-active').forEach(el => el.classList.remove('ac-active'));
+  }
+  input?.setAttribute?.('aria-expanded', 'false');
+}
+
+function selectAcItem(event, item) {
+  event.preventDefault(); // prevent blur from closing before we pick
+  const wrap  = item.closest('.wp-input-wrap');
+  const input = wrap?.querySelector('.wp-input');
+  if (!input) return;
+
+  const val = item.dataset.value;
+  input.value = val;
+
+  const idx = parseInt(input.dataset.index, 10);
+  updateWaypoint(idx, val);
+  hideAcDropdown(input);
+  input.focus();
+}
+
+// Input handler — replaces the old oninput updateWaypoint call
+function onWpInput(input, idx) {
+  const val = input.value;
+  updateWaypoint(idx, val);
+
+  const q = val.trim();
+  if (q.length < 2) { hideAcDropdown(input); return; }
+
+  const matches = filterTowns(q);
+  showAcDropdown(input, matches, q);
+}
+
+// Keyboard navigation
+function onWpKeydown(event, input, idx) {
+  const wrap = input.closest('.wp-input-wrap');
+  const drop = wrap?.querySelector('.wp-autocomplete');
+  if (!drop || !drop.classList.contains('open')) {
+    if (event.key === 'ArrowDown') onWpInput(input, idx); // open on down
+    return;
+  }
+
+  const items = [...drop.querySelectorAll('.ac-item')];
+  const active = drop.querySelector('.ac-item.ac-active');
+  const activeIdx = active ? parseInt(active.dataset.acIdx, 10) : -1;
+
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    const next = items[activeIdx + 1] || items[0];
+    items.forEach(i => i.classList.remove('ac-active'));
+    next?.classList.add('ac-active');
+    next?.scrollIntoView({ block: 'nearest' });
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    const prev = items[activeIdx - 1] || items[items.length - 1];
+    items.forEach(i => i.classList.remove('ac-active'));
+    prev?.classList.add('ac-active');
+    prev?.scrollIntoView({ block: 'nearest' });
+  } else if (event.key === 'Enter') {
+    event.preventDefault();
+    if (active) {
+      const val = active.dataset.value;
+      input.value = val;
+      updateWaypoint(idx, val);
+      hideAcDropdown(input);
+    }
+  } else if (event.key === 'Escape') {
+    hideAcDropdown(input);
+    input.blur();
+  } else if (event.key === 'Tab') {
+    // Accept active suggestion on Tab
+    if (active) {
+      input.value = active.dataset.value;
+      updateWaypoint(idx, input.value);
+    }
+    hideAcDropdown(input);
+  }
+}
+
+function onWpBlur(input) {
+  // Small delay so mousedown on ac-item fires first
+  setTimeout(() => hideAcDropdown(input), 150);
+}
+
+// Close all dropdowns when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.wp-input-wrap')) {
+    document.querySelectorAll('.wp-autocomplete.open').forEach(drop => {
+      drop.classList.remove('open');
+      const inp = drop.closest('.wp-input-wrap')?.querySelector('.wp-input');
+      inp?.setAttribute('aria-expanded', 'false');
+    });
+  }
+});
 
 // ──────────────────────────────────────────────
 // STATE
@@ -3427,10 +3730,45 @@ function showFuelPriceBar() {
 }
 
 // ── Main recalc ───────────────────────────────────────────────────────
+function recalcFuelFromInput() {
+  const input = document.getElementById('fuelPriceInput');
+  if (!input) return;
+
+  let val = parseFloat(input.value);
+
+  // Clamp to valid range
+  if (isNaN(val) || val < 0.5) { val = 0.50; input.value = '0.50'; }
+  if (val > 5.0)               { val = 5.00;  input.value = '5.00'; }
+  input.value = val.toFixed(2); // normalise display
+
+  if (!vehicle || !lastPlanData) {
+    showFuelToast('⚠️ Set your vehicle first, then recalculate.', 2500);
+    return;
+  }
+
+  recalcFuel();
+
+  // Button feedback
+  const btn = document.getElementById('recalcBtn');
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Updated';
+    btn.style.background = '#f0fdf4';
+    btn.style.borderColor = '#bbf7d0';
+    btn.style.color = '#166534';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 1800);
+  }
+}
+
 function recalcFuel() {
   if (!vehicle || !lastPlanData) return;
 
-  const pricePerL = parseFloat(document.getElementById('fuelPriceInput').value) || 2.15;
+  const pricePerL = parseFloat(document.getElementById('fuelPriceInput')?.value) || 2.15;
   const plan      = lastPlanData;
   const legs      = plan.days || [];
 
@@ -3780,77 +4118,6 @@ function reindexPois(dayIndex) {
 
 
 
-<!-- Australian towns datalist for waypoint predictive text -->
-<datalist id="auTowns">
-  <!-- QLD -->
-  <option value="Brisbane QLD"><option value="Gold Coast QLD"><option value="Sunshine Coast QLD">
-  <option value="Cairns QLD"><option value="Townsville QLD"><option value="Toowoomba QLD">
-  <option value="Rockhampton QLD"><option value="Mackay QLD"><option value="Bundaberg QLD">
-  <option value="Gladstone QLD"><option value="Hervey Bay QLD"><option value="Maryborough QLD">
-  <option value="Gympie QLD"><option value="Longreach QLD"><option value="Mount Isa QLD">
-  <option value="Charleville QLD"><option value="Roma QLD"><option value="Clermont QLD">
-  <option value="Charters Towers QLD"><option value="Emerald QLD"><option value="Biloela QLD">
-  <option value="Winton QLD"><option value="Barcaldine QLD"><option value="Cloncurry QLD">
-  <option value="Normanton QLD"><option value="Weipa QLD"><option value="Cooktown QLD">
-  <option value="Port Douglas QLD"><option value="Mission Beach QLD"><option value="Cardwell QLD">
-  <option value="Ingham QLD"><option value="Bowen QLD"><option value="Proserpine QLD">
-  <option value="Airlie Beach QLD"><option value="Yeppoon QLD"><option value="Agnes Water QLD">
-  <option value="1770 QLD"><option value="Rainbow Beach QLD"><option value="Noosa QLD">
-  <!-- NSW -->
-  <option value="Sydney NSW"><option value="Newcastle NSW"><option value="Wollongong NSW">
-  <option value="Coffs Harbour NSW"><option value="Port Macquarie NSW"><option value="Tamworth NSW">
-  <option value="Dubbo NSW"><option value="Orange NSW"><option value="Wagga Wagga NSW">
-  <option value="Albury NSW"><option value="Byron Bay NSW"><option value="Lismore NSW">
-  <option value="Armidale NSW"><option value="Broken Hill NSW"><option value="Bourke NSW">
-  <option value="Cobar NSW"><option value="Griffith NSW"><option value="Bathurst NSW">
-  <option value="Mudgee NSW"><option value="Maitland NSW"><option value="Cessnock NSW">
-  <option value="Ballina NSW"><option value="Tweed Heads NSW"><option value="Grafton NSW">
-  <option value="Kempsey NSW"><option value="Taree NSW"><option value="Forster NSW">
-  <option value="Batemans Bay NSW"><option value="Eden NSW"><option value="Merimbula NSW">
-  <!-- VIC -->
-  <option value="Melbourne VIC"><option value="Geelong VIC"><option value="Ballarat VIC">
-  <option value="Bendigo VIC"><option value="Shepparton VIC"><option value="Wodonga VIC">
-  <option value="Warrnambool VIC"><option value="Mildura VIC"><option value="Swan Hill VIC">
-  <option value="Echuca VIC"><option value="Horsham VIC"><option value="Bairnsdale VIC">
-  <option value="Sale VIC"><option value="Traralgon VIC"><option value="Apollo Bay VIC">
-  <option value="Lorne VIC"><option value="Torquay VIC"><option value="Port Fairy VIC">
-  <option value="Portland VIC"><option value="Hamilton VIC"><option value="Ararat VIC">
-  <!-- SA -->
-  <option value="Adelaide SA"><option value="Port Augusta SA"><option value="Port Lincoln SA">
-  <option value="Whyalla SA"><option value="Mount Gambier SA"><option value="Ceduna SA">
-  <option value="Coober Pedy SA"><option value="Port Pirie SA"><option value="Renmark SA">
-  <option value="Bordertown SA"><option value="Murray Bridge SA"><option value="Victor Harbor SA">
-  <option value="Gawler SA"><option value="Barossa Valley SA"><option value="Clare SA">
-  <!-- WA -->
-  <option value="Perth WA"><option value="Fremantle WA"><option value="Mandurah WA">
-  <option value="Bunbury WA"><option value="Busselton WA"><option value="Albany WA">
-  <option value="Geraldton WA"><option value="Kalgoorlie WA"><option value="Broome WA">
-  <option value="Port Hedland WA"><option value="Karratha WA"><option value="Exmouth WA">
-  <option value="Carnarvon WA"><option value="Esperance WA"><option value="Merredin WA">
-  <option value="Northam WA"><option value="Collie WA"><option value="Denmark WA">
-  <option value="Margaret River WA"><option value="Pemberton WA"><option value="Norseman WA">
-  <option value="Kununurra WA"><option value="Fitzroy Crossing WA"><option value="Derby WA">
-  <option value="Newman WA"><option value="Tom Price WA"><option value="Monkey Mia WA">
-  <!-- NT -->
-  <option value="Darwin NT"><option value="Alice Springs NT"><option value="Katherine NT">
-  <option value="Tennant Creek NT"><option value="Nhulunbuy NT"><option value="Uluru NT">
-  <option value="Kings Canyon NT"><option value="Litchfield NT"><option value="Kakadu NT">
-  <option value="Mataranka NT"><option value="Daly Waters NT"><option value="Three Ways NT">
-  <!-- TAS -->
-  <option value="Hobart TAS"><option value="Launceston TAS"><option value="Devonport TAS">
-  <option value="Burnie TAS"><option value="Queenstown TAS"><option value="Strahan TAS">
-  <option value="Bicheno TAS"><option value="Swansea TAS"><option value="St Helens TAS">
-  <option value="Port Arthur TAS"><option value="Huonville TAS"><option value="Geeveston TAS">
-  <!-- ACT -->
-  <option value="Canberra ACT">
-  <!-- Common destinations -->
-  <option value="Cape York QLD"><option value="Gulf of Carpentaria QLD">
-  <option value="Kimberley WA"><option value="Pilbara WA"><option value="Nullarbor SA/WA">
-  <option value="Red Centre NT"><option value="Top End NT"><option value="Flinders Ranges SA">
-  <option value="Great Ocean Road VIC"><option value="Snowy Mountains NSW">
-  <option value="Hunter Valley NSW"><option value="Blue Mountains NSW">
-  <option value="Daintree QLD"><option value="Fraser Island QLD"><option value="Whitsundays QLD">
-</datalist>
 
 </body>
 </html>
