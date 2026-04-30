@@ -1782,6 +1782,49 @@
     opacity: 1;
   }
 
+
+  /* ── ACCOMMODATION TYPE ── */
+  .accom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .accom-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #f8fafc;
+    border: 1px solid rgba(245,158,11,0.1);
+    border-radius: 6px;
+    padding: 7px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #475569;
+    user-select: none;
+    min-height: 40px;
+  }
+  .accom-chip input[type="radio"] { display: none; }
+  .accom-chip .chip-icon { font-size: 0.95rem; }
+  .accom-chip:hover {
+    border-color: #b45309;
+    color: #78350f;
+    background: #fffbeb;
+  }
+  .accom-chip.checked {
+    background: #fffbeb;
+    border-color: #b45309;
+    color: #78350f;
+    box-shadow: 0 0 0 2px rgba(180,83,9,0.12);
+  }
+
+
+  /* Predictive input wrapper */
+  .wp-input-wrap { position: relative; }
+
 </style>
 </head>
 <body>
@@ -1918,11 +1961,12 @@
       <div class="rig-row">
         <div>
           <label class="field-label" for="rigType">Rig Type</label>
-          <select id="rigType">
+          <select id="rigType" onchange="onRigTypeChange()">
             <option value="caravan">Caravan</option>
             <option value="motorhome">Motorhome</option>
             <option value="campervan">Campervan</option>
             <option value="canopy">Ute Canopy / Swag</option>
+            <option value="ute-caravan">Ute + Caravan (4WD)</option>
             <option value="5th-wheel">5th Wheeler</option>
             <option value="popup">Pop-top</option>
           </select>
@@ -2010,6 +2054,43 @@
         <label class="poi-chip" aria-label="Showgrounds and saleyards with overnight camping">
           <input type="checkbox" value="showgrounds and saleyards that allow overnight caravan camping" aria-label="Showgrounds">
           <span class="chip-icon" aria-hidden="true">🏟️</span> Showgrounds
+        </label>
+
+        <label class="poi-chip" aria-label="Waterfalls and gorges">
+          <input type="checkbox" value="waterfalls and gorges" aria-label="Waterfalls">
+          <span class="chip-icon" aria-hidden="true">🌊</span> Waterfalls
+        </label>
+
+        <label class="poi-chip" aria-label="Beaches and coastal access points">
+          <input type="checkbox" value="beaches and coastal access points" id="beachesPoi" aria-label="Beaches">
+          <span class="chip-icon" aria-hidden="true">🏖️</span> Beaches
+        </label>
+
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-label" id="accomLabel">Overnight Accommodation</div>
+      <div class="accom-grid" role="group" aria-labelledby="accomLabel">
+
+        <label class="accom-chip checked" aria-label="Free camps preferred">
+          <input type="radio" name="accomType" value="free camps and bush camping wherever possible" checked aria-label="Free camps">
+          <span class="chip-icon" aria-hidden="true">⛺</span> Free Camp
+        </label>
+
+        <label class="accom-chip" aria-label="Caravan parks preferred">
+          <input type="radio" name="accomType" value="powered caravan park sites at each stop" aria-label="Caravan Parks">
+          <span class="chip-icon" aria-hidden="true">🏕️</span> Caravan Park
+        </label>
+
+        <label class="accom-chip" aria-label="Hotel or motel for accommodation">
+          <input type="radio" name="accomType" value="hotel or motel accommodation at each major stop (not camping)" aria-label="Hotel/Motel">
+          <span class="chip-icon" aria-hidden="true">🏨</span> Hotel/Motel
+        </label>
+
+        <label class="accom-chip" aria-label="Mix of free camps and caravan parks">
+          <input type="radio" name="accomType" value="a mix of free camps and caravan parks" aria-label="Mixed">
+          <span class="chip-icon" aria-hidden="true">🔀</span> Mixed
         </label>
 
       </div>
@@ -2196,6 +2277,9 @@ function renderWaypoints() {
           placeholder="${ph}"
           aria-label="${label} location"
           data-index="${i}"
+          list="auTowns"
+          autocomplete="off"
+          spellcheck="false"
           oninput="updateWaypoint(${i}, this.value)"
         >
       </div>
@@ -2321,6 +2405,200 @@ function loadDefaultStart() {
   }
 }
 
+
+// ══════════════════════════════════════════════════════════════════════
+// RIG CAPABILITY SYSTEM
+// ══════════════════════════════════════════════════════════════════════
+
+// Maps rig type → capability profile
+const RIG_PROFILES = {
+  caravan: {
+    label:       'Caravan',
+    capability:  'sealed',        // sealed / graded / 4wd
+    maxGrade:    'moderate',
+    beachNote:   'beaches and coastal access points suitable for caravans — sealed or well-graded access only, no soft sand',
+    fourwdNote:  null,
+    roadNote:    'Sealed roads and well-maintained gravel only. Avoid steep grades, tight switchbacks, and soft surfaces. Max 10% grade recommended.',
+    accomNote:   'Ensure overnight stops have caravan-suitable access (no height restrictions, wide enough turnaround).',
+  },
+  motorhome: {
+    label:       'Motorhome',
+    capability:  'sealed',
+    maxGrade:    'moderate',
+    beachNote:   'beaches and coastal access points with sealed or firm gravel access — no soft sand or 4WD-only tracks',
+    fourwdNote:  null,
+    roadNote:    'Sealed roads preferred. Graded gravel acceptable if well-maintained. Avoid corrugated outback tracks. Watch for height and weight restrictions on bridges.',
+    accomNote:   'Ensure adequate turning radius at overnight stops. Self-contained.',
+  },
+  campervan: {
+    label:       'Campervan',
+    capability:  'graded',
+    maxGrade:    'moderate',
+    beachNote:   'beaches and coastal access points — 2WD accessible, firm ground preferred',
+    fourwdNote:  null,
+    roadNote:    'Most sealed and graded gravel roads suitable. Some rougher outback tracks accessible. Avoid deep sand, creek crossings, and heavily corrugated roads.',
+    accomNote:   'Flexible — can access most sites including free camps with graded access.',
+  },
+  canopy: {
+    label:       'Ute Canopy / Swag',
+    capability:  '4wd',
+    maxGrade:    'challenging',
+    beachNote:   'beaches and beach camping spots including 4WD beach access, remote coastal camps, and rock fishing locations — include soft-sand driving spots',
+    fourwdNote:  '4WD tracks, remote bush tracks, creek crossings, beach driving, and off-road adventure routes suitable for a 4WD ute',
+    roadNote:    'Full 4WD capability. Unsealed, corrugated, sandy, and remote tracks all accessible. Include remote outback routes, station tracks, and coastal 4WD areas.',
+    accomNote:   'Can camp anywhere — include remote free camps, station stays, beach camps, and bush camping with no facilities.',
+  },
+  'ute-caravan': {
+    label:       'Ute + Caravan (4WD)',
+    capability:  'graded-4wd',
+    maxGrade:    'moderate-challenging',
+    beachNote:   'beaches and coastal camping including hard-packed beach access and well-graded coastal tracks accessible with a 4WD towing a caravan',
+    fourwdNote:  'light 4WD tracks and well-maintained unsealed roads suitable for a 4WD towing a caravan — avoid deep sand, severe corrugations, and water crossings',
+    roadNote:    '4WD ute with caravan. Graded unsealed roads and light off-road tracks accessible, but caravan limits approach angles, departure angles and traction on steep grades. Prioritise well-maintained outback roads over technical 4WD tracks.',
+    accomNote:   'Caravan-capable free camps, station stays, and outback caravan parks. Can access many unsealed tracks but caravan limits extreme terrain.',
+  },
+  '5th-wheel': {
+    label:       '5th Wheeler',
+    capability:  'sealed',
+    maxGrade:    'easy-moderate',
+    beachNote:   'beaches and coastal access points with sealed or very firm gravel access — 5th wheelers require wide, high-clearance routes',
+    fourwdNote:  null,
+    roadNote:    'Sealed roads essential. 5th wheelers are large — avoid narrow roads, low bridges, and sharp bends. Check height and width restrictions carefully.',
+    accomNote:   'Ensure sites have adequate length (often 12m+), wide enough lanes, and level ground. Large turning circle needed.',
+  },
+  popup: {
+    label:       'Pop-top Caravan',
+    capability:  'sealed',
+    maxGrade:    'moderate',
+    beachNote:   'beaches and coastal access points suitable for caravans — sealed or firm gravel access',
+    fourwdNote:  null,
+    roadNote:    'Sealed and well-maintained gravel roads. Similar to standard caravan but lower profile helps in wind.',
+    accomNote:   'Standard caravan-suitable sites. Height advantage over full-profile caravans.',
+  },
+};
+
+function getRigProfile() {
+  const rigVal = document.getElementById('rigType')?.value || 'caravan';
+  return RIG_PROFILES[rigVal] || RIG_PROFILES.caravan;
+}
+
+// Returns true if rig has any 4WD capability
+function rigIs4WD() {
+  const cap = getRigProfile().capability;
+  return cap === '4wd' || cap === 'graded-4wd';
+}
+
+// Build the smart rig context block for the AI prompt
+function getRigContext() {
+  const profile = getRigProfile();
+  const rigType = document.getElementById('rigType')?.value || 'caravan';
+  const rigLen  = document.getElementById('rigLength')?.value || 'medium';
+  const lenStr  = rigLen === 'xlong' ? '10m+' : rigLen === 'long' ? '8–10m' : rigLen === 'medium' ? '6–8m' : 'under 6m';
+
+  let ctx = `- RIG: ${profile.label}, ${lenStr}
+- RIG ROAD CAPABILITY: ${profile.roadNote}
+- ACCOMMODATION SUITABILITY: ${profile.accomNote}`;
+
+  if (profile.fourwdNote) {
+    ctx += `
+- 4WD TRACKS: ${profile.fourwdNote}`;
+  } else {
+    ctx += `
+- 4WD TRACKS: NOT suitable — recommend sealed or well-graded roads only`;
+  }
+
+  return ctx;
+}
+
+// Build contextual POI overrides based on rig
+function getRigPOIContext(selectedPois) {
+  const profile = getRigProfile();
+  let pois = selectedPois;
+
+  // Replace generic beach value with rig-specific one
+  if (pois.includes('beaches and coastal access points')) {
+    pois = pois.replace(
+      'beaches and coastal access points',
+      profile.beachNote
+    );
+  }
+
+  // Replace generic 4WD value with rig-specific one
+  if (pois.includes('4WD tracks and off-road routes') && profile.fourwdNote) {
+    pois = pois.replace(
+      '4WD tracks and off-road routes',
+      profile.fourwdNote
+    );
+  }
+
+  return pois;
+}
+
+// ── Reactive rig change handler ───────────────────────────────────────
+function onRigTypeChange() {
+  const profile = getRigProfile();
+  const is4wd   = rigIs4WD();
+
+  // Auto-check 4WD tracks POI if 4WD capable
+  const fourwdChip = document.querySelector('.poi-chip input[aria-label="4WD Tracks"]');
+  if (fourwdChip) {
+    const chip = fourwdChip.closest('.poi-chip');
+    if (is4wd && !fourwdChip.checked) {
+      fourwdChip.checked = true;
+      chip.classList.add('checked');
+    }
+  }
+
+  // Update Beaches POI value to be rig-contextual
+  const beachInput = document.getElementById('beachesPoi');
+  if (beachInput) {
+    beachInput.value = profile.beachNote;
+    const chip = beachInput.closest('.poi-chip');
+    if (chip) chip.setAttribute('aria-label', is4wd ? 'Beaches and 4WD coastal access' : 'Beaches and coastal access points');
+  }
+
+  // Show a capability badge next to the rig label
+  updateRigCapabilityBadge(profile, is4wd);
+}
+
+function updateRigCapabilityBadge(profile, is4wd) {
+  let badge = document.getElementById('rigCapBadge');
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'rigCapBadge';
+    badge.style.cssText = `
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:0.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+      padding:3px 9px;border-radius:20px;margin-top:6px;
+      display:inline-flex;align-items:center;gap:5px;
+    `;
+    const rigLabel = document.querySelector('label[for="rigType"]');
+    if (rigLabel?.parentNode) rigLabel.parentNode.appendChild(badge);
+  }
+
+  if (is4wd) {
+    badge.textContent = '🛤️ 4WD Capable';
+    badge.style.background = '#f0fdf4';
+    badge.style.border = '1px solid #bbf7d0';
+    badge.style.color = '#166534';
+  } else if (profile.capability === 'graded') {
+    badge.textContent = '🔀 Gravel OK';
+    badge.style.background = '#eff6ff';
+    badge.style.border = '1px solid #bfdbfe';
+    badge.style.color = '#1e40af';
+  } else {
+    badge.textContent = '🛣️ Sealed Roads';
+    badge.style.background = '#f8fafc';
+    badge.style.border = '1px solid #e2e8f0';
+    badge.style.color = '#475569';
+  }
+}
+
+// Run on load to set initial badge
+document.addEventListener ? (() => {
+  // Defer until DOM ready via existing INIT block
+})() : null;
+
 // ──────────────────────────────────────────────
 // STATE
 // ──────────────────────────────────────────────
@@ -2403,12 +2681,24 @@ function setTripType(btn) {
 // ──────────────────────────────────────────────
 document.querySelectorAll('.poi-chip').forEach(chip => {
   const input = chip.querySelector('input');
-  // Listen on the INPUT change (fires after the browser toggles checked state)
-  // so we just sync the visual class to match — no double-toggle
   input.addEventListener('change', () => {
     chip.classList.toggle('checked', input.checked);
   });
 });
+
+// Accommodation type — radio group
+document.querySelectorAll('.accom-chip').forEach(chip => {
+  const input = chip.querySelector('input[type="radio"]');
+  input.addEventListener('change', () => {
+    document.querySelectorAll('.accom-chip').forEach(c => c.classList.remove('checked'));
+    chip.classList.add('checked');
+  });
+});
+
+function getAccomType() {
+  const sel = document.querySelector('.accom-chip.checked input[type="radio"]');
+  return sel ? sel.value : 'free camps and bush camping wherever possible';
+}
 
 function getSelectedPOIs() {
   return [...document.querySelectorAll('.poi-chip.checked input')].map(i => i.value).join(', ');
@@ -2519,6 +2809,7 @@ async function planRoute() {
   const rigLen  = document.getElementById('rigLength').value;
   const prefs   = document.getElementById('prefs').value;
   const pois    = getSelectedPOIs();
+  const accom   = getAccomType();
 
   showLoading();
 
@@ -2574,9 +2865,10 @@ POI types: camp, fuel, dump, sight, food, water`;
 - ROUTE: ${routeStr}${stops.length ? '\n- VIA TOWNS (must route through each in order, use each as a leg start/end point): ' + stops.join(' → ') : ''}
 - DEPARTURE DATE: ${startDateAU ? startDateAU + ' (' + startMonth + ')' : 'not specified — advise best season'}
 - DURATION: ${durText}
-- RIG: ${rigText}, ${rigLen === 'xlong' ? '10m+' : rigLen === 'long' ? '8-10m' : rigLen === 'medium' ? '6-8m' : 'under 6m'}
+${getRigContext()}
 - PREFERENCES: ${prefs || 'none specified'}
-- POIs WANTED: ${pois || 'free camps, national parks, lookouts'}
+- ACCOMMODATION: ${accom}
+- POIs WANTED: ${getRigPOIContext(pois || 'free camps, national parks, lookouts')}
 
 Create a practical day-by-day itinerary. Group days into logical legs (e.g. "Day 1–3"). Include 3–6 POIs per leg. Keep tips practical and Australian-specific.`;
 
@@ -3076,6 +3368,7 @@ function importFromTriplog() {
 
     const towMsg = vehicle.towing ? ' (+35% towing penalty applied)' : '';
     showFuelToast('✅ Imported: ' + name + ' · ' + auNum(l100Adjusted,1) + ' L/100km' + towMsg, 3500);
+    onRigTypeChange();  // update capability badge after import
 
   } catch(e) {
     showFuelToast('⚠️ Could not read LogMyJourney data: ' + e.message, 4000);
@@ -3406,6 +3699,7 @@ function setClearEnabled(enabled) {
 // ──────────────────────────────────────────────
 loadDefaultStart();
 renderWaypoints();
+onRigTypeChange();  // set initial rig badge + POI state
 
 // ──────────────────────────────────────────────
 // DELETE POI
@@ -3484,6 +3778,79 @@ function reindexPois(dayIndex) {
 </div>
 
 
+
+
+<!-- Australian towns datalist for waypoint predictive text -->
+<datalist id="auTowns">
+  <!-- QLD -->
+  <option value="Brisbane QLD"><option value="Gold Coast QLD"><option value="Sunshine Coast QLD">
+  <option value="Cairns QLD"><option value="Townsville QLD"><option value="Toowoomba QLD">
+  <option value="Rockhampton QLD"><option value="Mackay QLD"><option value="Bundaberg QLD">
+  <option value="Gladstone QLD"><option value="Hervey Bay QLD"><option value="Maryborough QLD">
+  <option value="Gympie QLD"><option value="Longreach QLD"><option value="Mount Isa QLD">
+  <option value="Charleville QLD"><option value="Roma QLD"><option value="Clermont QLD">
+  <option value="Charters Towers QLD"><option value="Emerald QLD"><option value="Biloela QLD">
+  <option value="Winton QLD"><option value="Barcaldine QLD"><option value="Cloncurry QLD">
+  <option value="Normanton QLD"><option value="Weipa QLD"><option value="Cooktown QLD">
+  <option value="Port Douglas QLD"><option value="Mission Beach QLD"><option value="Cardwell QLD">
+  <option value="Ingham QLD"><option value="Bowen QLD"><option value="Proserpine QLD">
+  <option value="Airlie Beach QLD"><option value="Yeppoon QLD"><option value="Agnes Water QLD">
+  <option value="1770 QLD"><option value="Rainbow Beach QLD"><option value="Noosa QLD">
+  <!-- NSW -->
+  <option value="Sydney NSW"><option value="Newcastle NSW"><option value="Wollongong NSW">
+  <option value="Coffs Harbour NSW"><option value="Port Macquarie NSW"><option value="Tamworth NSW">
+  <option value="Dubbo NSW"><option value="Orange NSW"><option value="Wagga Wagga NSW">
+  <option value="Albury NSW"><option value="Byron Bay NSW"><option value="Lismore NSW">
+  <option value="Armidale NSW"><option value="Broken Hill NSW"><option value="Bourke NSW">
+  <option value="Cobar NSW"><option value="Griffith NSW"><option value="Bathurst NSW">
+  <option value="Mudgee NSW"><option value="Maitland NSW"><option value="Cessnock NSW">
+  <option value="Ballina NSW"><option value="Tweed Heads NSW"><option value="Grafton NSW">
+  <option value="Kempsey NSW"><option value="Taree NSW"><option value="Forster NSW">
+  <option value="Batemans Bay NSW"><option value="Eden NSW"><option value="Merimbula NSW">
+  <!-- VIC -->
+  <option value="Melbourne VIC"><option value="Geelong VIC"><option value="Ballarat VIC">
+  <option value="Bendigo VIC"><option value="Shepparton VIC"><option value="Wodonga VIC">
+  <option value="Warrnambool VIC"><option value="Mildura VIC"><option value="Swan Hill VIC">
+  <option value="Echuca VIC"><option value="Horsham VIC"><option value="Bairnsdale VIC">
+  <option value="Sale VIC"><option value="Traralgon VIC"><option value="Apollo Bay VIC">
+  <option value="Lorne VIC"><option value="Torquay VIC"><option value="Port Fairy VIC">
+  <option value="Portland VIC"><option value="Hamilton VIC"><option value="Ararat VIC">
+  <!-- SA -->
+  <option value="Adelaide SA"><option value="Port Augusta SA"><option value="Port Lincoln SA">
+  <option value="Whyalla SA"><option value="Mount Gambier SA"><option value="Ceduna SA">
+  <option value="Coober Pedy SA"><option value="Port Pirie SA"><option value="Renmark SA">
+  <option value="Bordertown SA"><option value="Murray Bridge SA"><option value="Victor Harbor SA">
+  <option value="Gawler SA"><option value="Barossa Valley SA"><option value="Clare SA">
+  <!-- WA -->
+  <option value="Perth WA"><option value="Fremantle WA"><option value="Mandurah WA">
+  <option value="Bunbury WA"><option value="Busselton WA"><option value="Albany WA">
+  <option value="Geraldton WA"><option value="Kalgoorlie WA"><option value="Broome WA">
+  <option value="Port Hedland WA"><option value="Karratha WA"><option value="Exmouth WA">
+  <option value="Carnarvon WA"><option value="Esperance WA"><option value="Merredin WA">
+  <option value="Northam WA"><option value="Collie WA"><option value="Denmark WA">
+  <option value="Margaret River WA"><option value="Pemberton WA"><option value="Norseman WA">
+  <option value="Kununurra WA"><option value="Fitzroy Crossing WA"><option value="Derby WA">
+  <option value="Newman WA"><option value="Tom Price WA"><option value="Monkey Mia WA">
+  <!-- NT -->
+  <option value="Darwin NT"><option value="Alice Springs NT"><option value="Katherine NT">
+  <option value="Tennant Creek NT"><option value="Nhulunbuy NT"><option value="Uluru NT">
+  <option value="Kings Canyon NT"><option value="Litchfield NT"><option value="Kakadu NT">
+  <option value="Mataranka NT"><option value="Daly Waters NT"><option value="Three Ways NT">
+  <!-- TAS -->
+  <option value="Hobart TAS"><option value="Launceston TAS"><option value="Devonport TAS">
+  <option value="Burnie TAS"><option value="Queenstown TAS"><option value="Strahan TAS">
+  <option value="Bicheno TAS"><option value="Swansea TAS"><option value="St Helens TAS">
+  <option value="Port Arthur TAS"><option value="Huonville TAS"><option value="Geeveston TAS">
+  <!-- ACT -->
+  <option value="Canberra ACT">
+  <!-- Common destinations -->
+  <option value="Cape York QLD"><option value="Gulf of Carpentaria QLD">
+  <option value="Kimberley WA"><option value="Pilbara WA"><option value="Nullarbor SA/WA">
+  <option value="Red Centre NT"><option value="Top End NT"><option value="Flinders Ranges SA">
+  <option value="Great Ocean Road VIC"><option value="Snowy Mountains NSW">
+  <option value="Hunter Valley NSW"><option value="Blue Mountains NSW">
+  <option value="Daintree QLD"><option value="Fraser Island QLD"><option value="Whitsundays QLD">
+</datalist>
 
 </body>
 </html>
