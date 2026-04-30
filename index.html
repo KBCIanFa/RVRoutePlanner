@@ -2686,65 +2686,200 @@ document.addEventListener ? (() => {
 // ══════════════════════════════════════════════════════════════════════
 
 const AU_TOWNS = [
-  // QLD
-  'Brisbane QLD','Gold Coast QLD','Sunshine Coast QLD','Cairns QLD','Townsville QLD',
-  'Toowoomba QLD','Rockhampton QLD','Mackay QLD','Bundaberg QLD','Gladstone QLD',
-  'Hervey Bay QLD','Maryborough QLD','Gympie QLD','Longreach QLD','Mount Isa QLD',
-  'Charleville QLD','Roma QLD','Clermont QLD','Charters Towers QLD','Emerald QLD',
-  'Biloela QLD','Winton QLD','Barcaldine QLD','Cloncurry QLD','Normanton QLD',
-  'Weipa QLD','Cooktown QLD','Port Douglas QLD','Mission Beach QLD','Cardwell QLD',
-  'Ingham QLD','Bowen QLD','Proserpine QLD','Airlie Beach QLD','Yeppoon QLD',
-  'Agnes Water QLD','1770 QLD','Rainbow Beach QLD','Noosa QLD','Maryborough QLD',
-  'Kilcoy QLD','Nanango QLD','Chinchilla QLD','Miles QLD','Mitchell QLD',
-  'Cunnamulla QLD','Thargomindah QLD','Birdsville QLD','Bedourie QLD',
-  'Cape York QLD','Gulf of Carpentaria QLD','Fraser Island QLD','Whitsundays QLD',
-  'Daintree QLD','Great Barrier Reef QLD',
-  // NSW
-  'Sydney NSW','Newcastle NSW','Wollongong NSW','Coffs Harbour NSW','Port Macquarie NSW',
-  'Tamworth NSW','Dubbo NSW','Orange NSW','Wagga Wagga NSW','Albury NSW',
-  'Byron Bay NSW','Lismore NSW','Armidale NSW','Broken Hill NSW','Bourke NSW',
-  'Cobar NSW','Griffith NSW','Bathurst NSW','Mudgee NSW','Maitland NSW',
-  'Cessnock NSW','Ballina NSW','Tweed Heads NSW','Grafton NSW','Kempsey NSW',
-  'Taree NSW','Forster NSW','Batemans Bay NSW','Eden NSW','Merimbula NSW',
-  'Nowra NSW','Goulburn NSW','Yass NSW','Tumut NSW','Cooma NSW',
-  'Jindabyne NSW','Narrandera NSW','Deniliquin NSW','Hay NSW','Wilcannia NSW',
-  'Lightning Ridge NSW','Narrabri NSW','Moree NSW','Inverell NSW','Glen Innes NSW',
-  'Blue Mountains NSW','Hunter Valley NSW','Snowy Mountains NSW',
-  // VIC
-  'Melbourne VIC','Geelong VIC','Ballarat VIC','Bendigo VIC','Shepparton VIC',
-  'Wodonga VIC','Warrnambool VIC','Mildura VIC','Swan Hill VIC','Echuca VIC',
-  'Horsham VIC','Bairnsdale VIC','Sale VIC','Traralgon VIC','Apollo Bay VIC',
-  'Lorne VIC','Torquay VIC','Port Fairy VIC','Portland VIC','Hamilton VIC',
-  'Ararat VIC','Daylesford VIC','Castlemaine VIC','Mallacoota VIC','Orbost VIC',
-  'Omeo VIC','Bright VIC','Myrtleford VIC','Wangaratta VIC','Seymour VIC',
-  'Great Ocean Road VIC',
-  // SA
-  'Adelaide SA','Port Augusta SA','Port Lincoln SA','Whyalla SA','Mount Gambier SA',
-  'Ceduna SA','Coober Pedy SA','Port Pirie SA','Renmark SA','Bordertown SA',
-  'Murray Bridge SA','Victor Harbor SA','Gawler SA','Barossa Valley SA','Clare SA',
-  'Hawker SA','Parachilna SA','Lyndhurst SA','Marree SA','Innamincka SA',
-  'Flinders Ranges SA','Nullarbor SA',
-  // WA
-  'Perth WA','Fremantle WA','Mandurah WA','Bunbury WA','Busselton WA',
-  'Albany WA','Geraldton WA','Kalgoorlie WA','Broome WA','Port Hedland WA',
-  'Karratha WA','Exmouth WA','Carnarvon WA','Esperance WA','Merredin WA',
-  'Northam WA','Collie WA','Denmark WA','Margaret River WA','Pemberton WA',
-  'Norseman WA','Kununurra WA','Fitzroy Crossing WA','Derby WA','Newman WA',
-  'Tom Price WA','Monkey Mia WA','Kalbarri WA','Jurien Bay WA','Lancelin WA',
-  'Cervantes WA','Dongara WA','Meekatharra WA','Wiluna WA','Laverton WA',
-  'Leonora WA','Coolgardie WA','Eucla WA','Kimberley WA','Pilbara WA',
+
+  // ── QUEENSLAND ───────────────────────────────────────────────────────
+  // Sunshine Coast & Hinterland
+  'Sunshine Coast QLD','Caloundra QLD','Maroochydore QLD','Mooloolaba QLD',
+  'Nambour QLD','Yandina QLD','Eumundi QLD','Noosa QLD','Noosaville QLD',
+  'Noosa Heads QLD','Tewantin QLD','Pomona QLD','Cooroy QLD','Kin Kin QLD',
+  'Maleny QLD','Montville QLD','Mapleton QLD','Kenilworth QLD','Bli Bli QLD',
+  'Mudjimba QLD','Coolum Beach QLD','Peregian Beach QLD','Castaways Beach QLD',
+
+  // Brisbane & surrounds
+  'Brisbane QLD','Gold Coast QLD','Ipswich QLD','Logan QLD','Redcliffe QLD',
+  'Caboolture QLD','Bribie Island QLD','Redland Bay QLD','Cleveland QLD',
+  'Wynnum QLD','Manly QLD','Sandgate QLD','Strathpine QLD',
+
+  // SE QLD & Hinterland
+  'Toowoomba QLD','Gatton QLD','Laidley QLD','Lowood QLD','Esk QLD',
+  'Kilcoy QLD','Nanango QLD','Kingaroy QLD','Murgon QLD','Wondai QLD',
+  'Gympie QLD','Tin Can Bay QLD','Rainbow Beach QLD','Maryborough QLD',
+  'Hervey Bay QLD','Childers QLD','Gin Gin QLD','Biggenden QLD',
+
+  // Fraser Coast & Wide Bay
+  'Bundaberg QLD','Bargara QLD','Agnes Water QLD','1770 QLD','Miriam Vale QLD',
+  'Gladstone QLD','Boyne Island QLD','Tannum Sands QLD','Calliope QLD',
+  'Mount Larcom QLD','Rockhampton QLD','Yeppoon QLD','Emu Park QLD',
+  'Byfield QLD','Marlborough QLD',
+
+  // Central QLD
+  'Emerald QLD','Clermont QLD','Springsure QLD','Blackwater QLD','Moura QLD',
+  'Biloela QLD','Banana QLD','Theodore QLD','Taroom QLD','Miles QLD',
+  'Roma QLD','Mitchell QLD','Injune QLD','Surat QLD','St George QLD',
+
+  // Darling Downs & Southwest
+  'Toowoomba QLD','Dalby QLD','Chinchilla QLD','Warwick QLD','Stanthorpe QLD',
+  'Goondiwindi QLD','Dirranbandi QLD','Cunnamulla QLD','Charleville QLD',
+  'Quilpie QLD','Thargomindah QLD','Hungerford QLD','Longreach QLD',
+  'Barcaldine QLD','Blackall QLD','Tambo QLD','Augathella QLD',
+
+  // North QLD
+  'Townsville QLD','Charters Towers QLD','Ayr QLD','Home Hill QLD',
+  'Bowen QLD','Proserpine QLD','Airlie Beach QLD','Cannonvale QLD',
+  'Mackay QLD','Sarina QLD','Collinsville QLD','Moranbah QLD',
+
+  // Far North QLD
+  'Cairns QLD','Port Douglas QLD','Mossman QLD','Daintree QLD',
+  'Cape Tribulation QLD','Cooktown QLD','Mareeba QLD','Atherton QLD',
+  'Ravenshoe QLD','Tully QLD','Innisfail QLD','Mission Beach QLD',
+  'Cardwell QLD','Ingham QLD','Palm Island QLD','Magnetic Island QLD',
+
+  // Outback & Gulf
+  'Mount Isa QLD','Cloncurry QLD','McKinlay QLD','Julia Creek QLD',
+  'Richmond QLD','Hughendon QLD','Winton QLD','Barcaldine QLD',
+  'Birdsville QLD','Bedourie QLD','Boulia QLD','Doomadgee QLD',
+  'Normanton QLD','Karumba QLD','Burketown QLD','Camooweal QLD',
+  'Weipa QLD','Bamaga QLD','Cape York QLD',
+
+  // Islands & Coasts
+  'Fraser Island QLD','Whitsundays QLD','Great Barrier Reef QLD',
+  'Gulf of Carpentaria QLD',
+
+  // ── NEW SOUTH WALES ──────────────────────────────────────────────────
+  // Sydney & surrounds
+  'Sydney NSW','Parramatta NSW','Liverpool NSW','Penrith NSW','Campbelltown NSW',
+  'Gosford NSW','Wyong NSW','Wollongong NSW','Shellharbour NSW','Kiama NSW',
+  'Nowra NSW','Ulladulla NSW','Batemans Bay NSW',
+
+  // Hunter & Central Coast
+  'Newcastle NSW','Maitland NSW','Cessnock NSW','Singleton NSW','Muswellbrook NSW',
+  'Scone NSW','Merriwa NSW','Dungog NSW','Raymond Terrace NSW',
+
+  // North Coast NSW
+  'Port Macquarie NSW','Kempsey NSW','Nambucca Heads NSW','Coffs Harbour NSW',
+  'Grafton NSW','Lismore NSW','Ballina NSW','Byron Bay NSW','Murwillumbah NSW',
+  'Tweed Heads NSW','Casino NSW','Kyogle NSW','Taree NSW','Forster NSW',
+  'Tuncurry NSW','Harrington NSW','Macksville NSW','South West Rocks NSW',
+  'Hat Head NSW','Crescent Head NSW',
+
+  // New England & Northwest
+  'Tamworth NSW','Armidale NSW','Glen Innes NSW','Inverell NSW','Tenterfield NSW',
+  'Narrabri NSW','Moree NSW','Walgett NSW','Collarenebri NSW','Lightning Ridge NSW',
+
+  // Central Tablelands & West
+  'Bathurst NSW','Orange NSW','Lithgow NSW','Mudgee NSW','Gulgong NSW',
+  'Dubbo NSW','Parkes NSW','Forbes NSW','Cowra NSW','Grenfell NSW',
+  'Young NSW','Temora NSW','Cootamundra NSW','Wagga Wagga NSW',
+
+  // Riverina & Far West
+  'Griffith NSW','Leeton NSW','Narrandera NSW','Hay NSW','Deniliquin NSW',
+  'Albury NSW','Corowa NSW','Tocumwal NSW','Finley NSW','Jerilderie NSW',
+  'Broken Hill NSW','Wilcannia NSW','White Cliffs NSW','Tibooburra NSW',
+  'Bourke NSW','Cobar NSW','Nyngan NSW',
+
+  // South Coast NSW
+  'Batemans Bay NSW','Moruya NSW','Narooma NSW','Bega NSW','Merimbula NSW',
+  'Eden NSW','Tathra NSW','Bermagui NSW','Broulee NSW','Mollymook NSW',
+
+  // ACT & Surrounds
+  'Canberra ACT','Queanbeyan NSW','Goulburn NSW','Yass NSW','Cooma NSW',
+  'Jindabyne NSW','Tumut NSW','Adaminaby NSW','Snowy Mountains NSW',
+
+  // ── VICTORIA ─────────────────────────────────────────────────────────
+  // Melbourne & surrounds
+  'Melbourne VIC','Geelong VIC','Ballarat VIC','Bendigo VIC','Frankston VIC',
+  'Dandenong VIC','Ringwood VIC','Werribee VIC','Sunbury VIC','Melton VIC',
+
+  // Great Ocean Road & SW
+  'Torquay VIC','Lorne VIC','Apollo Bay VIC','Port Campbell VIC','Warrnambool VIC',
+  'Port Fairy VIC','Portland VIC','Hamilton VIC','Coleraine VIC','Casterton VIC',
+
+  // Central & North
+  'Castlemaine VIC','Kyneton VIC','Daylesford VIC','Maryborough VIC',
+  'Ararat VIC','Stawell VIC','Horsham VIC','Nhill VIC','Dimboola VIC',
+  'Ouyen VIC','Mildura VIC','Red Cliffs VIC','Swan Hill VIC','Kerang VIC',
+
+  // Northeast VIC
+  'Wangaratta VIC','Wodonga VIC','Albury-Wodonga VIC','Beechworth VIC',
+  'Bright VIC','Myrtleford VIC','Mt Beauty VIC','Falls Creek VIC',
+  'Mount Hotham VIC','Mansfield VIC','Benalla VIC','Seymour VIC',
+
+  // Gippsland & East
+  'Traralgon VIC','Sale VIC','Bairnsdale VIC','Paynesville VIC','Lakes Entrance VIC',
+  'Orbost VIC','Mallacoota VIC','Omeo VIC','Buchan VIC','Bruthen VIC',
+  'Echuca VIC','Shepparton VIC','Cobram VIC','Yarrawonga VIC','Corryong VIC',
+
+  // ── SOUTH AUSTRALIA ──────────────────────────────────────────────────
+  'Adelaide SA','Gawler SA','Murray Bridge SA','Victor Harbor SA','Goolwa SA',
+  'Port Elliot SA','Yankalilla SA','Cape Jervis SA','Kangaroo Island SA',
+  'Barossa Valley SA','Tanunda SA','Nuriootpa SA','Clare SA','Port Pirie SA',
+  'Kadina SA','Wallaroo SA','Moonta SA','Port Augusta SA','Quorn SA',
+  'Hawker SA','Parachilna SA','Blinman SA','Leigh Creek SA','Lyndhurst SA',
+  'Marree SA','Innamincka SA','Coober Pedy SA','Glendambo SA','Pimba SA',
+  'Whyalla SA','Port Lincoln SA','Coffin Bay SA','Streaky Bay SA','Ceduna SA',
+  'Yalata SA','Nullarbor SA','Penong SA','Fowlers Bay SA',
+  'Renmark SA','Berri SA','Loxton SA','Waikerie SA','Blanchetown SA',
+  'Tailem Bend SA','Bordertown SA','Naracoorte SA','Kingston SE SA',
+  'Robe SA','Beachport SA','Mount Gambier SA','Millicent SA','Penola SA',
+  'Coonawarra SA','Flinders Ranges SA',
+
+  // ── WESTERN AUSTRALIA ────────────────────────────────────────────────
+  // Perth & surrounds
+  'Perth WA','Fremantle WA','Mandurah WA','Rockingham WA','Armadale WA',
+  'Midland WA','Joondalup WA','Wanneroo WA','Northam WA','York WA',
+  'Toodyay WA','Mundaring WA','Kalamunda WA',
+
+  // Southwest WA
+  'Bunbury WA','Busselton WA','Dunsborough WA','Yallingup WA','Cowaramup WA',
+  'Margaret River WA','Augusta WA','Pemberton WA','Manjimup WA','Bridgetown WA',
+  'Collie WA','Harvey WA','Australind WA','Donnybrook WA',
+
+  // South Coast WA
+  'Albany WA','Denmark WA','Walpole WA','Nornalup WA','Peaceful Bay WA',
+  'Bremer Bay WA','Hopetoun WA','Esperance WA','Norseman WA',
+
+  // Goldfields & Wheatbelt
+  'Kalgoorlie WA','Coolgardie WA','Kambalda WA','Menzies WA','Merredin WA',
+  'Southern Cross WA','Hyden WA','Wave Rock WA','Bruce Rock WA','Narrogin WA',
+
+  // Mid West & Midwest Coast
+  'Geraldton WA','Dongara WA','Jurien Bay WA','Cervantes WA','Lancelin WA',
+  'Kalbarri WA','Denham WA','Monkey Mia WA','Carnarvon WA','Shark Bay WA',
+  'Meekatharra WA','Mount Magnet WA','Cue WA','Yalgoo WA',
+
+  // Gascoyne & Pilbara
+  'Exmouth WA','Coral Bay WA','Ningaloo WA','Tom Price WA','Newman WA',
+  'Karratha WA','Dampier WA','Port Hedland WA','Marble Bar WA','Nullagine WA',
+
+  // Kimberley WA
+  'Broome WA','Derby WA','Fitzroy Crossing WA','Halls Creek WA',
+  'Kununurra WA','Wyndham WA','El Questro WA','Gibb River Road WA',
+  'Kimberley WA','Pilbara WA',
+
+  // Outback WA
+  'Wiluna WA','Laverton WA','Leonora WA','Meekatharra WA','Eucla WA',
   'Nullarbor WA',
-  // NT
-  'Darwin NT','Alice Springs NT','Katherine NT','Tennant Creek NT','Nhulunbuy NT',
-  'Uluru NT','Kings Canyon NT','Litchfield NT','Kakadu NT','Mataranka NT',
-  'Daly Waters NT','Three Ways NT','Camooweal QLD','Barkly Tablelands NT',
+
+  // ── NORTHERN TERRITORY ───────────────────────────────────────────────
+  'Darwin NT','Palmerston NT','Litchfield NT','Batchelor NT','Adelaide River NT',
+  'Pine Creek NT','Katherine NT','Mataranka NT','Daly Waters NT',
+  'Tennant Creek NT','Three Ways NT','Barkly Tablelands NT',
+  'Alice Springs NT','Ross River NT','Uluru NT','Yulara NT',
+  'Kings Canyon NT','Watarrka NT','Hermannsburg NT','Palm Valley NT',
+  'Kakadu NT','Jabiru NT','Nhulunbuy NT','Groote Eylandt NT',
   'Red Centre NT','Top End NT',
-  // TAS
-  'Hobart TAS','Launceston TAS','Devonport TAS','Burnie TAS','Queenstown TAS',
-  'Strahan TAS','Bicheno TAS','Swansea TAS','St Helens TAS','Port Arthur TAS',
-  'Huonville TAS','Geeveston TAS','Cradle Mountain TAS','Dove Lake TAS',
-  // ACT
-  'Canberra ACT',
+
+  // ── TASMANIA ─────────────────────────────────────────────────────────
+  'Hobart TAS','Launceston TAS','Devonport TAS','Burnie TAS','Ulverstone TAS',
+  'Penguin TAS','Wynyard TAS','Stanley TAS','Smithton TAS','Queenstown TAS',
+  'Strahan TAS','Zeehan TAS','Rosebery TAS','Tullah TAS','Cradle Mountain TAS',
+  'Dove Lake TAS','Sheffield TAS','Deloraine TAS','Westbury TAS','Longford TAS',
+  'Cressy TAS','Campbell Town TAS','Ross TAS','Oatlands TAS','Bothwell TAS',
+  'Bicheno TAS','Swansea TAS','Triabunna TAS','Orford TAS','Sorell TAS',
+  'Dunalley TAS','Port Arthur TAS','Nubeena TAS','Eaglehawk Neck TAS',
+  'Geeveston TAS','Huonville TAS','Cygnet TAS','Kettering TAS',
+  'St Helens TAS','Scottsdale TAS','St Marys TAS','Fingal TAS',
+
 ];
 
 // Parse state abbreviation from a town string e.g. "Cairns QLD" → "QLD"
