@@ -1726,6 +1726,62 @@
     background: #fee2e2;
   }
 
+
+  .btn-coffee {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border: none;
+    color: #fff;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.15s;
+    box-shadow: 0 2px 8px rgba(245,158,11,0.35);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-coffee:hover {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    box-shadow: 0 3px 12px rgba(245,158,11,0.5);
+    transform: translateY(-1px);
+  }
+
+
+  /* Date input — match select/text fields, override browser chrome */
+  input[type="date"] {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.85rem;
+    padding: 7px 12px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+  input[type="date"]:focus {
+    border-color: #b45309;
+    box-shadow: 0 0 0 3px rgba(180,83,9,0.1);
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
+    cursor: pointer;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+
 </style>
 </head>
 <body>
@@ -1740,6 +1796,7 @@
   </div>
   <div class="header-badge" aria-label="AI Powered feature">AI Powered</div>
   <a href="help.html" target="_blank" class="btn-help" aria-label="Open help guide">❓ Help</a>
+  <a href="https://www.paypal.com/ncp/payment/VJFW4PMW6SDD4" target="_blank" rel="noopener" class="btn-coffee" aria-label="Buy me a coffee via PayPal">☕ Coffee</a>
 </header>
 
 <!-- API Key Bar (collapsible) -->
@@ -1835,16 +1892,25 @@
       <input type="hidden" id="startFrom" value="">
       <input type="hidden" id="destination" value="">
 
-      <label class="field-label" for="duration">Trip Duration</label>
-      <select id="duration">
-        <option value="weekend">Weekend (2–3 days)</option>
-        <option value="week">One week</option>
-        <option value="2weeks">Two weeks</option>
-        <option value="month">One month</option>
-        <option value="3months" selected>3 months</option>
-        <option value="6months">6 months</option>
-        <option value="12months">Full year (Big Lap)</option>
-      </select>
+      <div class="rig-row">
+        <div>
+          <label class="field-label" for="startDate">Departure Date</label>
+          <input type="date" id="startDate" aria-describedby="startDateHint">
+          <span id="startDateHint" class="sr-only">When do you plan to leave? Used for seasonal advice.</span>
+        </div>
+        <div>
+          <label class="field-label" for="duration">Trip Duration</label>
+          <select id="duration">
+            <option value="weekend">Weekend (2–3 days)</option>
+            <option value="week">One week</option>
+            <option value="2weeks">Two weeks</option>
+            <option value="month">One month</option>
+            <option value="3months" selected>3 months</option>
+            <option value="6months">6 months</option>
+            <option value="12months">Full year (Big Lap)</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <div class="panel-section">
@@ -2437,8 +2503,17 @@ async function planRoute() {
   const dest    = getEnd()   || 'around Australia';
   const stops   = getStops();
   const routeStr = getRouteString() || `${from} to ${dest}`;
-  const dur     = document.getElementById('duration');
-  const durText = dur.options[dur.selectedIndex].text;
+  const dur       = document.getElementById('duration');
+  const durText   = dur.options[dur.selectedIndex].text;
+  const startDateEl = document.getElementById('startDate');
+  const startDateVal = startDateEl ? startDateEl.value : '';
+  const startDateAU  = startDateVal
+    ? auDate(new Date(startDateVal + 'T12:00:00')) // noon avoids TZ day-flip
+    : '';
+  // Derive month name for seasonal advice
+  const startMonth = startDateVal
+    ? new Date(startDateVal + 'T12:00:00').toLocaleString('en-AU', { month: 'long' })
+    : '';
   const rig     = document.getElementById('rigType');
   const rigText = rig.options[rig.selectedIndex].text;
   const rigLen  = document.getElementById('rigLength').value;
@@ -2497,6 +2572,7 @@ POI types: camp, fuel, dump, sight, food, water`;
   const userMsg = `Plan a caravan trip:
 - FROM: ${from}
 - ROUTE: ${routeStr}${stops.length ? '\n- VIA TOWNS (must route through each in order, use each as a leg start/end point): ' + stops.join(' → ') : ''}
+- DEPARTURE DATE: ${startDateAU ? startDateAU + ' (' + startMonth + ')' : 'not specified — advise best season'}
 - DURATION: ${durText}
 - RIG: ${rigText}, ${rigLen === 'xlong' ? '10m+' : rigLen === 'long' ? '8-10m' : rigLen === 'medium' ? '6-8m' : 'under 6m'}
 - PREFERENCES: ${prefs || 'none specified'}
@@ -2521,6 +2597,7 @@ Create a practical day-by-day itinerary. Group days into logical legs (e.g. "Day
     }
 
     lastPlanData = plan;
+    lastPlanData._departureDate = startDateAU || '';
     // Seed chat history with context
     chatHistory = [
       { role: 'user', content: userMsg },
@@ -2662,6 +2739,7 @@ function renderRoute(plan, from, dest) {
         <div class="route-stat"><div class="stat-val">${plan.estimatedDays || '—'}</div><div class="stat-key">Days</div></div>
         <div class="route-stat"><div class="stat-val" style="color:${diffColor[plan.difficulty] || 'var(--ochre)'}">${plan.difficulty || '—'}</div><div class="stat-key">Difficulty</div></div>
         <div class="route-stat"><div class="stat-val">${plan.bestSeason || '—'}</div><div class="stat-key">Best Season</div></div>
+        ${plan._departureDate ? `<div class="route-stat"><div class="stat-val" style="font-size:0.85rem">${plan._departureDate}</div><div class="stat-key">Departure</div></div>` : ''}
       </div>
       <div class="route-desc">${plan.summary || ''}</div>
       <!-- Full trip Maps link -->
@@ -3297,9 +3375,11 @@ function clearTrip() {
     tripType = 'biglap';
   }
 
-  // Reset duration to 3 months default
+  // Reset duration and departure date
   const dur = document.getElementById('duration');
   if (dur) dur.value = '3months';
+  const sd = document.getElementById('startDate');
+  if (sd) sd.value = '';
 
   // Disable clear button and export buttons again
   setClearEnabled(false);
@@ -3402,6 +3482,8 @@ function reindexPois(dayIndex) {
     </div>
   </div>
 </div>
+
+
 
 </body>
 </html>
