@@ -3,422 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Help guide for RV Route Planner AU — how to get your Groq API key, plan routes, add via towns, import vehicle data and more.">
+<meta name="description" content="Help guide for RV Route Planner AU — full feature documentation covering API key setup, route planning, waypoints, overnight stops, fuel calculator, budget estimator, rig capability, checklist and more.">
 <meta name="theme-color" content="#f1f5f9">
-<title>Help — RV Route Planner AU | kbcianfa.github.io/RVRoutePlanner</title>
+<title>Help — RV Route Planner AU</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:       #f1f5f9;
-    --surface:  #ffffff;
-    --border:   #e2e8f0;
-    --amber:    #b45309;
-    --amber-lt: #fffbeb;
-    --amber-md: #fef3c7;
-    --amber-dk: #78350f;
-    --teal:     #0d9488;
-    --teal-lt:  #f0fdfa;
-    --teal-bd:  #99f6e4;
-    --blue:     #2563eb;
-    --blue-lt:  #eff6ff;
-    --blue-bd:  #bfdbfe;
-    --red:      #dc2626;
-    --red-lt:   #fef2f2;
-    --red-bd:   #fecaca;
-    --text:     #1e293b;
-    --muted:    #475569;
-    --light:    #94a3b8;
-    --step-bg:  #f8fafc;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    font-weight: 400;
-    line-height: 1.7;
-    font-size: 0.95rem;
-  }
-
-  /* ── HEADER ── */
-  .help-header {
-    background: #ffffff;
-    border-bottom: 2px solid var(--border);
-    padding: 0;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
-  .help-header-inner {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .help-logo {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #080c14;
-    flex-shrink: 0;
-  }
-  .help-header h1 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--text);
-  }
-  .help-header-sub {
-    font-size: 0.72rem;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-  .btn-back {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--amber-lt);
-    border: 1px solid var(--amber);
-    color: var(--amber-dk);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 6px 14px;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: all 0.15s;
-  }
-  .btn-back:hover { background: var(--amber-md); }
-
-  /* ── LAYOUT ── */
-  .help-body {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 32px 24px 64px;
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 32px;
-    align-items: start;
-  }
-
-  /* ── SIDEBAR NAV ── */
-  .help-nav {
-    position: sticky;
-    top: 72px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 0;
-    overflow: hidden;
-  }
-  .help-nav-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--light);
-    padding: 0 16px 10px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
-  .help-nav a {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 16px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    color: var(--muted);
-    text-decoration: none;
-    transition: all 0.12s;
-    border-left: 3px solid transparent;
-  }
-  .help-nav a:hover {
-    color: var(--amber-dk);
-    background: var(--amber-lt);
-    border-left-color: var(--amber);
-  }
-  .help-nav a.active {
-    color: var(--amber-dk);
-    background: var(--amber-lt);
-    border-left-color: var(--amber);
-  }
-  .help-nav .nav-icon { font-size: 0.9rem; flex-shrink: 0; }
-
-  /* ── CONTENT ── */
-  .help-content {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-  }
-
-  /* ── SECTION ── */
-  .help-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    scroll-margin-top: 80px;
-  }
-  .help-section-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 20px;
-    background: var(--step-bg);
-    border-bottom: 1px solid var(--border);
-  }
-  .section-icon {
-    font-size: 1.3rem;
-    flex-shrink: 0;
-  }
-  .help-section-header h2 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text);
-  }
-  .section-badge {
-    margin-left: auto;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 20px;
-    white-space: nowrap;
-  }
-  .badge-required { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-  .badge-optional { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-  .badge-tip      { background: var(--amber-md); color: var(--amber-dk); border: 1px solid #fde68a; }
-
-  .help-section-body {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  p { color: var(--muted); font-size: 0.88rem; line-height: 1.75; }
-  p strong { color: var(--text); font-weight: 600; }
-
-  /* ── STEPS ── */
-  .steps {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    counter-reset: step-counter;
-  }
-  .step {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    padding: 12px 14px;
-    background: var(--step-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-  }
-  .step-num {
-    width: 26px; height: 26px;
-    background: var(--amber);
-    color: #fff;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 700;
-    flex-shrink: 0;
-    counter-increment: step-counter;
-  }
-  .step-body { flex: 1; }
-  .step-body strong {
-    display: block;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 3px;
-  }
-  .step-body p { margin: 0; font-size: 0.82rem; }
-
-  /* ── CALLOUT BOXES ── */
-  .callout {
-    display: flex;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 8px;
-    font-size: 0.84rem;
-    line-height: 1.6;
-  }
-  .callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
-  .callout-body { flex: 1; color: var(--muted); }
-  .callout-body strong { color: var(--text); }
-  .callout.tip    { background: var(--amber-lt); border: 1px solid #fde68a; }
-  .callout.info   { background: var(--blue-lt);  border: 1px solid var(--blue-bd); }
-  .callout.warn   { background: var(--red-lt);   border: 1px solid var(--red-bd); }
-  .callout.good   { background: var(--teal-lt);  border: 1px solid var(--teal-bd); }
-
-  /* ── URL / CODE ── */
-  .url-box {
-    background: var(--step-bg);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--teal);
-    border-radius: 0 6px 6px 0;
-    padding: 10px 14px;
-    font-family: 'Barlow', monospace;
-    font-size: 0.82rem;
-    color: #0f766e;
-    word-break: break-all;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .url-box a {
-    color: #0f766e;
-    font-weight: 600;
-  }
-  .url-box .url-copy {
-    margin-left: auto;
-    flex-shrink: 0;
-    background: var(--teal-lt);
-    border: 1px solid var(--teal-bd);
-    color: #0f766e;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .url-copy:hover { background: #ccfbf1; }
-
-  /* ── FEATURE GRID ── */
-  .feature-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .feature-card {
-    padding: 12px 14px;
-    background: var(--step-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-  }
-  .feature-card .fc-icon { font-size: 1.3rem; margin-bottom: 6px; }
-  .feature-card strong {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 3px;
-  }
-  .feature-card p { font-size: 0.78rem; margin: 0; }
-
-  /* ── UI LABELS ── */
-  .ui-label {
-    display: inline-block;
-    background: var(--amber-md);
-    color: var(--amber-dk);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 2px 8px;
-    border-radius: 4px;
-    border: 1px solid #fde68a;
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-  .ui-label.teal {
-    background: var(--teal-lt);
-    color: #0f766e;
-    border-color: var(--teal-bd);
-  }
-  .ui-label.grey {
-    background: #f1f5f9;
-    color: #475569;
-    border-color: var(--border);
-  }
-
-  /* ── FAQ ── */
-  .faq-item {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 14px;
-  }
-  .faq-item:last-child { border-bottom: none; padding-bottom: 0; }
-  .faq-q {
-    font-weight: 600;
-    font-size: 0.88rem;
-    color: var(--text);
-    margin-bottom: 5px;
-    display: flex;
-    gap: 8px;
-  }
-  .faq-q::before { content: 'Q.'; color: var(--amber); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; }
-  .faq-a { font-size: 0.83rem; color: var(--muted); line-height: 1.7; padding-left: 24px; }
-
-  /* ── TABLE ── */
-  .poi-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  .poi-table th {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--light);
-    text-align: left;
-    padding: 6px 10px;
-    border-bottom: 2px solid var(--border);
-    background: var(--step-bg);
-  }
-  .poi-table td {
-    padding: 8px 10px;
-    border-bottom: 1px solid var(--border);
-    color: var(--muted);
-    vertical-align: top;
-  }
-  .poi-table tr:last-child td { border-bottom: none; }
-  .poi-table .col-icon { font-size: 1rem; }
-
-  /* ── DIVIDER ── */
-  .divider { height: 1px; background: var(--border); margin: 4px 0; }
-
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 680px) {
-    .help-body { grid-template-columns: 1fr; }
-    .help-nav { position: static; }
-    .feature-grid { grid-template-columns: 1fr; }
-  }
-
-  /* ── FOCUS ── */
-  :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 3px; }
+:root {
+  --bg:#f1f5f9;--surface:#ffffff;--border:#e2e8f0;
+  --amber:#b45309;--amber-lt:#fffbeb;--amber-md:#fef3c7;--amber-dk:#78350f;
+  --teal:#0d9488;--teal-lt:#f0fdfa;--teal-bd:#99f6e4;
+  --indigo:#6366f1;--indigo-lt:#eef2ff;
+  --blue:#2563eb;--blue-lt:#eff6ff;--blue-bd:#bfdbfe;
+  --green:#059669;--green-lt:#f0fdf4;--green-bd:#bbf7d0;
+  --red:#dc2626;--red-lt:#fef2f2;--red-bd:#fecaca;
+  --text:#1e293b;--muted:#475569;--light:#94a3b8;--step-bg:#f8fafc;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-weight:400;line-height:1.7;font-size:.95rem}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.help-header{background:#fff;border-bottom:2px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.help-header-inner{max-width:960px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:12px}
+.help-logo{width:34px;height:34px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:900;color:#080c14;flex-shrink:0}
+.help-header h1{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text)}
+.help-header-sub{font-size:.7rem;color:var(--muted);letter-spacing:1px}
+.btn-back{margin-left:auto;display:inline-flex;align-items:center;gap:5px;background:var(--amber-lt);border:1px solid var(--amber);color:var(--amber-dk);font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:6px 14px;border-radius:6px;text-decoration:none;transition:all .15s;flex-shrink:0}
+.btn-back:hover{background:var(--amber-md);text-decoration:none}
+.btn-coffee{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 12px;border-radius:20px;text-decoration:none;box-shadow:0 2px 8px rgba(245,158,11,.3);flex-shrink:0}
+.btn-coffee:hover{text-decoration:none;filter:brightness(1.05)}
+.help-body{max-width:960px;margin:0 auto;padding:28px 24px 64px;display:grid;grid-template-columns:210px 1fr;gap:28px;align-items:start}
+.help-nav{position:sticky;top:66px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 0;overflow:hidden}
+.help-nav-title{font-family:'Barlow Condensed',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--light);padding:0 14px 8px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.help-nav a{display:flex;align-items:center;gap:7px;padding:6px 14px;font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.5px;color:var(--muted);text-decoration:none;transition:all .12s;border-left:3px solid transparent}
+.help-nav a:hover,.help-nav a.active{color:var(--amber-dk);background:var(--amber-lt);border-left-color:var(--amber)}
+.nav-grp{border-top:1px solid var(--border);margin-top:4px;padding-top:4px}
+.nav-grp-lbl{font-family:'Barlow Condensed',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--light);padding:4px 14px 2px}
+.help-content{display:flex;flex-direction:column;gap:24px}
+.help-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;scroll-margin-top:76px}
+.help-section-header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--step-bg);border-bottom:1px solid var(--border)}
+.section-icon{font-size:1.2rem;flex-shrink:0}
+.help-section-header h2{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text)}
+.sbadge{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.sb-req{background:#fee2e2;color:#991b1b;border:1px solid var(--red-bd)}
+.sb-opt{background:var(--green-lt);color:#166534;border:1px solid var(--green-bd)}
+.sb-tip{background:var(--amber-md);color:var(--amber-dk);border:1px solid #fde68a}
+.sb-new{background:var(--indigo-lt);color:#3730a3;border:1px solid #c7d2fe}
+.help-section-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+p{color:var(--muted);font-size:.88rem;line-height:1.75}
+p strong{color:var(--text);font-weight:600}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:var(--step-bg);border:1px solid var(--border);border-radius:8px}
+.sn{width:24px;height:24px;background:var(--amber);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;flex-shrink:0}
+.sb{flex:1}
+.sb strong{display:block;font-size:.86rem;font-weight:600;color:var(--text);margin-bottom:2px}
+.sb p{margin:0;font-size:.8rem}
+.callout{display:flex;gap:10px;padding:10px 13px;border-radius:8px;font-size:.82rem;line-height:1.6}
+.ci{font-size:1rem;flex-shrink:0;margin-top:1px}
+.cb{flex:1;color:var(--muted)}
+.cb strong{color:var(--text)}
+.c-tip{background:var(--amber-lt);border:1px solid #fde68a}
+.c-info{background:var(--blue-lt);border:1px solid var(--blue-bd)}
+.c-warn{background:var(--red-lt);border:1px solid var(--red-bd)}
+.c-good{background:var(--green-lt);border:1px solid var(--green-bd)}
+.c-ind{background:var(--indigo-lt);border:1px solid #c7d2fe}
+.url-box{background:var(--step-bg);border:1px solid var(--border);border-left:4px solid var(--teal);border-radius:0 6px 6px 0;padding:8px 12px;font-family:'Barlow',monospace;font-size:.8rem;color:#0f766e;word-break:break-all;display:flex;align-items:center;gap:10px}
+.url-box a{color:#0f766e;font-weight:600}
+.url-copy{margin-left:auto;flex-shrink:0;background:var(--teal-lt);border:1px solid var(--teal-bd);color:#0f766e;font-family:'Barlow Condensed',sans-serif;font-size:.62rem;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;cursor:pointer;transition:all .15s}
+.url-copy:hover{background:#ccfbf1}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fc{padding:10px 12px;background:var(--step-bg);border:1px solid var(--border);border-radius:8px}
+.fc .fi{font-size:1.2rem;margin-bottom:4px}
+.fc strong{display:block;font-size:.83rem;font-weight:600;color:var(--text);margin-bottom:2px}
+.fc p{font-size:.76rem;margin:0}
+.lbl{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;white-space:nowrap;vertical-align:middle}
+.l-amb{background:var(--amber-md);color:var(--amber-dk);border:1px solid #fde68a}
+.l-tea{background:var(--teal-lt);color:#0f766e;border:1px solid var(--teal-bd)}
+.l-gry{background:#f1f5f9;color:#475569;border:1px solid var(--border)}
+.l-ind{background:var(--indigo-lt);color:#4338ca;border:1px solid #c7d2fe}
+.l-grn{background:var(--green-lt);color:#065f46;border:1px solid var(--green-bd)}
+.l-red{background:var(--red-lt);color:#991b1b;border:1px solid var(--red-bd)}
+.ht{width:100%;border-collapse:collapse;font-size:.8rem}
+.ht th{font-family:'Barlow Condensed',sans-serif;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--light);text-align:left;padding:6px 10px;border-bottom:2px solid var(--border);background:var(--step-bg)}
+.ht td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+.ht tr:last-child td{border-bottom:none}
+.faq-item{border-bottom:1px solid var(--border);padding-bottom:12px}
+.faq-item:last-child{border-bottom:none;padding-bottom:0}
+.faq-q{font-weight:600;font-size:.86rem;color:var(--text);margin-bottom:4px;display:flex;gap:8px}
+.faq-q::before{content:'Q.';color:var(--amber);font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.faq-a{font-size:.81rem;color:var(--muted);line-height:1.7;padding-left:24px}
+.divider{height:1px;background:var(--border);margin:2px 0}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:3px}
+@media(max-width:700px){.help-body{grid-template-columns:1fr}.help-nav{position:static}.fg{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -428,566 +108,337 @@
     <div class="help-logo" aria-hidden="true">RV</div>
     <div>
       <h1>Route Planner AU — Help</h1>
-      <div class="help-header-sub">Caravan &amp; RV Companion · User Guide</div>
+      <div class="help-header-sub">Caravan &amp; RV Companion · Full User Guide</div>
     </div>
-    <a href="index.html" class="btn-back" aria-label="Return to Route Planner">← Back to App</a>
+    <a href="index.html" class="btn-back">← Back to App</a>
+    <a href="https://www.paypal.com/ncp/payment/VJFW4PMW6SDD4" target="_blank" rel="noopener" class="btn-coffee">☕ Coffee</a>
   </div>
 </header>
 
 <div class="help-body">
-
-  <!-- ── SIDEBAR NAV ── -->
   <nav class="help-nav" aria-label="Help sections">
     <div class="help-nav-title">Contents</div>
-    <a href="#quick-start" class="help-nav-link"><span class="nav-icon">🚀</span> Quick Start</a>
-    <a href="#api-key" class="help-nav-link"><span class="nav-icon">🔑</span> Getting an API Key</a>
-    <a href="#planning" class="help-nav-link"><span class="nav-icon">🗺️</span> Planning a Route</a>
-    <a href="#waypoints" class="help-nav-link"><span class="nav-icon">📍</span> Via Towns</a>
-    <a href="#pois" class="help-nav-link"><span class="nav-icon">⛺</span> Points of Interest</a>
-    <a href="#vehicle" class="help-nav-link"><span class="nav-icon">🚗</span> Vehicle &amp; Fuel</a>
-    <a href="#maps" class="help-nav-link"><span class="nav-icon">🗺️</span> Google Maps Links</a>
-    <a href="#qr" class="help-nav-link"><span class="nav-icon">▣</span> QR Codes</a>
-    <a href="#chat" class="help-nav-link"><span class="nav-icon">💬</span> AI Chat</a>
-    <a href="#export" class="help-nav-link"><span class="nav-icon">📄</span> Exporting</a>
-    <a href="#faq" class="help-nav-link"><span class="nav-icon">❓</span> FAQ</a>
+    <a href="#quick-start" class="help-nav-link">🚀 Quick Start</a>
+    <a href="#api-key"     class="help-nav-link">🔑 API Key</a>
+    <div class="nav-grp"><div class="nav-grp-lbl">Planning</div>
+      <a href="#planning"   class="help-nav-link">🗺️ Planning a Route</a>
+      <a href="#waypoints"  class="help-nav-link">📍 Waypoints &amp; Via Towns</a>
+      <a href="#overnight"  class="help-nav-link">🌙 Overnight Stops</a>
+      <a href="#travellers" class="help-nav-link">🐕 Travelling With</a>
+      <a href="#pois"       class="help-nav-link">⛺ Points of Interest</a>
+      <a href="#rig"        class="help-nav-link">🚐 Rig Capability</a>
+    </div>
+    <div class="nav-grp"><div class="nav-grp-lbl">Features</div>
+      <a href="#vehicle"   class="help-nav-link">🚗 Vehicle &amp; Fuel</a>
+      <a href="#budget"    class="help-nav-link">💰 Budget Estimator</a>
+      <a href="#maps"      class="help-nav-link">🗺️ Google Maps</a>
+      <a href="#qr"        class="help-nav-link">▣ QR Codes</a>
+      <a href="#chat"      class="help-nav-link">💬 AI Chat</a>
+      <a href="#checklist" class="help-nav-link">✅ Checklist</a>
+      <a href="#export"    class="help-nav-link">📄 Export &amp; Share</a>
+    </div>
+    <a href="#faq" class="help-nav-link">❓ FAQ</a>
   </nav>
 
-  <!-- ── MAIN CONTENT ── -->
   <main class="help-content" id="main-content">
 
     <!-- QUICK START -->
     <section class="help-section" id="quick-start">
-      <div class="help-section-header">
-        <span class="section-icon">🚀</span>
-        <h2>Quick Start</h2>
-        <span class="section-badge badge-tip">Start Here</span>
-      </div>
+      <div class="help-section-header"><span class="section-icon">🚀</span><h2>Quick Start</h2><span class="sbadge sb-tip">Start Here</span></div>
       <div class="help-section-body">
-        <p>Get your first route planned in under two minutes:</p>
+        <p>Plan your first route in under two minutes:</p>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <strong>Get a free Groq API key</strong>
-              <p>Visit <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a>, create a free account, and generate an API key. It takes about 60 seconds. See the <a href="#api-key">full guide below</a>.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <strong>Enter your API key</strong>
-              <p>Paste it into the <span class="ui-label">GROQ API KEY</span> field at the top. The status will turn green — the bar then auto-collapses to save space.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <strong>Set your start and end</strong>
-              <p>Enter a starting town in <span class="ui-label">START</span> and your destination in <span class="ui-label">END</span>. Add via towns if you want to route through specific places.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <strong>Choose your POIs and hit Plan</strong>
-              <p>Tick the points of interest you want (free camps, dump points, lookouts, etc.) then click <span class="ui-label">Plan My Route</span>.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">5</div>
-            <div class="step-body">
-              <strong>Open each leg in Google Maps</strong>
-              <p>Expand any day card and tap <span class="ui-label teal">↗ Drive A → B</span> to open that leg in Google Maps. On mobile it launches the Maps app directly.</p>
-            </div>
-          </div>
+          <div class="step"><div class="sn">1</div><div class="sb"><strong>Get a free Groq API key</strong><p>Visit <a href="https://console.groq.com" target="_blank">console.groq.com</a>, sign up free (no credit card), create an API key. See the <a href="#api-key">API Key guide</a>.</p></div></div>
+          <div class="step"><div class="sn">2</div><div class="sb"><strong>Enter your API key</strong><p>Paste into the <span class="lbl l-amb">GROQ API KEY</span> field at the top. Status turns green and the bar auto-collapses after 1.5 seconds.</p></div></div>
+          <div class="step"><div class="sn">3</div><div class="sb"><strong>Set your route</strong><p>Type your <span class="lbl l-amb">START</span> — autocomplete suggests matching Australian towns as you type. Add your <span class="lbl l-tea">END</span> and any <span class="lbl l-gry">+ Add Via Town</span> stops.</p></div></div>
+          <div class="step"><div class="sn">4</div><div class="sb"><strong>Choose your options</strong><p>Pick overnight accommodation type, tick POIs, set traveller toggles, enter departure date and max daily km if needed.</p></div></div>
+          <div class="step"><div class="sn">5</div><div class="sb"><strong>Plan and Navigate</strong><p>Click <span class="lbl l-amb">Plan My Route</span>. Expand any day card and tap <span class="lbl l-tea">↗ Drive A → B</span> or scan the <span class="lbl l-gry">▣ QR Code</span>.</p></div></div>
         </div>
-        <div class="callout tip">
-          <span class="callout-icon">💡</span>
-          <div class="callout-body">Try a <strong>Quick Start route</strong> from the sidebar — Classic Big Lap, Kimberley Explorer, Outback Queensland, Great Ocean Road, or Red Centre. These pre-fill all waypoints so you can see the app in action immediately.</div>
-        </div>
+        <div class="callout c-tip"><span class="ci">💡</span><div class="cb">Try a <strong>Quick Start route</strong> from the sidebar — Big Lap, Kimberley Explorer, Outback QLD, Great Ocean Road, or Red Centre. All waypoints pre-filled.</div></div>
       </div>
     </section>
 
     <!-- API KEY -->
     <section class="help-section" id="api-key">
-      <div class="help-section-header">
-        <span class="section-icon">🔑</span>
-        <h2>Getting Your Free Groq API Key</h2>
-        <span class="section-badge badge-required">Required</span>
-      </div>
+      <div class="help-section-header"><span class="section-icon">🔑</span><h2>Getting Your Free Groq API Key</h2><span class="sbadge sb-req">Required</span></div>
       <div class="help-section-body">
-        <p>This app uses <strong>Groq</strong> to power the AI route planning. Groq offers a generous free tier — more than enough for personal RV trip planning. No credit card required.</p>
-
-        <div class="callout good">
-          <span class="callout-icon">✅</span>
-          <div class="callout-body"><strong>Groq free tier</strong> includes thousands of AI requests per day at no cost. You will not be charged for normal trip planning usage.</div>
-        </div>
-
+        <p>This app uses <strong>Groq</strong> to power AI route planning. Groq's free tier covers thousands of plans per day — no credit card required.</p>
+        <div class="callout c-good"><span class="ci">✅</span><div class="cb"><strong>Groq free tier</strong> — thousands of AI requests per day at zero cost.</div></div>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <strong>Go to the Groq Console</strong>
-              <p>Open <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a> in your browser.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <strong>Create a free account</strong>
-              <p>Click <strong>Sign Up</strong>. You can sign up with Google, GitHub, or an email address. No credit card is needed.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <strong>Go to API Keys</strong>
-              <p>Once logged in, click <strong>API Keys</strong> in the left sidebar (or go to <em>console.groq.com/keys</em>).</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <strong>Create a new key</strong>
-              <p>Click <strong>Create API Key</strong>. Give it a name like <em>RV Route Planner</em>. Click <strong>Submit</strong>.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">5</div>
-            <div class="step-body">
-              <strong>Copy your key</strong>
-              <p>The key appears once — copy it immediately. It starts with <code>gsk_</code> and is about 56 characters long.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">6</div>
-            <div class="step-body">
-              <strong>Paste it into the app</strong>
-              <p>Return to the Route Planner, paste into the <span class="ui-label">GROQ API KEY</span> field. The status badge turns green and the bar collapses automatically. Your key is saved locally in your browser for next time.</p>
-            </div>
-          </div>
+          <div class="step"><div class="sn">1</div><div class="sb"><strong>Go to console.groq.com</strong><p><a href="https://console.groq.com" target="_blank">console.groq.com</a></p></div></div>
+          <div class="step"><div class="sn">2</div><div class="sb"><strong>Create a free account</strong><p>Sign up with Google, GitHub, or email. No credit card.</p></div></div>
+          <div class="step"><div class="sn">3</div><div class="sb"><strong>Go to API Keys → Create API Key</strong><p>Name it <em>RV Route Planner</em> and click Submit.</p></div></div>
+          <div class="step"><div class="sn">4</div><div class="sb"><strong>Copy the key</strong><p>It starts with <code>gsk_</code> and appears only once — copy it immediately.</p></div></div>
+          <div class="step"><div class="sn">5</div><div class="sb"><strong>Paste into the app</strong><p>The bar auto-collapses. Your key is saved in the browser for next time.</p></div></div>
         </div>
-
-        <div class="callout warn">
-          <span class="callout-icon">⚠️</span>
-          <div class="callout-body"><strong>Keep your key private.</strong> Your key is stored only in your browser's local storage — it is never sent to anyone except Groq's servers when you plan a route. Do not share your key or commit it to a public repository.</div>
-        </div>
-
-        <div class="url-box">
-          <span>🔗</span>
-          <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>
-          <button class="url-copy" onclick="navigator.clipboard.writeText('https://console.groq.com/keys');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1800)">Copy</button>
-        </div>
+        <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb"><strong>Keep your key private.</strong> Stored only in your browser's local storage — sent only to Groq's servers when planning.</div></div>
+        <div class="url-box">🔗 <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a><button class="url-copy" onclick="navigator.clipboard.writeText('https://console.groq.com/keys');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1800)">Copy</button></div>
       </div>
     </section>
 
-    <!-- PLANNING A ROUTE -->
+    <!-- PLANNING -->
     <section class="help-section" id="planning">
-      <div class="help-section-header">
-        <span class="section-icon">🗺️</span>
-        <h2>Planning a Route</h2>
-      </div>
+      <div class="help-section-header"><span class="section-icon">🗺️</span><h2>Planning a Route</h2></div>
       <div class="help-section-body">
-
-        <p>The left panel contains all your trip settings. Fill these in before hitting <span class="ui-label">Plan My Route</span>.</p>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="fc-icon">🔄</div>
-            <strong>Trip Type</strong>
-            <p>Big Lap (full circumnavigation), Regional Loop, Coastal Run, or Custom. Selecting a type pre-fills sensible defaults.</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">📍</div>
-            <strong>Route Waypoints</strong>
-            <p>Set your start and end town. Add via towns to route through specific places along the way.</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">📅</div>
-            <strong>Trip Duration</strong>
-            <p>From a weekend to a full year. Affects how the AI breaks up legs and paces the itinerary.</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">🚐</div>
-            <strong>Rig Type &amp; Length</strong>
-            <p>Caravan, motorhome, campervan, ute canopy, 5th wheeler, or pop-top. Length affects road suitability advice.</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">📝</div>
-            <strong>Preferences &amp; Notes</strong>
-            <p>Free text — tell the AI anything: <em>travelling with dogs, prefer free camps, avoid steep grades, solar setup, need dump points every 3 days.</em></p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">⚡</div>
-            <strong>Quick Start Routes</strong>
-            <p>Pre-built routes with all waypoints filled in. Great for inspiration or testing the app.</p>
-          </div>
+        <p>Fill in the left panel before clicking <span class="lbl l-amb">Plan My Route</span>.</p>
+        <div class="fg">
+          <div class="fc"><div class="fi">🔄</div><strong>Trip Type</strong><p>Big Lap, Regional Loop, Coastal Run, or Custom. Pre-fills sensible defaults.</p></div>
+          <div class="fc"><div class="fi">📅</div><strong>Departure Date</strong><p>The AI uses this for seasonal advice, wet season warnings, and timing recommendations.</p></div>
+          <div class="fc"><div class="fi">📏</div><strong>Max Daily Drive</strong><p>Optional km/day limit — the AI will not create legs longer than this.</p></div>
+          <div class="fc"><div class="fi">🚐</div><strong>Rig Type &amp; Length</strong><p>Sets road capability, beach access, and 4WD track suggestions automatically.</p></div>
+          <div class="fc"><div class="fi">🏕️</div><strong>Overnight Accommodation</strong><p>Free Camp / Caravan Park / Hotel-Motel / Mixed. Affects POI suggestions and the budget estimate.</p></div>
+          <div class="fc"><div class="fi">📝</div><strong>Preferences &amp; Notes</strong><p>Free text — solar setup, fuel range, attractions, health considerations, anything.</p></div>
         </div>
-
-        <div class="callout tip">
-          <span class="callout-icon">💡</span>
-          <div class="callout-body">The <strong>Preferences field</strong> is powerful. The AI reads everything you write there. Mention your dog, your solar capacity, whether you need powered sites, fuel range concerns — anything that affects your travel style.</div>
-        </div>
+        <div class="callout c-tip"><span class="ci">💡</span><div class="cb">The <strong>Preferences field</strong> is the most powerful input. Mention your dog, need for dump points every 3 days, interest in specific regions, or maximum unsealed road comfort.</div></div>
       </div>
     </section>
 
-    <!-- VIA TOWNS / WAYPOINTS -->
+    <!-- WAYPOINTS -->
     <section class="help-section" id="waypoints">
-      <div class="help-section-header">
-        <span class="section-icon">📍</span>
-        <h2>Routing Via Specific Towns</h2>
-      </div>
+      <div class="help-section-header"><span class="section-icon">📍</span><h2>Waypoints &amp; Via Towns</h2></div>
       <div class="help-section-body">
-
-        <p>Use <strong>via towns</strong> to make the AI route through specific places. For example, to go <strong>Gladstone → Clermont → Townsville</strong>:</p>
-
+        <p>Add towns to drive <em>through</em> — the AI creates a separate leg for each segment.</p>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <strong>Set START to Gladstone QLD</strong>
-              <p>Type the full town name including state for best results.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <strong>Click + Add Via Town</strong>
-              <p>A new row appears between START and END. Type <em>Clermont QLD</em>.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <strong>Set END to Townsville QLD</strong>
-              <p>The app builds the route: Gladstone → Clermont → Townsville.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <strong>Plan My Route</strong>
-              <p>The AI creates separate legs for each segment and Google Maps links open each leg as a clean A→B drive.</p>
-            </div>
-          </div>
+          <div class="step"><div class="sn">1</div><div class="sb"><strong>Type your start town</strong><p>Autocomplete filters 500+ Australian locations as you type — including hinterland towns (Yandina, Maleny, Montville), outback stops (Birdsville, Daly Waters, Innamincka), and remote WA (Monkey Mia, Coral Bay, Gibb River Road). Include the state: <em>Gladstone QLD</em>.</p></div></div>
+          <div class="step"><div class="sn">2</div><div class="sb"><strong>Add via towns</strong><p>Click <span class="lbl l-gry">+ Add Via Town</span>. Each creates a separate leg. Example: <em>Gladstone → Clermont → Townsville</em> creates two legs.</p></div></div>
+          <div class="step"><div class="sn">3</div><div class="sb"><strong>Set your end</strong><p>If end = start, the app detects a <strong>Loop Route</strong> — distance is shown once (not doubled) with a 🔄 badge. The AI is also told not to double-count.</p></div></div>
         </div>
+        <div class="callout c-info"><span class="ci">ℹ️</span><div class="cb">Up to <strong>10 waypoints</strong> total. Keyboard: ↓↑ navigate · Enter or Tab to select · Escape to close.</div></div>
+        <p><strong>Default start:</strong> Click <span class="lbl l-amb">☆ Set Default</span> on the START row to save your home base. Pre-fills automatically on every new session and restores after clearing a trip.</p>
+      </div>
+    </section>
 
-        <div class="callout info">
-          <span class="callout-icon">ℹ️</span>
-          <div class="callout-body">You can add up to <strong>8 via towns</strong> between start and end (10 waypoints total). The <span class="ui-label">+ Add Via Town</span> button disappears when you reach the limit. Remove a via town with its <strong>×</strong> button.</div>
+    <!-- OVERNIGHT -->
+    <section class="help-section" id="overnight">
+      <div class="help-section-header"><span class="section-icon">🌙</span><h2>Overnight Stops</h2><span class="sbadge sb-new">New</span></div>
+      <div class="help-section-body">
+        <p>Two ways to control where the AI plans overnight stops:</p>
+        <p><strong>Method 1 — Mark a waypoint town as overnight:</strong></p>
+        <p>Every via town and the end destination has a <span class="lbl l-ind">🌙</span> button. Click to toggle it as an overnight stop — becomes a solid <span class="lbl l-ind">🌙 Night Stop</span> pill. The AI prompt receives the towns listed and ensures leg endpoints land there with appropriate accommodation.</p>
+        <p><strong>Method 2 — Pin a specific POI as overnight:</strong></p>
+        <div class="steps">
+          <div class="step"><div class="sn">1</div><div class="sb"><strong>Expand any day card</strong><p>Click a leg to open it.</p></div></div>
+          <div class="step"><div class="sn">2</div><div class="sb"><strong>Click 🌙 on the camp you want</strong><p>The POI row turns indigo-tinted with a <span class="lbl l-ind">🌙 Overnight</span> badge on the name.</p></div></div>
+          <div class="step"><div class="sn">3</div><div class="sb"><strong>Only one pin per leg</strong><p>Clicking another POI moves the pin. Click the pinned one to unpin.</p></div></div>
         </div>
+        <div class="callout c-tip"><span class="ci">💡</span><div class="cb">If no POI is pinned, the app auto-selects the best camp-type POI (or last POI) as the suggested overnight — shown with a lighter 🌙 badge. POIs at the origin/departure town are never shown.</div></div>
+      </div>
+    </section>
 
-        <div class="callout warn">
-          <span class="callout-icon">⚠️</span>
-          <div class="callout-body">Always include the <strong>state abbreviation</strong> — e.g. <em>Clermont QLD</em> not just <em>Clermont</em> — so Google Maps resolves to the correct Australian location.</div>
-        </div>
+    <!-- TRAVELLERS -->
+    <section class="help-section" id="travellers">
+      <div class="help-section-header"><span class="section-icon">🐕</span><h2>Travelling With</h2><span class="sbadge sb-new">New</span></div>
+      <div class="help-section-body">
+        <p>Six toggle chips that add specific context to every AI request:</p>
+        <table class="ht"><thead><tr><th>Toggle</th><th>What it tells the AI</th></tr></thead>
+        <tbody>
+          <tr><td><strong>🐕 Dogs</strong></td><td>Dog-friendly camps and beaches, leash rules at national parks</td></tr>
+          <tr><td><strong>🐱 Cats</strong></td><td>Pet-friendly stops; quarantine zone notes</td></tr>
+          <tr><td><strong>👧 Kids</strong></td><td>Family-friendly activities, safe swimming, shorter legs</td></tr>
+          <tr><td><strong>🧍 Solo</strong></td><td>Camps with other travellers, good phone coverage, safety notes</td></tr>
+          <tr><td><strong>👫 Couple</strong></td><td>Couple-focused suggestions, scenic and romantic stops</td></tr>
+          <tr><td><strong>♿ Accessible</strong></td><td>Sealed paths, accessible facilities, avoid rough terrain</td></tr>
+        </tbody></table>
+        <div class="callout c-tip"><span class="ci">💡</span><div class="cb">Combine multiple toggles freely — a couple with dogs gets dog-friendly beach camps on well-maintained roads.</div></div>
       </div>
     </section>
 
     <!-- POIS -->
     <section class="help-section" id="pois">
-      <div class="help-section-header">
-        <span class="section-icon">⛺</span>
-        <h2>Points of Interest</h2>
-      </div>
+      <div class="help-section-header"><span class="section-icon">⛺</span><h2>Points of Interest</h2></div>
       <div class="help-section-body">
-        <p>Tick the categories you want the AI to suggest along each leg. Each selected category appears in the AI prompt, so only tick what's relevant to your trip.</p>
-
-        <table class="poi-table" role="table" aria-label="Points of interest categories">
-          <thead>
-            <tr>
-              <th>Icon</th>
-              <th>Category</th>
-              <th>What it includes</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td class="col-icon">⛺</td><td><strong>Free Camps</strong></td><td>WikiCamps spots, rest areas, station stays, bush camping</td></tr>
-            <tr><td class="col-icon">🏕️</td><td><strong>Caravan Parks</strong></td><td>Powered sites, holiday parks, showgrounds</td></tr>
-            <tr><td class="col-icon">🌿</td><td><strong>National Parks</strong></td><td>National parks and conservation areas</td></tr>
-            <tr><td class="col-icon">🚿</td><td><strong>Dump Points</strong></td><td>Grey water and black water disposal stations</td></tr>
-            <tr><td class="col-icon">⛽</td><td><strong>Fuel Stops</strong></td><td>Service stations, roadhouses with fuel</td></tr>
-            <tr><td class="col-icon">🍳</td><td><strong>Roadhouses</strong></td><td>Outback roadhouses, country diners</td></tr>
-            <tr><td class="col-icon">🏔️</td><td><strong>Lookouts</strong></td><td>Scenic lookouts, viewpoints, gorges</td></tr>
-            <tr><td class="col-icon">💧</td><td><strong>Swimming</strong></td><td>Swimming holes, waterholes, lagoons</td></tr>
-            <tr><td class="col-icon">🍷</td><td><strong>Wineries</strong></td><td>Cellar doors, local produce markets</td></tr>
-            <tr><td class="col-icon">🛤️</td><td><strong>4WD Tracks</strong></td><td>Off-road routes, unsealed tracks</td></tr>
-            <tr><td class="col-icon">🏛️</td><td><strong>Heritage</strong></td><td>Historic sites, museums, missions</td></tr>
-            <tr><td class="col-icon">🚰</td><td><strong>Water Refill</strong></td><td>Fresh water taps, tank refill points</td></tr>
-          </tbody>
-        </table>
-
-        <p>Each POI in the result has a <span class="ui-label teal">📍 Maps</span> button that opens a Google Maps <em>search</em> for that place — not a directions link, so you get a clean pin on the map rather than a complex route URL.</p>
+        <p>Tick what you want — the AI includes each selected category in every leg. 15 categories total:</p>
+        <table class="ht"><thead><tr><th>Icon</th><th>Category</th><th>What it includes</th></tr></thead>
+        <tbody>
+          <tr><td>⛺</td><td><strong>Free Camps</strong></td><td>WikiCamps, rest areas, station stays, bush camping</td></tr>
+          <tr><td>🏕️</td><td><strong>Caravan Parks</strong></td><td>Powered sites, holiday parks, showgrounds with facilities</td></tr>
+          <tr><td>🌿</td><td><strong>National Parks</strong></td><td>National parks and conservation areas</td></tr>
+          <tr><td>🚿</td><td><strong>Dump Points</strong></td><td>Grey and black water disposal stations</td></tr>
+          <tr><td>⛽</td><td><strong>Fuel Stops</strong></td><td>Service stations and roadhouses with fuel</td></tr>
+          <tr><td>🍳</td><td><strong>Roadhouses</strong></td><td>Outback roadhouses and country diners</td></tr>
+          <tr><td>🏔️</td><td><strong>Lookouts</strong></td><td>Scenic lookouts, gorges, viewpoints</td></tr>
+          <tr><td>💧</td><td><strong>Swimming</strong></td><td>Swimming holes, waterholes, lagoons</td></tr>
+          <tr><td>🍷</td><td><strong>Wineries</strong></td><td>Cellar doors, local produce markets</td></tr>
+          <tr><td>🛤️</td><td><strong>4WD Tracks</strong></td><td>Off-road routes — auto-enabled when 4WD rig selected</td></tr>
+          <tr><td>🏛️</td><td><strong>Heritage</strong></td><td>Historic sites, museums, missions</td></tr>
+          <tr><td>🚰</td><td><strong>Water Refill</strong></td><td>Fresh water taps and tank refill points</td></tr>
+          <tr><td>🏟️</td><td><strong>Showgrounds</strong></td><td>Showgrounds and saleyards with overnight caravan camping</td></tr>
+          <tr><td>🌊</td><td><strong>Waterfalls</strong></td><td>Waterfalls and gorges</td></tr>
+          <tr><td>🏖️</td><td><strong>Beaches</strong></td><td>Coastal access — adapted to rig (4WD rigs get beach driving; caravans get sealed access only)</td></tr>
+        </tbody></table>
+        <p>Each POI has: <span class="lbl l-ind">🌙</span> overnight pin · <span class="lbl l-tea">📍 Maps</span> search link · <span class="lbl l-red">×</span> delete. POIs are never shown at your origin/departure town.</p>
       </div>
     </section>
 
-    <!-- VEHICLE & FUEL -->
+    <!-- RIG -->
+    <section class="help-section" id="rig">
+      <div class="help-section-header"><span class="section-icon">🚐</span><h2>Rig Capability Intelligence</h2><span class="sbadge sb-new">New</span></div>
+      <div class="help-section-body">
+        <p>Road advice, POI descriptions, and warnings adapt automatically based on your rig. A badge appears under Rig Type:</p>
+        <table class="ht"><thead><tr><th>Rig</th><th>Badge</th><th>Roads</th><th>4WD</th></tr></thead>
+        <tbody>
+          <tr><td>Caravan</td><td><span class="lbl l-gry">🛣️ Sealed</span></td><td>Sealed + graded gravel</td><td>❌</td></tr>
+          <tr><td>Motorhome</td><td><span class="lbl l-gry">🛣️ Sealed</span></td><td>Sealed preferred; watch height/weight</td><td>❌</td></tr>
+          <tr><td>Campervan</td><td><span class="lbl l-gry">🔀 Gravel OK</span></td><td>Sealed + most graded gravel</td><td>❌</td></tr>
+          <tr><td>Ute Canopy / Swag</td><td><span class="lbl l-grn">🛤️ 4WD Capable</span></td><td>All terrain — sandy, creek crossings</td><td>✅ Full — auto-enables 4WD Tracks POI</td></tr>
+          <tr><td><strong>Ute + Caravan (4WD)</strong></td><td><span class="lbl l-grn">🛤️ 4WD Capable</span></td><td>Graded unsealed + light 4WD — caravan limits extreme terrain</td><td>✅ Light 4WD</td></tr>
+          <tr><td>5th Wheeler</td><td><span class="lbl l-gry">🛣️ Sealed</span></td><td>Sealed only — check height, width, bridge limits</td><td>❌</td></tr>
+          <tr><td>Pop-top</td><td><span class="lbl l-gry">🛣️ Sealed</span></td><td>Sealed + well-maintained gravel</td><td>❌</td></tr>
+        </tbody></table>
+        <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb">After planning, if the route mentions unsealed or remote roads and your rig is sealed-only, an amber <strong>Road Suitability Check</strong> warning card appears in the results.</div></div>
+      </div>
+    </section>
+
+    <!-- VEHICLE -->
     <section class="help-section" id="vehicle">
-      <div class="help-section-header">
-        <span class="section-icon">🚗</span>
-        <h2>Vehicle Import &amp; Fuel Calculator</h2>
-        <span class="section-badge badge-optional">Optional</span>
-      </div>
+      <div class="help-section-header"><span class="section-icon">🚗</span><h2>Vehicle &amp; Fuel Calculator</h2><span class="sbadge sb-opt">Optional</span></div>
       <div class="help-section-body">
-        <p>Once a route is planned, the app can estimate your total <strong>fuel cost in AUD</strong> for the trip, broken down by leg.</p>
-
-        <div class="callout info">
-          <span class="callout-icon">ℹ️</span>
-          <div class="callout-body"><strong>Import from LogMyJourney AU</strong> reads your vehicle data (consumption, tank size, fuel type) directly from the same browser if you use the LogMyJourney AU trip logger app. No typing required.</div>
-        </div>
-
+        <p>Your vehicle profile <strong>saves automatically</strong> and reloads next visit — no need to re-enter every time.</p>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <strong>Import or enter manually</strong>
-              <p>Click <span class="ui-label">⬇ Import from LogMyJourney</span> to auto-fill from your trip log data, or click <span class="ui-label grey">✏️ Enter Manually</span> to type your consumption (L/100km), tank size, and fuel type.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <strong>Set the fuel price</strong>
-              <p>A fuel price bar appears once your vehicle is set. Enter the current price per litre in AUD (e.g. $2.15). This updates all estimates instantly.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <strong>Read your estimates</strong>
-              <p>A fuel summary card shows total distance, total litres, total cost (AUD), number of fill-ups, and cost per km. Each day card also shows the leg cost as a small badge.</p>
-            </div>
-          </div>
+          <div class="step"><div class="sn">1</div><div class="sb"><strong>Import from LogMyJourney AU</strong><p>Click <span class="lbl l-tea">⬇ Import from LogMyJourney</span> — reads L/100km, tank size, and fuel type from the same browser. Profile saved automatically.</p></div></div>
+          <div class="step"><div class="sn">2</div><div class="sb"><strong>Or enter manually</strong><p>Click <span class="lbl l-gry">✏️ Enter Manually</span> — L/100km, tank size, fuel type, rig name. Also saves automatically.</p></div></div>
+          <div class="step"><div class="sn">3</div><div class="sb"><strong>Set the fuel price</strong><p>A regional estimate appears based on your start location (e.g. $2.85/L for Birdsville, $2.10/L for Brisbane). Adjust to your actual price and hit <span class="lbl l-amb">↻ Recalculate</span> or press Enter.</p></div></div>
         </div>
-
-        <div class="callout tip">
-          <span class="callout-icon">💡</span>
-          <div class="callout-body">If LogMyJourney detects you have a <strong>caravan or towing</strong> setup, it automatically applies a <strong>+35% fuel penalty</strong> to account for towing drag. This is shown clearly on the vehicle pill. You can override it by entering values manually.</div>
-        </div>
+        <p><strong>Towing penalty:</strong> If LogMyJourney detects a caravan/towing setup, +35% is applied to fuel consumption. Shown on the vehicle pill.</p>
+        <p><strong>Regional price estimates</strong> — update automatically when your start location changes:</p>
+        <table class="ht"><thead><tr><th>Region</th><th>Diesel</th><th>Unleaded</th></tr></thead>
+        <tbody>
+          <tr><td>Very Remote (Birdsville, Uluru, Halls Creek)</td><td>$2.85</td><td>$2.75</td></tr>
+          <tr><td>Outback (Alice Springs, Mt Isa, Broome)</td><td>$2.55</td><td>$2.45</td></tr>
+          <tr><td>Far North QLD / NT (Cairns, Darwin)</td><td>$2.35–2.40</td><td>$2.28–2.32</td></tr>
+          <tr><td>Regional (Townsville, Ballarat, Dubbo)</td><td>$2.22–2.25</td><td>$2.15–2.18</td></tr>
+          <tr><td>Metro (Brisbane, Sydney, Melbourne)</td><td>$2.10</td><td>$2.05</td></tr>
+        </tbody></table>
+        <div class="callout c-info"><span class="ci">ℹ️</span><div class="cb">Always verify with <a href="https://www.fuelcheck.nsw.gov.au" target="_blank">FuelCheck NSW</a> or <a href="https://www.fuelwatch.wa.gov.au" target="_blank">FuelWatch WA</a> before going remote.</div></div>
       </div>
     </section>
 
-    <!-- GOOGLE MAPS LINKS -->
+    <!-- BUDGET -->
+    <section class="help-section" id="budget">
+      <div class="help-section-header"><span class="section-icon">💰</span><h2>Trip Budget Estimator</h2><span class="sbadge sb-new">New</span></div>
+      <div class="help-section-body">
+        <p>After planning, a green <strong>Trip Budget Estimate</strong> card shows a cost breakdown for the whole trip.</p>
+        <table class="ht"><thead><tr><th>Cost</th><th>How calculated</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Fuel</strong></td><td>Your L/100km × total km × fuel price (estimates 15L/100km if no vehicle set)</td></tr>
+          <tr><td><strong>Accommodation</strong></td><td>Free Camp = $0 · Caravan Park = $55/night · Hotel/Motel = $160/night · Mixed = $28/night</td></tr>
+          <tr><td><strong>Food</strong></td><td>$45/person/day self-catering — scales with traveller count</td></tr>
+          <tr><td><strong>Activities</strong></td><td>$20/day for entry fees and attractions</td></tr>
+        </tbody></table>
+        <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb">Estimates only — does not include maintenance, tours, ferries, national park passes, medication, or unexpected costs.</div></div>
+      </div>
+    </section>
+
+    <!-- MAPS -->
     <section class="help-section" id="maps">
-      <div class="help-section-header">
-        <span class="section-icon">🗺️</span>
-        <h2>Google Maps Links</h2>
-      </div>
+      <div class="help-section-header"><span class="section-icon">🗺️</span><h2>Google Maps Links</h2></div>
       <div class="help-section-body">
-        <p>Every leg and POI has a Google Maps link. These are designed to open cleanly — no encoded POI addresses embedded in route URLs.</p>
-
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="fc-icon">↗️</div>
-            <strong>Drive A → B</strong>
-            <p>Opens Google Maps driving directions for just that day's leg — clean start-to-end, no waypoints. Tap on mobile to launch the Maps app.</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">🗺️</div>
-            <strong>Open Full Route</strong>
-            <p>Opens the entire trip in Google Maps, with your via towns threaded as actual waypoints. Limited to 8 waypoints (Google's free limit).</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">📍</div>
-            <strong>📍 Maps (per POI)</strong>
-            <p>Opens a Google Maps <em>search</em> for that specific place — gives you a clean map pin, photos, hours, and reviews.</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">▣</div>
-            <strong>QR Code</strong>
-            <p>Generates a scannable QR code for each leg's directions URL. Scan with your phone camera while at camp to jump straight into Maps navigation.</p>
-          </div>
+        <div class="fg">
+          <div class="fc"><div class="fi">↗️</div><strong>Drive A → B</strong><p>Clean A→B driving directions for that leg. Tap on mobile to launch Maps navigation directly.</p></div>
+          <div class="fc"><div class="fi">🗺️</div><strong>Open Full Route</strong><p>All via towns as waypoints in one link. Google Maps supports max 8 waypoints.</p></div>
+          <div class="fc"><div class="fi">📍</div><strong>📍 Maps per POI</strong><p>Opens a Google Maps search for that place — shows photos, hours, and reviews.</p></div>
+          <div class="fc"><div class="fi">▣</div><strong>QR Code per leg</strong><p>Scan with phone camera to open Maps. Plan on laptop at camp, scan in the morning.</p></div>
         </div>
-
-        <div class="callout warn">
-          <span class="callout-icon">⚠️</span>
-          <div class="callout-body">Google Maps free URL directions support a maximum of <strong>8 waypoints</strong>. For Big Lap routes with many via towns, the full route link uses the first 8. All individual day card links are always clean A→B with no limit.</div>
-        </div>
+        <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb">POI names are <strong>never</strong> used as route waypoints — only your actual via towns. This prevents the long encoded GPS-coordinate URLs.</div></div>
       </div>
     </section>
 
-    <!-- QR CODES -->
+    <!-- QR -->
     <section class="help-section" id="qr">
-      <div class="help-section-header">
-        <span class="section-icon">▣</span>
-        <h2>QR Codes</h2>
-        <span class="section-badge badge-tip">Handy on the Road</span>
-      </div>
+      <div class="help-section-header"><span class="section-icon">▣</span><h2>QR Codes</h2><span class="sbadge sb-tip">Handy on the Road</span></div>
       <div class="help-section-body">
-        <p>QR codes let you plan on a laptop then instantly navigate on your phone — no typing, no copying URLs.</p>
         <div class="steps">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-body">
-              <strong>Plan your route on a desktop or laptop</strong>
-              <p>The full planning interface works best on a larger screen.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-body">
-              <strong>Expand a day card and click ▣ QR Code</strong>
-              <p>A QR modal appears with the Google Maps directions URL encoded as a QR code.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-body">
-              <strong>Scan with your phone camera</strong>
-              <p>Point your phone camera at the QR code. Tap the banner that appears to open directly in Google Maps navigation.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-body">
-              <strong>Or save the QR as an image</strong>
-              <p>Click <span class="ui-label grey">⬇ Save QR</span> to download a PNG. Print it, add it to a day sheet, or send it to your travel companion.</p>
-            </div>
-          </div>
+          <div class="step"><div class="sn">1</div><div class="sb"><strong>Expand a day card → click ▣ QR Code</strong><p>A modal opens with the leg's Maps URL encoded as a QR code.</p></div></div>
+          <div class="step"><div class="sn">2</div><div class="sb"><strong>Scan with your phone camera</strong><p>Tap the banner → opens Google Maps navigation. No typing required.</p></div></div>
+          <div class="step"><div class="sn">3</div><div class="sb"><strong>Save the QR as PNG</strong><p>Click <span class="lbl l-gry">⬇ Save QR</span> to download — print it or share to a travel companion.</p></div></div>
         </div>
       </div>
     </section>
 
-    <!-- AI CHAT -->
+    <!-- CHAT -->
     <section class="help-section" id="chat">
-      <div class="help-section-header">
-        <span class="section-icon">💬</span>
-        <h2>AI Chat</h2>
-      </div>
+      <div class="help-section-header"><span class="section-icon">💬</span><h2>AI Chat</h2></div>
       <div class="help-section-body">
-        <p>The <span class="ui-label grey">AI Chat</span> tab gives you a conversation with the AI <em>after</em> a route is planned. The AI has full context of your itinerary and can help you refine it.</p>
-
+        <p>The <span class="lbl l-gry">AI Chat</span> tab lets you ask follow-up questions. The <strong>input bar is at the top</strong> — type and press Enter or click Send. The AI has full context of your planned route.</p>
         <p><strong>Things to ask:</strong></p>
         <div class="steps">
-          <div class="step">
-            <div class="step-num" style="background:#0d9488">?</div>
-            <div class="step-body">
-              <strong>Fuel gap questions</strong>
-              <p><em>"Is there enough fuel between Camooweal and Tennant Creek? What's the distance and are there any roadhouses?"</em></p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num" style="background:#0d9488">?</div>
-            <div class="step-body">
-              <strong>Free camp details</strong>
-              <p><em>"Tell me more about free camping options near Longreach — are dogs allowed?"</em></p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num" style="background:#0d9488">?</div>
-            <div class="step-body">
-              <strong>Seasonal advice</strong>
-              <p><em>"We're leaving in April — should we do the Kimberley clockwise or counter-clockwise to beat the crowds?"</em></p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-num" style="background:#0d9488">?</div>
-            <div class="step-body">
-              <strong>Road conditions</strong>
-              <p><em>"Is the Gibb River Road suitable for a 7.5m caravan in June?"</em></p>
-            </div>
-          </div>
+          <div class="step"><div class="sn" style="background:#0d9488">?</div><div class="sb"><strong>Fuel gaps</strong><p><em>"Is there enough fuel between Camooweal and Tennant Creek?"</em></p></div></div>
+          <div class="step"><div class="sn" style="background:#0d9488">?</div><div class="sb"><strong>Dog-friendly camps</strong><p><em>"Which free camps near Longreach allow dogs off-leash?"</em></p></div></div>
+          <div class="step"><div class="sn" style="background:#0d9488">?</div><div class="sb"><strong>Road conditions</strong><p><em>"Is the Gibb River Road suitable for a 7.5m caravan in June?"</em></p></div></div>
+          <div class="step"><div class="sn" style="background:#0d9488">?</div><div class="sb"><strong>Seasonal advice</strong><p><em>"Leaving in April — clockwise or counter-clockwise for the Kimberley?"</em></p></div></div>
         </div>
+        <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb">Always verify fuel prices, road conditions, and campground availability with <strong>WikiCamps, Campermate, or state road authorities</strong> before going remote.</div></div>
+      </div>
+    </section>
 
-        <div class="callout tip">
-          <span class="callout-icon">💡</span>
-          <div class="callout-body">Plan a route first before using chat — the AI uses your itinerary as context for more accurate answers. If you ask about a road or camp not in your plan, the AI will still do its best with general knowledge.</div>
-        </div>
-
-        <div class="callout warn">
-          <span class="callout-icon">⚠️</span>
-          <div class="callout-body">The AI uses general knowledge trained to mid-2025. Road conditions, fuel prices, and campground availability change — always verify critical information with <strong>WikiCamps, Campermate, or the relevant state road authority</strong> before heading out.</div>
-        </div>
+    <!-- CHECKLIST -->
+    <section class="help-section" id="checklist">
+      <div class="help-section-header"><span class="section-icon">✅</span><h2>Pre-Departure Checklist</h2><span class="sbadge sb-new">New</span></div>
+      <div class="help-section-body">
+        <p>The <span class="lbl l-gry">✅ Checklist</span> tab has 40 items across 7 sections. Progress saves automatically and survives page reloads.</p>
+        <table class="ht"><thead><tr><th>Section</th><th>Items</th></tr></thead>
+        <tbody>
+          <tr><td>🚐 Rig &amp; Vehicle</td><td>Service, tyres, bearings, brakes, lights, hitches, seals (10)</td></tr>
+          <tr><td>⚡ Power &amp; Water</td><td>Solar, batteries, gas, fresh water, grey water (7)</td></tr>
+          <tr><td>📄 Documents &amp; Insurance</td><td>Registration, insurance, roadside assist, towing compliance, licences, Medicare (7)</td></tr>
+          <tr><td>🧰 Safety &amp; Emergency</td><td>PLB, UHF radio, first aid, fire extinguisher, spare tyre, recovery gear, water, snake kit (8)</td></tr>
+          <tr><td>📱 Navigation &amp; Tech</td><td>Hema Maps, Fuel Map app, satellite comms, dashcam, backup nav (6)</td></tr>
+          <tr><td>🍳 Kitchen &amp; Supplies</td><td>Fridge, pantry, cooking gear, dump hose, water hose, spares kit (6)</td></tr>
+          <tr><td>🐕 Pets</td><td>Vaccinations, registration, food, dog-friendly research, tick prevention (5)</td></tr>
+        </tbody></table>
+        <p>Items tagged <span class="lbl l-red">urgent</span> are safety-critical. Items tagged <span class="lbl l-amb">important</span> are highly recommended. Click <strong>Reset</strong> (top right of checklist) to start fresh.</p>
       </div>
     </section>
 
     <!-- EXPORT -->
     <section class="help-section" id="export">
-      <div class="help-section-header">
-        <span class="section-icon">📄</span>
-        <h2>Exporting Your Route</h2>
-      </div>
+      <div class="help-section-header"><span class="section-icon">📄</span><h2>Export &amp; Share</h2></div>
       <div class="help-section-body">
-        <p>Three export options are available in the bottom toolbar:</p>
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="fc-icon">📄</div>
-            <strong>Markdown</strong>
-            <p>Downloads a <code>.md</code> file with your full itinerary. Open in any text editor, Obsidian, Notion, or paste into a Word doc. Filename includes today's date in DD-MM-YYYY format.</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">⚙️</div>
-            <strong>JSON</strong>
-            <p>Downloads the raw structured route data. Useful for importing into other apps or future LogMyJourney integration.</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">📋</div>
-            <strong>Copy Text</strong>
-            <p>Copies the full itinerary as plain text to your clipboard. Paste directly into a message, email, or notes app.</p>
-          </div>
-          <div class="feature-card">
-            <div class="fc-icon">▣</div>
-            <strong>QR Codes (per leg)</strong>
-            <p>Save individual leg QR codes as PNG images from each day card's QR modal.</p>
-          </div>
+        <div class="fg">
+          <div class="fc"><div class="fi">📄</div><strong>Markdown</strong><p>Downloads a <code>.md</code> file with your itinerary — open in Obsidian, Notion, or any text editor. Filename includes the date in DD-MM-YYYY format.</p></div>
+          <div class="fc"><div class="fi">⚙️</div><strong>JSON</strong><p>Raw structured route data for importing into other apps or integrations.</p></div>
+          <div class="fc"><div class="fi">📋</div><strong>Copy Text</strong><p>Full itinerary as plain text to clipboard — paste into messages, email, or notes.</p></div>
+          <div class="fc"><div class="fi">🖨️</div><strong>PDF</strong><p>Opens the browser print dialog with a clean print layout — all day cards expanded, nav hidden. Save as PDF from the dialog.</p></div>
+          <div class="fc"><div class="fi">🔗</div><strong>Share Link</strong><p>Generates a URL with your full plan encoded. Anyone opening it gets the route loaded. No server or account needed.</p></div>
+          <div class="fc"><div class="fi">🗑️</div><strong>Clear Trip</strong><p>Resets route, chat, fuel, budget, overnight pins and waypoints. Keeps your saved default start and vehicle profile.</p></div>
         </div>
+        <div class="callout c-info"><span class="ci">ℹ️</span><div class="cb"><strong>Share Link</strong> encodes the plan as base64 JSON in the URL hash — no server needed. Links can be long for complex routes. The hash is removed from browser history after loading.</div></div>
       </div>
     </section>
 
     <!-- FAQ -->
     <section class="help-section" id="faq">
-      <div class="help-section-header">
-        <span class="section-icon">❓</span>
-        <h2>Frequently Asked Questions</h2>
-      </div>
+      <div class="help-section-header"><span class="section-icon">❓</span><h2>Frequently Asked Questions</h2></div>
       <div class="help-section-body">
-        <div class="faq-item">
-          <div class="faq-q">Does this cost money?</div>
-          <div class="faq-a">The app itself is free. Groq's free tier includes thousands of AI requests per day — more than enough for personal trip planning. You only need a Groq account (free, no credit card required).</div>
-        </div>
+        <div class="faq-item"><div class="faq-q">Does this cost money?</div><div class="faq-a">The app is free. Groq's free tier covers thousands of route plans per day — no credit card required.</div></div>
         <div class="divider"></div>
-        <div class="faq-item">
-          <div class="faq-q">Is my API key safe?</div>
-          <div class="faq-a">Your key is stored only in your browser's local storage (<code>rv_groq_key</code>). It is sent directly to Groq's servers when you plan a route and nowhere else. The app has no server of its own. Never share your key publicly.</div>
-        </div>
+        <div class="faq-item"><div class="faq-q">Is my API key safe?</div><div class="faq-a">Stored only in your browser's local storage under <code>rv_groq_key</code>. Sent only to Groq's servers when planning. Never share it publicly.</div></div>
         <div class="divider"></div>
-        <div class="faq-item">
-          <div class="faq-q">The Google Maps link looks weird or very long — why?</div>
-          <div class="faq-a">This happens if POI names (like "Puma Energy Clermont" or "Cape Hillsborough National Park") get included as route waypoints — Google Maps encodes them as full addresses with GPS coordinates. The app now uses POI names only as individual search links, not as waypoints, so route links should be clean. If you see a long URL, try re-planning the route.</div>
-        </div>
+        <div class="faq-item"><div class="faq-q">The autocomplete isn't finding my town.</div><div class="faq-a">Type at least 2 characters and include the state abbreviation — e.g. <em>Yandina QLD</em>. Use ↓↑ to navigate, Enter to select. If your town isn't in the 500+ list, just type it in full — the AI plans to any Australian location.</div></div>
         <div class="divider"></div>
-        <div class="faq-item">
-          <div class="faq-q">Why does the AI sometimes suggest inaccurate places?</div>
-          <div class="faq-a">The AI draws on general knowledge and may occasionally suggest camps, roadhouses, or services that have closed or changed. Always verify critical stops — especially fuel and water — with WikiCamps, Campermate, or the relevant state road authority before heading out remote.</div>
-        </div>
+        <div class="faq-item"><div class="faq-q">Why does my loop trip show the distance once?</div><div class="faq-a">When start and end are the same town, the app detects a loop and labels the distance as <em>Total Distance (Loop)</em> with a 🔄 badge. The AI is instructed not to double-count the return distance.</div></div>
         <div class="divider"></div>
-        <div class="faq-item">
-          <div class="faq-q">Can I import my vehicle from LogMyJourney?</div>
-          <div class="faq-a">Yes — click <strong>Import from LogMyJourney</strong> in the vehicle bar. It reads <code>triplog_settings</code> from your browser's local storage. This only works if you have used LogMyJourney AU in the same browser on the same device.</div>
-        </div>
+        <div class="faq-item"><div class="faq-q">Can I import my vehicle from LogMyJourney?</div><div class="faq-a">Yes — click <strong>Import from LogMyJourney</strong>. Reads <code>triplog_settings</code> from the same browser and device. Vehicle profile saves automatically and reloads next visit.</div></div>
         <div class="divider"></div>
-        <div class="faq-item">
-          <div class="faq-q">The AI Chat isn't responding — what's wrong?</div>
-          <div class="faq-a">Check that your API key is entered and the status badge shows green. Plan a route first — the chat works best with a route loaded. If you see an error message in the chat bubble, it will tell you what went wrong (e.g. invalid key, rate limit exceeded).</div>
-        </div>
+        <div class="faq-item"><div class="faq-q">Why does the fuel price change when I type my start location?</div><div class="faq-a">The app uses remoteness-based regional estimates — Birdsville $2.85/L diesel, Brisbane $2.10/L. Always override with your actual servo price.</div></div>
         <div class="divider"></div>
-        <div class="faq-item">
-          <div class="faq-q">Can I use this on my phone while travelling?</div>
-          <div class="faq-a">Yes — the layout is responsive and works on mobile. Planning is easier on a larger screen, but you can use the AI chat and open Maps links on mobile. QR codes are especially useful: plan on the laptop at camp, then scan with your phone to navigate each day.</div>
-        </div>
+        <div class="faq-item"><div class="faq-q">The Recalculate button isn't updating fuel costs.</div><div class="faq-a">The fuel price input requires you to press Enter or click away from the field before clicking Recalculate. You can also press Enter inside the price field to trigger recalculation directly. Make sure a vehicle is set first.</div></div>
         <div class="divider"></div>
-        <div class="faq-item">
-          <div class="faq-q">Does this work offline?</div>
-          <div class="faq-a">No — AI route planning requires an internet connection to reach Groq's servers. Once a route is planned you can export it as Markdown or JSON to keep an offline copy, or save QR codes as images before heading somewhere remote.</div>
-        </div>
+        <div class="faq-item"><div class="faq-q">The Google Maps URL is very long and has GPS coordinates in it.</div><div class="faq-a">This was a bug in earlier versions where POI names were embedded as route waypoints. In the current version, only your actual via towns appear as waypoints. All POI links open as clean individual map searches.</div></div>
+        <div class="divider"></div>
+        <div class="faq-item"><div class="faq-q">The AI Chat isn't responding.</div><div class="faq-a">Check the API key status badge is green. The input bar is at the <strong>top</strong> of the chat panel — type and press Enter or click Send. An error message in the chat bubble will explain the issue (invalid key, rate limit, etc.).</div></div>
+        <div class="divider"></div>
+        <div class="faq-item"><div class="faq-q">Does this work offline?</div><div class="faq-a">No — AI planning requires internet to reach Groq's servers. Once planned, export as Markdown or JSON for offline reference. Save QR codes as PNG images before going remote.</div></div>
+        <div class="divider"></div>
+        <div class="faq-item"><div class="faq-q">Can I use this on my phone?</div><div class="faq-a">Yes — fully responsive. Planning is easier on a larger screen, but Maps links, AI chat, and QR code scanning all work on mobile. Plan on the laptop at camp, scan the QR in the morning to navigate.</div></div>
       </div>
     </section>
 
-    <!-- FOOTER NOTE -->
-    <div class="callout good" style="border-radius:10px">
-      <span class="callout-icon">🏕️</span>
-      <div class="callout-body">
-        <strong>Safe travels!</strong> This app is part of the <strong>Ian Fraser Vibe Coding</strong> portfolio — free tools built for Australian RV travellers. If you find it useful, there's a donate button in the app footer. Feedback welcome.
+    <div class="callout c-good" style="border-radius:10px">
+      <span class="ci">🏕️</span>
+      <div class="cb">
+        <strong>Safe travels!</strong> RV Route Planner AU is part of the <strong>Ian Fraser Vibe Coding</strong> portfolio — free tools for Australian caravan travellers at <a href="https://kbcianfa.github.io" target="_blank">kbcianfa.github.io</a>. Also check out <a href="https://kbcianfa.github.io/TripLog/roadtrip-logger.html" target="_blank">LogMyJourney AU</a> — the companion trip logging app.
+        <br><a href="https://www.paypal.com/ncp/payment/VJFW4PMW6SDD4" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;text-decoration:none;padding:7px 16px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;box-shadow:0 2px 10px rgba(245,158,11,.3);">☕ Buy me a coffee</a>
       </div>
     </div>
 
@@ -995,29 +446,22 @@
 </div>
 
 <script>
-// Highlight active nav link on scroll
 const sections = document.querySelectorAll('.help-section');
-const navLinks = document.querySelectorAll('.help-nav-link');
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
+const navLinks  = document.querySelectorAll('.help-nav-link');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
       navLinks.forEach(a => a.classList.remove('active'));
-      const id = entry.target.id;
-      const link = document.querySelector(`.help-nav-link[href="#${id}"]`);
-      if (link) link.classList.add('active');
+      const lnk = document.querySelector(`.help-nav-link[href="#${e.target.id}"]`);
+      if (lnk) lnk.classList.add('active');
     }
   });
 }, { rootMargin: '-20% 0px -70% 0px' });
-
-sections.forEach(s => observer.observe(s));
-
-// Smooth scroll for nav links
+sections.forEach(s => obs.observe(s));
 navLinks.forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
 </script>
