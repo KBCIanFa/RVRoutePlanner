@@ -1900,6 +1900,401 @@
     border-radius: 0 0 8px 8px;
   }
 
+
+  /* ── OVERNIGHT STOP BADGE ── */
+  .overnight-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #1e1b4b;
+    color: #a5b4fc;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: 6px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  /* ── RIG WARNING CARD ── */
+  .rig-warning-card {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .rig-warning-card .rw-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .rig-warning-card .rw-body { flex: 1; }
+  .rig-warning-card .rw-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #92400e;
+    margin-bottom: 4px;
+  }
+  .rig-warning-card .rw-text {
+    font-size: 0.8rem;
+    color: #78350f;
+    line-height: 1.6;
+  }
+
+  /* ── SHARE BUTTON ── */
+  .btn-share {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-share:hover { background: #dbeafe; border-color: #93c5fd; color: #1e3a8a; }
+
+  /* ── VEHICLE PROFILE SAVED INDICATOR ── */
+  .vehicle-saved-dot {
+    width: 6px; height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+    title: 'Vehicle profile saved';
+  }
+
+  /* ── PRINT STYLESHEET ── */
+  @media print {
+    nav, .left-panel, .api-bar, .api-bar-collapsed,
+    .fuel-import-bar, .fuel-price-row, .export-bar,
+    .results-header .tab-row, .btn-maps, .btn-qr,
+    .btn-poi-delete, .maps-bar, .btn-help, .btn-coffee,
+    #qrOverlay, #clearTripBtn { display: none !important; }
+
+    body { background: #fff !important; color: #1e293b !important; font-size: 11pt; }
+    .app-body { display: block !important; }
+    .right-panel { width: 100% !important; overflow: visible !important; }
+    .results-body { overflow: visible !important; padding: 0 !important; }
+    .results-header { border: none !important; background: none !important; padding: 0 0 8px !important; }
+    h2.results-title { font-size: 14pt !important; color: #1e293b !important; }
+
+    .route-summary {
+      border: 1px solid #e2e8f0 !important;
+      page-break-inside: avoid;
+      margin-bottom: 12pt;
+    }
+    .fuel-summary-card { page-break-inside: avoid; margin-bottom: 12pt; }
+
+    .day-card { page-break-inside: avoid; margin-bottom: 8pt; border: 1px solid #e2e8f0 !important; }
+    .day-body { display: block !important; }  /* force expand all */
+    .day-chevron { display: none !important; }
+
+    .poi-item { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; }
+    .leg-fuel-detail { background: #fffbeb !important; }
+
+    .tips-card { page-break-inside: avoid; }
+    .rig-warning-card { page-break-inside: avoid; }
+
+    /* Print header */
+    .results-header::before {
+      content: 'RV Route Planner AU — kbcianfa.github.io/RVRoutePlanner';
+      display: block;
+      font-size: 8pt;
+      color: #94a3b8;
+      margin-bottom: 4pt;
+    }
+  }
+
+
+  /* ── TRAVELLER TOGGLES (pets/kids) ── */
+  .traveller-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .traveller-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.73rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #475569;
+    user-select: none;
+    transition: all 0.15s;
+    min-height: 34px;
+  }
+  .traveller-chip input { display: none; }
+  .traveller-chip:hover { border-color: #b45309; color: #78350f; background: #fffbeb; }
+  .traveller-chip.checked {
+    background: #fffbeb;
+    border-color: #b45309;
+    color: #78350f;
+    box-shadow: 0 0 0 2px rgba(180,83,9,0.1);
+  }
+
+  /* ── DAILY LIMIT ── */
+  .daily-limit-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .daily-limit-row input[type=number] {
+    width: 76px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .daily-limit-row input[type=number]:focus { border-color: #b45309; box-shadow: 0 0 0 3px rgba(180,83,9,0.1); }
+  .daily-limit-row .dl-label {
+    font-size: 0.78rem;
+    color: #475569;
+  }
+  .daily-limit-row .dl-hint {
+    font-size: 0.65rem;
+    color: #94a3b8;
+    margin-left: auto;
+  }
+
+  /* ── BUDGET ESTIMATOR (in route result) ── */
+  .budget-card {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-left: 4px solid #059669;
+    border-radius: 0 10px 10px 0;
+    overflow: hidden;
+  }
+  .budget-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(5,150,105,0.06);
+    border-bottom: 1px solid #bbf7d0;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .budget-card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #065f46;
+  }
+  .budget-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 0;
+  }
+  .budget-stat {
+    padding: 10px 14px;
+    border-right: 1px solid #d1fae5;
+    border-bottom: 1px solid #d1fae5;
+  }
+  .budget-stat:last-child { border-right: none; }
+  .budget-stat-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #059669;
+    line-height: 1;
+  }
+  .budget-stat-key {
+    font-size: 0.58rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-top: 3px;
+  }
+  .budget-breakdown {
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #374151;
+    border-top: 1px solid #d1fae5;
+  }
+  .budget-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 0;
+  }
+  .budget-row-label { color: #6b7280; }
+  .budget-row-val { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.82rem; color: #059669; }
+
+  /* ── CHECKLIST TAB ── */
+  .checklist-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .checklist-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px 24px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  .checklist-section {
+    margin-bottom: 20px;
+  }
+  .checklist-section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #b45309;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .checklist-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, #fde68a, transparent);
+  }
+  .checklist-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s;
+    user-select: none;
+  }
+  .checklist-item:hover { background: #f8fafc; }
+  .checklist-item input[type=checkbox] { display: none; }
+  .cl-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cbd5e1;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+    font-size: 0.65rem;
+    color: transparent;
+  }
+  .checklist-item.done .cl-box {
+    background: #059669;
+    border-color: #059669;
+    color: white;
+  }
+  .cl-text {
+    flex: 1;
+    font-size: 0.82rem;
+    color: #1e293b;
+    line-height: 1.4;
+  }
+  .checklist-item.done .cl-text {
+    text-decoration: line-through;
+    color: #9ca3af;
+  }
+  .cl-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 1px 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .cl-tag.urgent { background: #fee2e2; color: #dc2626; }
+  .cl-tag.important { background: #fef3c7; color: #92400e; }
+  .checklist-progress {
+    padding: 10px 24px 0;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .cl-progress-bar {
+    flex: 1;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .cl-progress-fill {
+    height: 100%;
+    background: #059669;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .cl-progress-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #059669;
+    white-space: nowrap;
+  }
+  .cl-reset-btn {
+    background: none;
+    border: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s;
+  }
+  .cl-reset-btn:hover { color: #dc2626; }
+
 </style>
 </head>
 <body>
@@ -2171,6 +2566,45 @@
       </div>
     </div>
 
+    <div class="panel-section">
+      <div class="section-label" id="travellerLabel">Travelling With</div>
+      <div class="traveller-grid" role="group" aria-labelledby="travellerLabel">
+        <label class="traveller-chip" aria-label="Travelling with dogs">
+          <input type="checkbox" id="withDogs" aria-label="Dogs">
+          🐕 Dogs
+        </label>
+        <label class="traveller-chip" aria-label="Travelling with cats">
+          <input type="checkbox" id="withCats" aria-label="Cats">
+          🐱 Cats
+        </label>
+        <label class="traveller-chip" aria-label="Travelling with children">
+          <input type="checkbox" id="withKids" aria-label="Children">
+          👧 Kids
+        </label>
+        <label class="traveller-chip" aria-label="Travelling solo">
+          <input type="checkbox" id="travelSolo" aria-label="Solo">
+          🧍 Solo
+        </label>
+        <label class="traveller-chip" aria-label="Travelling as a couple">
+          <input type="checkbox" id="travelCouple" aria-label="Couple">
+          👫 Couple
+        </label>
+        <label class="traveller-chip" aria-label="Need accessible facilities">
+          <input type="checkbox" id="needAccessible" aria-label="Accessible">
+          ♿ Accessible
+        </label>
+      </div>
+
+      <div style="margin-top:12px">
+        <label class="field-label" for="maxDailyKm">Max Daily Drive</label>
+        <div class="daily-limit-row">
+          <input type="number" id="maxDailyKm" placeholder="300" min="50" max="800" step="25" value="">
+          <span class="dl-label">km per day</span>
+          <span class="dl-hint">Optional</span>
+        </div>
+      </div>
+    </div>
+
     <div class="panel-section" style="border-bottom:none; flex:1">
       <button class="btn-plan" id="planBtn" onclick="planRoute()" disabled aria-label="Plan my route using AI" aria-busy="false">
         <span id="planBtnText">🗺 PLAN MY ROUTE</span>
@@ -2198,6 +2632,7 @@
       <div class="tab-row" role="tablist" aria-label="View options">
         <button class="tab-btn active" id="tab-route" onclick="switchTab('route')" role="tab" aria-selected="true" aria-controls="routeResult">Route</button>
         <button class="tab-btn" id="tab-chat" onclick="switchTab('chat')" role="tab" aria-selected="false" aria-controls="chatTab">AI Chat</button>
+        <button class="tab-btn" id="tab-checklist" onclick="switchTab('checklist')" role="tab" aria-selected="false" aria-controls="checklistTab">✅ Checklist</button>
       </div>
     </div>
 
@@ -2230,11 +2665,23 @@
       <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat messages"></div>
     </div>
 
+    <!-- Checklist Panel -->
+    <div id="checklistTab" style="display:none" class="checklist-panel" role="region" aria-label="Pre-departure checklist">
+      <div class="checklist-progress" id="clProgressBar">
+        <div class="cl-progress-bar"><div class="cl-progress-fill" id="clFill" style="width:0%"></div></div>
+        <span class="cl-progress-text" id="clProgressText">0 / 0 done</span>
+        <button class="cl-reset-btn" onclick="resetChecklist()" aria-label="Reset all checklist items">Reset</button>
+      </div>
+      <div class="checklist-body" id="checklistBody"></div>
+    </div>
+
     <div class="export-bar" role="toolbar" aria-label="Export options">
       <span class="export-label">Export:</span>
       <button class="btn-export" onclick="exportMarkdown()" aria-label="Export route as Markdown file"><span aria-hidden="true">📄</span> Markdown</button>
       <button class="btn-export" onclick="exportJSON()" aria-label="Export route as JSON data file"><span aria-hidden="true">⚙️</span> JSON</button>
       <button class="btn-export" onclick="copyItinerary()" aria-label="Copy route itinerary to clipboard"><span aria-hidden="true">📋</span> Copy Text</button>
+      <button class="btn-share" id="shareBtn" onclick="shareTrip()" aria-label="Share trip via link">🔗 Share Link</button>
+      <button class="btn-export" onclick="exportPDF()" aria-label="Export route as PDF"><span aria-hidden="true">🖨️</span> PDF</button>
       <span class="powered-by">Groq AI · llama-3.3-70b-versatile</span>
       <button class="btn-clear-trip" id="clearTripBtn" onclick="clearTrip()" disabled aria-label="Clear current trip and start again">🗑 Clear Trip</button>
     </div>
@@ -3037,6 +3484,591 @@ document.addEventListener('click', e => {
   }
 });
 
+
+// ══════════════════════════════════════════════════════════════════════
+// VEHICLE PROFILE PERSISTENCE
+// ══════════════════════════════════════════════════════════════════════
+const VEHICLE_KEY = 'rv_vehicle_profile';
+
+function saveVehicleProfile() {
+  if (!vehicle) return;
+  try {
+    localStorage.setItem(VEHICLE_KEY, JSON.stringify(vehicle));
+  } catch(e) { /* storage full */ }
+}
+
+function loadVehicleProfile() {
+  try {
+    const raw = localStorage.getItem(VEHICLE_KEY);
+    if (!raw) return;
+    const v = JSON.parse(raw);
+    if (!v || !v.l100km) return;
+    vehicle = v;
+    renderVehiclePill();
+    showFuelPriceBar();
+    if (lastPlanData) recalcFuel();
+    showFuelToast('✅ Vehicle profile loaded: ' + v.name, 2000);
+  } catch(e) { /* corrupt data */ }
+}
+
+function clearVehicleProfile() {
+  localStorage.removeItem(VEHICLE_KEY);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PDF / PRINT EXPORT
+// ══════════════════════════════════════════════════════════════════════
+function exportPDF() {
+  if (!lastPlanData) {
+    showFuelToast('Plan a route first before exporting PDF.', 2500);
+    return;
+  }
+  // Force all day cards open for printing
+  document.querySelectorAll('.day-card').forEach(c => c.classList.add('open'));
+  // Switch to route tab
+  switchTab('route');
+  setTimeout(() => {
+    window.print();
+    // Re-collapse cards that were closed (restore original state)
+    document.querySelectorAll('.day-card').forEach((c, i) => {
+      if (i > 0) c.classList.remove('open');
+    });
+  }, 200);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// TRIP SHARING — encode plan into URL hash
+// ══════════════════════════════════════════════════════════════════════
+function shareTrip() {
+  if (!lastPlanData) {
+    showFuelToast('Plan a route first before sharing.', 2500);
+    return;
+  }
+  try {
+    // Encode plan as base64 JSON in URL hash
+    const payload = JSON.stringify({
+      v: 1,
+      plan: lastPlanData,
+      from: getStart(),
+      dest: getEnd(),
+      stops: getStops(),
+    });
+    const encoded = btoa(unescape(encodeURIComponent(payload)));
+    const shareUrl = window.location.origin + window.location.pathname + '#trip=' + encoded;
+
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      const btn = document.getElementById('shareBtn');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Link Copied!';
+      btn.style.background = '#f0fdf4';
+      btn.style.borderColor = '#bbf7d0';
+      btn.style.color = '#166534';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }, 2500);
+    }).catch(() => {
+      // Fallback: prompt with URL
+      prompt('Copy this link to share your trip:', shareUrl);
+    });
+  } catch(e) {
+    showFuelToast('Could not generate share link: ' + e.message, 3000);
+  }
+}
+
+// Load shared trip from URL hash on page load
+function loadSharedTrip() {
+  const hash = window.location.hash;
+  if (!hash.startsWith('#trip=')) return;
+  try {
+    const encoded = hash.slice(6);
+    const payload = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    if (!payload.plan || payload.v !== 1) return;
+
+    lastPlanData = payload.plan;
+    lastPlanData._departureDate = payload.plan._departureDate || '';
+
+    // Restore waypoints
+    if (payload.from) {
+      waypoints[0] = payload.from;
+      if (payload.stops?.length) {
+        waypoints.splice(1, waypoints.length - 1, ...payload.stops, payload.dest || '');
+      } else {
+        waypoints[waypoints.length - 1] = payload.dest || '';
+      }
+      renderWaypoints();
+    }
+
+    const from = payload.from || getStart();
+    const dest = payload.dest || getEnd();
+    renderRoute(payload.plan, from, dest);
+    document.getElementById('resultsTitle').textContent = payload.plan.routeName || 'SHARED ROUTE';
+
+    showFuelToast('📎 Shared trip loaded!', 2500);
+
+    // Clear hash from URL without reload
+    history.replaceState(null, '', window.location.pathname);
+  } catch(e) {
+    // Corrupt hash — silently ignore
+    history.replaceState(null, '', window.location.pathname);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RIG WARNING CARD
+// ══════════════════════════════════════════════════════════════════════
+function getRigWarnings(plan) {
+  const profile = getRigProfile();
+  if (!profile) return null;
+
+  const warnings = [];
+  const routeText = (plan.summary || '') + ' ' + (plan.days || []).map(d => d.description || '').join(' ');
+  const lower = routeText.toLowerCase();
+
+  // Check for unsealed road mentions
+  const unsealedTerms = ['unsealed','gravel','dirt road','outback track','corrugated','4wd','four wheel drive','4x4','creek crossing','sandy','remote track'];
+  const hasUnsealed = unsealedTerms.some(t => lower.includes(t));
+  if (hasUnsealed && profile.capability === 'sealed') {
+    warnings.push('This route may include unsealed or remote roads that are not recommended for ' + profile.label + 's. Check each leg carefully before departing.');
+  }
+
+  // Check for long fuel gaps on sealed rigs
+  const remoteTerms = ['outback','remote','isolated','no services','fuel gap'];
+  const hasRemote = remoteTerms.some(t => lower.includes(t));
+  if (hasRemote && profile.capability === 'sealed') {
+    warnings.push('Long fuel gaps may exist on remote sections. Carry extra fuel and water for this rig type.');
+  }
+
+  // Check for steep grades
+  const steepTerms = ['steep','mountain pass','escarpment','switchback','descent','ascent'];
+  const hasSteep = steepTerms.some(t => lower.includes(t));
+  if (hasSteep && (profile.label.includes('5th') || profile.label.includes('Motorhome'))) {
+    warnings.push('Steep grades or mountain passes may be challenging for ' + profile.label + 's. Check maximum grade limits for your rig.');
+  }
+
+  return warnings.length ? warnings : null;
+}
+
+function injectRigWarningCard(plan) {
+  // Remove existing warning
+  document.getElementById('rigWarningCard')?.remove();
+
+  const warnings = getRigWarnings(plan);
+  if (!warnings) return;
+
+  const el = document.getElementById('routeResult');
+  if (!el) return;
+
+  const card = document.createElement('div');
+  card.id = 'rigWarningCard';
+  card.className = 'rig-warning-card';
+  card.innerHTML = `
+    <div class="rw-icon" aria-hidden="true">⚠️</div>
+    <div class="rw-body">
+      <div class="rw-title">Road Suitability Check — \${getRigProfile().label}</div>
+      <div class="rw-text">\${warnings.map(w => '• ' + w).join('<br>')}</div>
+    </div>
+  `;
+
+  // Insert after fuel summary card (or at top if no fuel card)
+  const fuelCard = el.querySelector('.fuel-summary-card');
+  if (fuelCard) {
+    fuelCard.after(card);
+  } else {
+    el.insertBefore(card, el.firstChild);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// OVERNIGHT STOP MARKER
+// ══════════════════════════════════════════════════════════════════════
+function injectOvernightMarkers(plan) {
+  const days = plan?.days || [];
+  days.forEach((day, i) => {
+    const pois = day.pois || [];
+    // Find the last camp/accommodation POI in the leg
+    const campTypes = ['camp', 'food'];
+    let overnightIdx = -1;
+    for (let j = pois.length - 1; j >= 0; j--) {
+      if (campTypes.includes(pois[j].type)) { overnightIdx = j; break; }
+    }
+    // If no camp type, use the last POI of any type
+    if (overnightIdx === -1 && pois.length > 0) overnightIdx = pois.length - 1;
+    if (overnightIdx === -1) return;
+
+    const poiEl = document.getElementById(`poi-${i}-${overnightIdx}`);
+    if (!poiEl) return;
+
+    // Don't double-add
+    if (poiEl.querySelector('.overnight-badge')) return;
+
+    const badge = document.createElement('span');
+    badge.className = 'overnight-badge';
+    badge.setAttribute('aria-label', 'Suggested overnight stop');
+    badge.textContent = '🌙 Overnight';
+
+    const nameEl = poiEl.querySelector('.poi-name');
+    if (nameEl) nameEl.appendChild(badge);
+  });
+}
+
+
+// ══════════════════════════════════════════════════════════════════════
+// TRAVELLER TOGGLES + DAILY LIMIT
+// ══════════════════════════════════════════════════════════════════════
+
+// Wire traveller chips
+document.querySelectorAll('.traveller-chip').forEach(chip => {
+  const input = chip.querySelector('input[type="checkbox"]');
+  input.addEventListener('change', () => chip.classList.toggle('checked', input.checked));
+});
+
+function getTravellerContext() {
+  const ctx = [];
+  if (document.getElementById('withDogs')?.checked)     ctx.push('travelling with dogs (need dog-friendly camps and beaches)');
+  if (document.getElementById('withCats')?.checked)     ctx.push('travelling with cats');
+  if (document.getElementById('withKids')?.checked)     ctx.push('travelling with children (include family-friendly activities and safe swimming spots)');
+  if (document.getElementById('travelSolo')?.checked)   ctx.push('solo traveller (prefer camps with other travellers, good phone coverage)');
+  if (document.getElementById('travelCouple')?.checked) ctx.push('travelling as a couple');
+  if (document.getElementById('needAccessible')?.checked) ctx.push('require accessible facilities and sealed paths at stops');
+  return ctx.length ? ctx.join(', ') : '';
+}
+
+function getMaxDailyKm() {
+  const val = parseInt(document.getElementById('maxDailyKm')?.value || '0');
+  return val >= 50 ? val : 0;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// TRIP BUDGET ESTIMATOR
+// ══════════════════════════════════════════════════════════════════════
+const ACCOM_COSTS = {
+  'free camps and bush camping wherever possible':               0,
+  'powered caravan park sites at each stop':                     55,
+  'hotel or motel accommodation at each major stop (not camping)': 160,
+  'a mix of free camps and caravan parks':                       28,
+};
+const FOOD_PER_DAY    = 45;  // AUD per person per day cooking own meals
+const ACTIVITIES_PER_DAY = 20; // entry fees, attractions
+
+function estimateBudget(plan) {
+  if (!plan) return null;
+
+  // Parse total distance and estimated days
+  const parseKmLocal = s => { if(!s) return 0; const n=parseFloat(String(s).replace(/[^0-9.]/g,'')); return isNaN(n)?0:n; };
+
+  let totalKm = 0;
+  (plan.days || []).forEach(d => { totalKm += parseKmLocal(d.distance); });
+  if (!totalKm) totalKm = parseKmLocal(plan.totalDistance);
+
+  // Estimate days from plan
+  const daysText = plan.estimatedDays || '';
+  let numDays = 7;
+  const dMatch = daysText.match(/(\d+)/);
+  if (dMatch) numDays = parseInt(dMatch[1]);
+
+  // Fuel cost (from vehicle if set, else estimate)
+  let fuelTotal = 0;
+  if (vehicle && totalKm) {
+    const pricePerL = parseFloat(document.getElementById('fuelPriceInput')?.value) || 2.15;
+    fuelTotal = +(totalKm * vehicle.l100km / 100 * pricePerL).toFixed(0);
+  } else if (totalKm) {
+    fuelTotal = +(totalKm * 15 / 100 * 2.15).toFixed(0); // rough estimate
+  }
+
+  // Accommodation
+  const accomType = getAccomType();
+  const accomPerNight = ACCOM_COSTS[accomType] ?? 28;
+  const accomTotal = accomPerNight * numDays;
+
+  // Food & Activities
+  const travellers = Math.max(1,
+    (document.getElementById('withKids')?.checked ? 3 : 0) ||
+    (document.getElementById('travelCouple')?.checked ? 2 : 1)
+  );
+  const foodTotal = FOOD_PER_DAY * numDays * travellers;
+  const actTotal  = ACTIVITIES_PER_DAY * numDays;
+
+  const total = fuelTotal + accomTotal + foodTotal + actTotal;
+  const perWeek = numDays > 0 ? Math.round(total / numDays * 7) : 0;
+
+  return { total, fuelTotal, accomTotal, foodTotal, actTotal, numDays, totalKm, perWeek };
+}
+
+function injectBudgetCard(plan) {
+  document.getElementById('budgetCard')?.remove();
+  const b = estimateBudget(plan);
+  if (!b || b.total === 0) return;
+
+  const el = document.getElementById('routeResult');
+  if (!el) return;
+
+  const card = document.createElement('div');
+  card.id = 'budgetCard';
+  card.className = 'budget-card';
+  card.innerHTML = `
+    <div class="budget-card-header">
+      <div class="budget-card-title">💰 Trip Budget Estimate</div>
+      <span style="font-size:0.68rem;color:#6b7280;font-family:'Barlow Condensed',sans-serif">
+        ~${b.numDays} days · ${auKm(b.totalKm)} · ${auCurrency(b.perWeek, 0)}/week avg
+      </span>
+    </div>
+    <div class="budget-stats-grid">
+      <div class="budget-stat"><div class="budget-stat-val">${auCurrency(b.total, 0)}</div><div class="budget-stat-key">Total Est.</div></div>
+      <div class="budget-stat"><div class="budget-stat-val">${auCurrency(b.fuelTotal, 0)}</div><div class="budget-stat-key">Fuel</div></div>
+      <div class="budget-stat"><div class="budget-stat-val">${auCurrency(b.accomTotal, 0)}</div><div class="budget-stat-key">Accommodation</div></div>
+      <div class="budget-stat"><div class="budget-stat-val">${auCurrency(b.foodTotal, 0)}</div><div class="budget-stat-key">Food</div></div>
+      <div class="budget-stat"><div class="budget-stat-val">${auCurrency(b.actTotal, 0)}</div><div class="budget-stat-key">Activities</div></div>
+    </div>
+    <div class="budget-breakdown">
+      <div class="budget-row">
+        <span class="budget-row-label">Accommodation rate</span>
+        <span class="budget-row-val">${auCurrency(ACCOM_COSTS[getAccomType()] ?? 28, 0)}/night</span>
+      </div>
+      <div class="budget-row">
+        <span class="budget-row-label">Food allowance</span>
+        <span class="budget-row-val">${auCurrency(FOOD_PER_DAY, 0)}/person/day</span>
+      </div>
+      <div class="budget-row" style="border-top:1px solid #d1fae5;padding-top:6px;margin-top:4px">
+        <span class="budget-row-label" style="color:#374151;font-weight:600">Estimate includes fuel, accommodation, food &amp; activities. Excludes maintenance, tours &amp; unexpected costs.</span>
+      </div>
+    </div>
+  `;
+
+  // Insert after rig warning card (or after fuel card, or at start)
+  const rigCard  = el.querySelector('#rigWarningCard');
+  const fuelCard = el.querySelector('.fuel-summary-card');
+  const anchor   = rigCard || fuelCard;
+  if (anchor) anchor.after(card);
+  else el.insertBefore(card, el.firstChild);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// BIG LAP PRE-DEPARTURE CHECKLIST
+// ══════════════════════════════════════════════════════════════════════
+const CHECKLIST_KEY = 'rv_checklist_state';
+
+const CHECKLIST = [
+  { section: '🚐 Rig & Vehicle', items: [
+    { id:'rig1', text:'Caravan/rig service up to date', tag:'urgent' },
+    { id:'rig2', text:'Tyre pressures checked (including spare)', tag:'urgent' },
+    { id:'rig3', text:'Wheel bearings inspected and repacked', tag:'important' },
+    { id:'rig4', text:'Brakes tested and adjusted', tag:'urgent' },
+    { id:'rig5', text:'All lights working (tow vehicle + caravan)', tag:'urgent' },
+    { id:'rig6', text:'Breakaway cable and safety chains checked', tag:'urgent' },
+    { id:'rig7', text:'Tow ball weight within limits', tag:'important' },
+    { id:'rig8', text:'Jockey wheel, locks and hitches all functional', tag:'' },
+    { id:'rig9', text:'Awning, hatches and vents all sealing correctly', tag:'' },
+    { id:'rig10', text:'All windows and doors opening/closing properly', tag:'' },
+  ]},
+  { section: '⚡ Power & Water', items: [
+    { id:'pw1', text:'Solar panels and controller working', tag:'' },
+    { id:'pw2', text:'Batteries fully charged and load tested', tag:'important' },
+    { id:'pw3', text:'12V and 240V systems tested', tag:'' },
+    { id:'pw4', text:'Fresh water tanks filled and pipes flushed', tag:'' },
+    { id:'pw5', text:'Grey water tank empty and seals checked', tag:'urgent' },
+    { id:'pw6', text:'Gas bottles full and regulators checked', tag:'important' },
+    { id:'pw7', text:'Gas leak test completed', tag:'urgent' },
+  ]},
+  { section: '📄 Documents & Insurance', items: [
+    { id:'doc1', text:'Vehicle and caravan registration current', tag:'urgent' },
+    { id:'doc2', text:'Comprehensive travel insurance organised', tag:'urgent' },
+    { id:'doc3', text:'Roadside assistance membership active', tag:'important' },
+    { id:'doc4', text:'Towing compliance checked (GVM, GCM, ball weight)', tag:'urgent' },
+    { id:'doc5', text:'Drivers licence valid for all states', tag:'urgent' },
+    { id:'doc6', text:'Medicare card and any prescriptions packed', tag:'important' },
+    { id:'doc7', text:'Emergency contacts list up to date', tag:'' },
+  ]},
+  { section: '🧰 Safety & Emergency', items: [
+    { id:'saf1', text:'First aid kit fully stocked', tag:'urgent' },
+    { id:'saf2', text:'Fire extinguisher charged and accessible', tag:'urgent' },
+    { id:'saf3', text:'Personal Locator Beacon (PLB) registered and charged', tag:'urgent' },
+    { id:'saf4', text:'UHF CB radio installed and tested', tag:'important' },
+    { id:'saf5', text:'Spare tyre, jack and wheel brace in rig', tag:'urgent' },
+    { id:'saf6', text:'Recovery gear for rig type (snatch strap, shovel, traction boards)', tag:'' },
+    { id:'saf7', text:'Emergency water supply — minimum 20L extra', tag:'important' },
+    { id:'saf8', text:'Snake bite kit and knowledge of protocol', tag:'important' },
+  ]},
+  { section: '📱 Navigation & Tech', items: [
+    { id:'nav1', text:'Hema Maps or Wikicamps app downloaded and offline maps loaded', tag:'important' },
+    { id:'nav2', text:'Fuel Map Australia app installed', tag:'' },
+    { id:'nav3', text:'Satellite communicator charged (if going remote)', tag:'' },
+    { id:'nav4', text:'Dash cam installed and working', tag:'' },
+    { id:'nav5', text:'Backup navigation (paper maps or offline GPS)', tag:'' },
+    { id:'nav6', text:'Phone mounts and chargers organised', tag:'' },
+  ]},
+  { section: '🍳 Kitchen & Supplies', items: [
+    { id:'kit1', text:'Fridge/freezer tested and holding temperature', tag:'important' },
+    { id:'kit2', text:'Initial pantry stock done for first week', tag:'' },
+    { id:'kit3', text:'Cooking equipment complete and packed', tag:'' },
+    { id:'kit4', text:'Spares: fuses, globes, hose fittings, silicone tape', tag:'important' },
+    { id:'kit5', text:'Dump point hose and fittings packed', tag:'' },
+    { id:'kit6', text:'Drinking water hose (white food-grade) packed', tag:'' },
+  ]},
+  { section: '🐕 Pets (if applicable)', items: [
+    { id:'pet1', text:'Pet vaccinations and health checks up to date', tag:'' },
+    { id:'pet2', text:'Pet registration tags current', tag:'' },
+    { id:'pet3', text:'Enough pet food for first 2 weeks', tag:'' },
+    { id:'pet4', text:'Research dog-friendly beaches and camp areas on route', tag:'' },
+    { id:'pet5', text:'Tick and flea prevention applied', tag:'important' },
+  ]},
+];
+
+let checklistState = {};
+
+function loadChecklistState() {
+  try {
+    const raw = localStorage.getItem(CHECKLIST_KEY);
+    if (raw) checklistState = JSON.parse(raw);
+  } catch(e) { checklistState = {}; }
+}
+
+function saveChecklistState() {
+  try { localStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklistState)); } catch(e) {}
+}
+
+function renderChecklist() {
+  const body = document.getElementById('checklistBody');
+  if (!body) return;
+
+  body.innerHTML = CHECKLIST.map(section => `
+    <div class="checklist-section">
+      <div class="checklist-section-title">${section.section}</div>
+      <div class="checklist-items">
+        ${section.items.map(item => `
+          <label class="checklist-item${checklistState[item.id] ? ' done' : ''}"
+                 onclick="toggleChecklistItem('${item.id}', this)">
+            <div class="cl-box" aria-hidden="true">${checklistState[item.id] ? '✓' : ''}</div>
+            <span class="cl-text">${item.text}</span>
+            ${item.tag ? `<span class="cl-tag ${item.tag}">${item.tag}</span>` : ''}
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  updateChecklistProgress();
+}
+
+function toggleChecklistItem(id, labelEl) {
+  checklistState[id] = !checklistState[id];
+  saveChecklistState();
+  labelEl.classList.toggle('done', checklistState[id]);
+  const box = labelEl.querySelector('.cl-box');
+  if (box) box.textContent = checklistState[id] ? '✓' : '';
+  updateChecklistProgress();
+}
+
+function updateChecklistProgress() {
+  const total = CHECKLIST.reduce((a, s) => a + s.items.length, 0);
+  const done  = Object.values(checklistState).filter(Boolean).length;
+  const pct   = total > 0 ? Math.round(done / total * 100) : 0;
+  const fill  = document.getElementById('clFill');
+  const text  = document.getElementById('clProgressText');
+  if (fill) fill.style.width = pct + '%';
+  if (text) text.textContent = done + ' / ' + total + ' done';
+}
+
+function resetChecklist() {
+  if (!confirm('Reset all checklist items?')) return;
+  checklistState = {};
+  saveChecklistState();
+  renderChecklist();
+}
+
+
+// ══════════════════════════════════════════════════════════════════════
+// SMART FUEL PRICE DEFAULTS — regional estimates
+// No API needed: based on typical premium for remoteness
+// User can always override. Updates when start location changes.
+// ══════════════════════════════════════════════════════════════════════
+
+// Regional price premiums above metro base (AUD/L, diesel/unleaded)
+// Sources: ACCC fuel monitoring reports, state fuel watch data patterns
+const FUEL_REGIONS = [
+  // Remote premium ~$0.40–0.80 above metro
+  { terms: ['birdsville','bedourie','boulia','tibooburra','innamincka','marree','oodnadatta','coober pedy','yulara','uluru','halls creek','wiluna','meekatharra','laverton','marble bar','nullagine','normanton','burketown','doomadgee','weipa','bamaga','cape york'], diesel: 2.85, unleaded: 2.75, label: 'Very Remote' },
+  // Outback premium ~$0.25–0.45
+  { terms: ['alice springs','tennant creek','katherine','mount isa','cloncurry','charleville','longreach','winton','quilpie','cunnamulla','thargomindah','carnarvon','geraldton','kalgoorlie','port hedland','karratha','newman','tom price','exmouth','broome','derby','fitzroy crossing','kununurra','wyndham','ceduna','penong','eucla','broken hill','bourke','lightning ridge','cobar','wilcannia','hay'], diesel: 2.55, unleaded: 2.45, label: 'Outback / Remote' },
+  // Far North QLD premium ~$0.15–0.25
+  { terms: ['cairns','port douglas','daintree','cooktown','innisfail','tully','mission beach','cardwell','ingham','charters towers','emerald','moranbah','collinsville','bowen'], diesel: 2.40, unleaded: 2.32, label: 'Far North QLD' },
+  // Regional NT
+  { terms: ['darwin','palmerston','kakadu','jabiru','litchfield','nhulunbuy','mataranka','daly waters','batchelor'], diesel: 2.35, unleaded: 2.28, label: 'Northern Territory' },
+  // Regional WA
+  { terms: ['perth','fremantle','mandurah','bunbury','busselton','margaret river','albany','esperance'], diesel: 2.20, unleaded: 2.15, label: 'Regional WA' },
+  // Regional QLD & NSW
+  { terms: ['townsville','mackay','rockhampton','bundaberg','hervey Bay','gladstone','toowoomba','tamworth','dubbo','orange','wagga','albury','armidale','grafton','lismore','port macquarie','coffs harbour','ballina','byron bay'], diesel: 2.25, unleaded: 2.18, label: 'Regional' },
+  // SA / VIC regional
+  { terms: ['adelaide','port augusta','port lincoln','whyalla','mount gambier','ballarat','bendigo','geelong','shepparton','wodonga','mildura','horsham','warrnambool'], diesel: 2.22, unleaded: 2.16, label: 'Regional SA/VIC' },
+  // Metro / SE Qld default
+  { terms: ['brisbane','sunshine coast','gold coast','noosa','caloundra','yandina','nambour','ipswich','sydney','melbourne','canberra'], diesel: 2.10, unleaded: 2.05, label: 'Metro' },
+];
+
+const FUEL_BASE = { diesel: 2.15, unleaded: 2.10, label: 'National avg' };
+
+function getRegionalFuelPrice(location, fuelType) {
+  if (!location) return FUEL_BASE;
+  const loc = location.toLowerCase();
+  for (const region of FUEL_REGIONS) {
+    if (region.terms.some(t => loc.includes(t))) {
+      return {
+        price: fuelType === 'diesel' ? region.diesel : region.unleaded,
+        label: region.label
+      };
+    }
+  }
+  return { price: fuelType === 'diesel' ? FUEL_BASE.diesel : FUEL_BASE.unleaded, label: FUEL_BASE.label };
+}
+
+function suggestFuelPrice() {
+  // Only suggest if input hasn't been manually changed from default
+  const input = document.getElementById('fuelPriceInput');
+  if (!input) return;
+
+  const start = getStart();
+  const fuelType = vehicle?.fuelType || 'diesel';
+  const regional = getRegionalFuelPrice(start, fuelType);
+
+  // Update the input with the regional suggestion
+  input.value = regional.price.toFixed(2);
+  input.setAttribute('title', 'Estimated ' + regional.label + ' price — adjust to your actual price');
+
+  // Show a small regional label next to the input
+  let hint = document.getElementById('fuelRegionHint');
+  if (!hint) {
+    hint = document.createElement('span');
+    hint.id = 'fuelRegionHint';
+    hint.style.cssText = 'font-family:"Barlow Condensed",sans-serif;font-size:0.62rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#0d9488;padding:2px 8px;background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;white-space:nowrap;';
+    input.parentNode.insertBefore(hint, input.nextSibling);
+  }
+  hint.textContent = '📍 ' + regional.label + ' est.';
+  hint.title = 'Regional estimate based on your start location. Always check current prices at fuelcheck.nsw.gov.au or fuelwatch.wa.gov.au';
+
+  if (vehicle) recalcFuel();
+}
+
+// Hook into updateWaypoint for index 0 (start location changes)
+const _origUpdateWaypoint = updateWaypoint;
+function updateWaypoint(i, val) {
+  _origUpdateWaypoint(i, val);
+  if (i === 0) {
+    // Debounce — only update after typing stops
+    clearTimeout(updateWaypoint._fuelTimer);
+    updateWaypoint._fuelTimer = setTimeout(() => {
+      if (val && val.length > 3) suggestFuelPrice();
+    }, 800);
+  }
+}
+
+// Also suggest when vehicle is first imported/set
+const _origShowFuelPriceBar = showFuelPriceBar;
+function showFuelPriceBar() {
+  _origShowFuelPriceBar();
+  if (vehicle) setTimeout(suggestFuelPrice, 50);
+}
+
 // ──────────────────────────────────────────────
 // STATE
 // ──────────────────────────────────────────────
@@ -3304,6 +4336,8 @@ POI types: camp, fuel, dump, sight, food, water`;
 - DEPARTURE DATE: ${startDateAU ? startDateAU + ' (' + startMonth + ')' : 'not specified — advise best season'}
 - DURATION: ${durText}
 ${getRigContext()}
+- TRAVELLERS: ${getTravellerContext() || 'not specified'}
+- MAX DAILY DRIVE: ${getMaxDailyKm() ? getMaxDailyKm() + ' km per day — do not exceed this in any single leg' : 'no limit set'}
 - PREFERENCES: ${prefs || 'none specified'}
 - ACCOMMODATION: ${accom}
 - POIs WANTED: ${getRigPOIContext(pois || 'free camps, national parks, lookouts')}
@@ -3512,16 +4546,14 @@ function switchTab(tab) {
 
   if (tab === 'chat') {
     showTab('chat');
-    // Ensure welcome message is present
     const msgs = document.getElementById('chatMessages');
     if (msgs && msgs.children.length === 0) {
       addChatMsg('ai', "G\'day! I am your RV travel advisor. Ask me anything — free camps, fuel gaps, seasonal timing, road conditions, best spots to see. What do you need?");
     }
-    // Focus the input
-    setTimeout(() => {
-      const inp = document.getElementById('chatInput');
-      if (inp) inp.focus();
-    }, 50);
+    setTimeout(() => { const inp = document.getElementById('chatInput'); if (inp) inp.focus(); }, 50);
+  } else if (tab === 'checklist') {
+    showTab('checklist');
+    renderChecklist();
   } else if (lastPlanData) {
     showTab('route');
   } else {
@@ -3530,16 +4562,13 @@ function switchTab(tab) {
 }
 
 function showTab(which) {
-  // results-body hosts: empty, loading, route
-  const resultsBody = document.getElementById('resultsBody');
-  resultsBody.style.display = which === 'chat' ? 'none' : 'flex';
-
-  document.getElementById('emptyState').style.display   = which === 'empty'   ? 'flex' : 'none';
-  document.getElementById('loadingState').style.display = which === 'loading'  ? 'flex' : 'none';
-  document.getElementById('routeResult').style.display  = which === 'route'    ? 'flex' : 'none';
-
-  // chat-panel is a flex sibling of results-body, fills the space directly
-  document.getElementById('chatTab').style.display      = which === 'chat'     ? 'flex' : 'none';
+  const notRoute = which === 'chat' || which === 'checklist';
+  document.getElementById('resultsBody').style.display        = notRoute ? 'none' : 'flex';
+  document.getElementById('emptyState').style.display         = which === 'empty'     ? 'flex' : 'none';
+  document.getElementById('loadingState').style.display       = which === 'loading'   ? 'flex' : 'none';
+  document.getElementById('routeResult').style.display        = which === 'route'     ? 'flex' : 'none';
+  document.getElementById('chatTab').style.display            = which === 'chat'      ? 'flex' : 'none';
+  document.getElementById('checklistTab').style.display       = which === 'checklist' ? 'flex' : 'none';
 }
 
 function showLoading() {
@@ -3583,6 +4612,14 @@ window.renderRoute = function(...args) {
   _renderRoute(...args);
   afterPlan();
   if (vehicle) setTimeout(recalcFuel, 80);
+  // Inject overnight markers and rig warnings after render settles
+  setTimeout(() => {
+    if (lastPlanData) {
+      injectOvernightMarkers(lastPlanData);
+      injectRigWarningCard(lastPlanData);
+      injectBudgetCard(lastPlanData);
+    }
+  }, 120);
 };
 
 // ──────────────────────────────────────────────
@@ -3805,8 +4842,9 @@ function importFromTriplog() {
     if (lastPlanData) recalcFuel();
 
     const towMsg = vehicle.towing ? ' (+35% towing penalty applied)' : '';
-    showFuelToast('✅ Imported: ' + name + ' · ' + auNum(l100Adjusted,1) + ' L/100km' + towMsg, 3500);
-    onRigTypeChange();  // update capability badge after import
+    saveVehicleProfile();
+    showFuelToast('✅ Imported: ' + name + ' · ' + auNum(l100Adjusted,1) + ' L/100km · Profile saved' + towMsg, 3500);
+    onRigTypeChange();
 
   } catch(e) {
     showFuelToast('⚠️ Could not read LogMyJourney data: ' + e.message, 4000);
@@ -3829,6 +4867,7 @@ function updateManualVehicle() {
   renderVehiclePill();
   showFuelPriceBar();
   if (lastPlanData) recalcFuel();
+  saveVehicleProfile();
 }
 
 // ── Vehicle pill ──────────────────────────────────────────────────────
@@ -3849,6 +4888,7 @@ function renderVehiclePill() {
 
 function clearVehicle() {
   vehicle = null;
+  clearVehicleProfile();
   document.getElementById('vehiclePillSlot').innerHTML = '';
   document.getElementById('fuelPriceRow').style.display = 'none';
   // Remove fuel cards from rendered route
@@ -4120,7 +5160,9 @@ function clearTrip() {
     routeTab.setAttribute('aria-selected', 'true');
   }
 
-  // Remove fuel cards
+  // Remove fuel/budget cards
+  document.getElementById('budgetCard')?.remove();
+  document.getElementById('rigWarningCard')?.remove();
   clearVehicle();
 
   // Reset waypoints — restore saved default start, or keep current start
@@ -4173,6 +5215,10 @@ function setClearEnabled(enabled) {
 loadDefaultStart();
 renderWaypoints();
 onRigTypeChange();  // set initial rig badge + POI state
+loadVehicleProfile();  // restore saved vehicle
+loadSharedTrip();  // load if opened via share link
+loadChecklistState();  // restore saved checklist
+suggestFuelPrice();    // set regional fuel price default
 
 // ──────────────────────────────────────────────
 // DELETE POI
