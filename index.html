@@ -1468,6 +1468,7 @@
     display: flex;
     flex-direction: column;
     gap: 0;
+    overflow: visible;  /* allow autocomplete to overflow */
   }
 
   .waypoint-row {
@@ -1829,19 +1830,20 @@
   /* ── WAYPOINT AUTOCOMPLETE ── */
   .wp-autocomplete {
     position: absolute;
-    top: calc(100% + 3px);
+    top: calc(100% + 2px);
     left: 0;
     right: 0;
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
-    z-index: 999;
-    max-height: 220px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 9999;
+    max-height: 240px;
     overflow-y: auto;
     display: none;
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
+    min-width: 200px;
   }
   .wp-autocomplete.open { display: block; animation: acDrop 0.12s ease; }
   @keyframes acDrop {
@@ -1981,7 +1983,7 @@
 
   /* ── PRINT STYLESHEET ── */
   @media print {
-    nav, .left-panel, .api-bar, .api-bar-collapsed,
+    nav, .left-panel, .api-bar, .api-bar-collapsed, .btn-triplog,
     .fuel-import-bar, .fuel-price-row, .export-bar,
     .results-header .tab-row, .btn-maps, .btn-qr,
     .btn-poi-delete, .maps-bar, .btn-help, .btn-coffee,
@@ -2295,6 +2297,34 @@
   }
   .cl-reset-btn:hover { color: #dc2626; }
 
+
+  .btn-triplog {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f0fdfa;
+    border: 1px solid #0d9488;
+    color: #0f766e;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-triplog:hover {
+    background: #ccfbf1;
+    border-color: #0f766e;
+    color: #064e3b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(13,148,136,0.25);
+  }
+
 </style>
 </head>
 <body>
@@ -2308,6 +2338,7 @@
     <p class="sr-only">Caravan and RV Companion — AI-powered Australian route planning</p>
   </div>
   <div class="header-badge" aria-label="AI Powered feature">AI Powered</div>
+  <a href="https://kbcianfa.github.io/TripLog/roadtrip-logger.html" target="_blank" rel="noopener" class="btn-triplog" aria-label="Open LogMyJourney AU trip logger">🗺 LogMyJourney</a>
   <a href="help.html" target="_blank" class="btn-help" aria-label="Open help guide">❓ Help</a>
   <a href="https://www.paypal.com/ncp/payment/VJFW4PMW6SDD4" target="_blank" rel="noopener" class="btn-coffee" aria-label="Buy me a coffee via PayPal">☕ Coffee</a>
 </header>
@@ -3360,45 +3391,68 @@ function highlightMatch(text, query) {
 }
 
 // Show dropdown
+// ── Autocomplete portal — dropdown appended to body to escape overflow clipping ──
+let _acPortal = null;
+let _acActiveInput = null;
+
+function getOrCreatePortal() {
+  if (!_acPortal) {
+    _acPortal = document.createElement('div');
+    _acPortal.id = 'acPortal';
+    _acPortal.className = 'wp-autocomplete';
+    _acPortal.setAttribute('role', 'listbox');
+    document.body.appendChild(_acPortal);
+  }
+  return _acPortal;
+}
+
+function positionPortal(input) {
+  const portal = getOrCreatePortal();
+  const rect = input.getBoundingClientRect();
+  portal.style.position = 'fixed';
+  portal.style.top  = (rect.bottom + 3) + 'px';
+  portal.style.left = rect.left + 'px';
+  portal.style.width = rect.width + 'px';
+  portal.style.zIndex = '99999';
+}
+
 function showAcDropdown(input, matches, query) {
-  const wrap = input.closest('.wp-input-wrap');
-  const drop = wrap?.querySelector('.wp-autocomplete');
-  if (!drop) return;
+  _acActiveInput = input;
+  const portal = getOrCreatePortal();
+  positionPortal(input);
 
   if (matches.length === 0) {
-    drop.innerHTML = '<div class="ac-empty">No matching Australian locations found</div>';
-    drop.classList.add('open');
+    portal.innerHTML = '<div class="ac-empty">No matching locations — try state abbreviation e.g. "Cairns QLD"</div>';
+    portal.classList.add('open');
     input.setAttribute('aria-expanded', 'true');
     return;
   }
 
-  drop.innerHTML = matches.map((town, idx) => {
+  portal.innerHTML = matches.map((town, idx) => {
     const state = getStateAbbr(town);
     const city  = town.replace(/\s+(QLD|NSW|VIC|SA|WA|NT|TAS|ACT)$/, '').trim();
     return `<div class="ac-item" role="option" data-value="${escHtml(town)}" data-ac-idx="${idx}" onmousedown="selectAcItem(event, this)">
       <span class="ac-state" aria-hidden="true">${state}</span>
       <span>${highlightMatch(city, query)}</span>
     </div>`;
-  }).join('') + (matches.length >= 8 ? `<div class="ac-count">Showing top 8 — type more to narrow</div>` : '');
+  }).join('') + (matches.length >= 8 ? `<div class="ac-count">Showing top 8 — keep typing to narrow</div>` : '');
 
-  drop.classList.add('open');
+  portal.classList.add('open');
   input.setAttribute('aria-expanded', 'true');
 }
 
 function hideAcDropdown(input) {
-  const wrap = input?.closest?.('.wp-input-wrap');
-  const drop = wrap?.querySelector('.wp-autocomplete');
-  if (drop) {
-    drop.classList.remove('open');
-    drop.querySelectorAll('.ac-item.ac-active').forEach(el => el.classList.remove('ac-active'));
+  if (_acPortal) {
+    _acPortal.classList.remove('open');
+    _acPortal.querySelectorAll('.ac-item.ac-active').forEach(el => el.classList.remove('ac-active'));
   }
   input?.setAttribute?.('aria-expanded', 'false');
+  _acActiveInput = null;
 }
 
 function selectAcItem(event, item) {
-  event.preventDefault(); // prevent blur from closing before we pick
-  const wrap  = item.closest('.wp-input-wrap');
-  const input = wrap?.querySelector('.wp-input');
+  event.preventDefault();
+  const input = _acActiveInput;
   if (!input) return;
 
   const val = item.dataset.value;
@@ -3409,6 +3463,10 @@ function selectAcItem(event, item) {
   hideAcDropdown(input);
   input.focus();
 }
+
+// Reposition portal on scroll/resize
+window.addEventListener('scroll', () => { if (_acActiveInput && _acPortal?.classList.contains('open')) positionPortal(_acActiveInput); }, true);
+window.addEventListener('resize', () => { if (_acActiveInput && _acPortal?.classList.contains('open')) positionPortal(_acActiveInput); });
 
 // Input handler — replaces the old oninput updateWaypoint call
 function onWpInput(input, idx) {
@@ -3426,13 +3484,14 @@ function onWpInput(input, idx) {
 function onWpKeydown(event, input, idx) {
   const wrap = input.closest('.wp-input-wrap');
   const drop = wrap?.querySelector('.wp-autocomplete');
-  if (!drop || !drop.classList.contains('open')) {
+  if (!_acPortal || !_acPortal.classList.contains('open')) { const drop = _acPortal;
     if (event.key === 'ArrowDown') onWpInput(input, idx); // open on down
     return;
   }
 
-  const items = [...drop.querySelectorAll('.ac-item')];
-  const active = drop.querySelector('.ac-item.ac-active');
+  const portal = _acPortal;
+  const items = portal ? [...portal.querySelectorAll('.ac-item')] : [];
+  const active = portal?.querySelector('.ac-item.ac-active');
   const activeIdx = active ? parseInt(active.dataset.acIdx, 10) : -1;
 
   if (event.key === 'ArrowDown') {
@@ -3453,6 +3512,9 @@ function onWpKeydown(event, input, idx) {
       const val = active.dataset.value;
       input.value = val;
       updateWaypoint(idx, val);
+      hideAcDropdown(input);
+    } else {
+      // No active suggestion — just close
       hideAcDropdown(input);
     }
   } else if (event.key === 'Escape') {
@@ -3475,12 +3537,10 @@ function onWpBlur(input) {
 
 // Close all dropdowns when clicking outside
 document.addEventListener('click', e => {
-  if (!e.target.closest('.wp-input-wrap')) {
-    document.querySelectorAll('.wp-autocomplete.open').forEach(drop => {
-      drop.classList.remove('open');
-      const inp = drop.closest('.wp-input-wrap')?.querySelector('.wp-input');
-      inp?.setAttribute('aria-expanded', 'false');
-    });
+  if (_acPortal && _acPortal.classList.contains('open')) {
+    if (!e.target.closest('.wp-input-wrap') && !e.target.closest('#acPortal')) {
+      hideAcDropdown(_acActiveInput);
+    }
   }
 });
 
@@ -4050,17 +4110,20 @@ function suggestFuelPrice() {
 }
 
 // Hook into updateWaypoint for index 0 (start location changes)
+// Hook fuel price suggestion into the original updateWaypoint
+// using a separate timer — avoids function redeclaration conflict
+let _fuelSuggestTimer = null;
 const _origUpdateWaypoint = updateWaypoint;
-function updateWaypoint(i, val) {
+// Override safely using variable (not function declaration — hoisting safe)
+updateWaypoint = function(i, val) {
   _origUpdateWaypoint(i, val);
   if (i === 0) {
-    // Debounce — only update after typing stops
-    clearTimeout(updateWaypoint._fuelTimer);
-    updateWaypoint._fuelTimer = setTimeout(() => {
+    clearTimeout(_fuelSuggestTimer);
+    _fuelSuggestTimer = setTimeout(() => {
       if (val && val.length > 3) suggestFuelPrice();
     }, 800);
   }
-}
+};
 
 // Also suggest when vehicle is first imported/set
 const _origShowFuelPriceBar = showFuelPriceBar;
