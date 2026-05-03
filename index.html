@@ -2325,6 +2325,71 @@
     box-shadow: 0 2px 8px rgba(13,148,136,0.25);
   }
 
+
+  /* ── WAYPOINT OVERNIGHT TOGGLE ── */
+  .btn-wp-overnight {
+    flex-shrink: 0;
+    background: none;
+    border: 1px dashed #cbd5e1;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    padding: 2px 7px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .btn-wp-overnight:hover {
+    border-color: #6366f1;
+    color: #6366f1;
+    background: #eef2ff;
+  }
+  .btn-wp-overnight.is-overnight {
+    border-style: solid;
+    border-color: #6366f1;
+    color: #fff;
+    background: #6366f1;
+    box-shadow: 0 1px 6px rgba(99,102,241,0.3);
+  }
+  .btn-wp-overnight.is-overnight:hover {
+    background: #4f46e5;
+    border-color: #4f46e5;
+  }
+
+  /* ── POI OVERNIGHT PIN ── */
+  .btn-poi-overnight {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    font-size: 1rem;
+    padding: 1px 4px;
+    cursor: pointer;
+    transition: all 0.12s;
+    border-radius: 4px;
+    line-height: 1;
+    title: 'Set as overnight stop';
+  }
+  .btn-poi-overnight:hover { color: #6366f1; background: #eef2ff; }
+  .btn-poi-overnight.pinned {
+    color: #6366f1;
+    background: #eef2ff;
+  }
+
+  /* Overnight stop indicator on POI item */
+  .poi-item.overnight-pinned {
+    border-left-color: #6366f1 !important;
+    background: #f5f3ff !important;
+  }
+  .poi-item.overnight-pinned .poi-name::after {
+    content: ' 🌙';
+    font-size: 0.75rem;
+  }
+
 </style>
 </head>
 <body>
@@ -2819,6 +2884,8 @@ function renderWaypoints() {
     const row = document.createElement('div');
     row.className = 'waypoint-row';
     row.setAttribute('role', 'listitem');
+    const isOvernightStop = waypointOvernights.has(i);
+
     row.innerHTML = `
       <span class="wp-dot" aria-hidden="true"></span>
       <div class="wp-input-wrap">
@@ -2849,7 +2916,15 @@ function renderWaypoints() {
           aria-label="${isDefaultSet ? 'This is your default start location' : 'Save as default start location'}"
           title="${isDefaultSet ? 'Default start saved' : 'Save as my default start'}"
         >${isDefaultSet ? '★ Default' : '☆ Set Default'}</button>
-      ` : ''}
+      ` : `
+        <button
+          class="btn-wp-overnight${isOvernightStop ? ' is-overnight' : ''}"
+          onclick="toggleWaypointOvernight(${i})"
+          aria-label="${isOvernightStop ? 'Remove overnight stop marker' : 'Mark as overnight stop'}"
+          aria-pressed="${isOvernightStop}"
+          title="${isOvernightStop ? 'Overnight stop — click to remove' : 'Mark as overnight stop'}"
+        >${isOvernightStop ? '🌙 Night Stop' : '🌙'}</button>
+      `}
       ${(!isFirst && !isLast) ? `
         <button class="btn-wp-remove" onclick="removeWaypoint(${i})" aria-label="Remove stop ${i}">×</button>
       ` : ''}
@@ -3745,33 +3820,9 @@ function injectRigWarningCard(plan) {
 // OVERNIGHT STOP MARKER
 // ══════════════════════════════════════════════════════════════════════
 function injectOvernightMarkers(plan) {
+  // Delegate to new system — apply badge for each day
   const days = plan?.days || [];
-  days.forEach((day, i) => {
-    const pois = day.pois || [];
-    // Find the last camp/accommodation POI in the leg
-    const campTypes = ['camp', 'food'];
-    let overnightIdx = -1;
-    for (let j = pois.length - 1; j >= 0; j--) {
-      if (campTypes.includes(pois[j].type)) { overnightIdx = j; break; }
-    }
-    // If no camp type, use the last POI of any type
-    if (overnightIdx === -1 && pois.length > 0) overnightIdx = pois.length - 1;
-    if (overnightIdx === -1) return;
-
-    const poiEl = document.getElementById(`poi-${i}-${overnightIdx}`);
-    if (!poiEl) return;
-
-    // Don't double-add
-    if (poiEl.querySelector('.overnight-badge')) return;
-
-    const badge = document.createElement('span');
-    badge.className = 'overnight-badge';
-    badge.setAttribute('aria-label', 'Suggested overnight stop');
-    badge.textContent = '🌙 Overnight';
-
-    const nameEl = poiEl.querySelector('.poi-name');
-    if (nameEl) nameEl.appendChild(badge);
-  });
+  days.forEach((_, i) => updateOvernightBadgeForDay(i));
 }
 
 
@@ -4132,6 +4183,111 @@ function showFuelPriceBar() {
   if (vehicle) setTimeout(suggestFuelPrice, 50);
 }
 
+
+// ══════════════════════════════════════════════════════════════════════
+// OVERNIGHT STOP SELECTION
+// ══════════════════════════════════════════════════════════════════════
+
+// waypointOvernights: Set of waypoint indices marked as overnight stops
+// (excludes index 0 — can't overnight at origin)
+let waypointOvernights = new Set();
+
+// poiOvernights: Map of dayIndex → poiIndex for pinned overnight POI per leg
+// e.g. { 0: 2 } means leg 0, POI index 2 is the overnight stop
+let poiOvernights = {};
+
+function toggleWaypointOvernight(idx) {
+  if (waypointOvernights.has(idx)) {
+    waypointOvernights.delete(idx);
+  } else {
+    waypointOvernights.add(idx);
+  }
+  renderWaypoints();
+}
+
+function getOvernightWaypointNames() {
+  return [...waypointOvernights]
+    .filter(i => waypoints[i])
+    .map(i => waypoints[i].trim())
+    .filter(Boolean);
+}
+
+function togglePoiOvernight(dayIdx, poiIdx) {
+  // Unpin existing for this day
+  const prevPinned = poiOvernights[dayIdx];
+
+  if (prevPinned === poiIdx) {
+    // Clicking the pinned one → unpin
+    delete poiOvernights[dayIdx];
+  } else {
+    // Pin the new one
+    poiOvernights[dayIdx] = poiIdx;
+  }
+
+  // Update DOM — no full re-render needed
+  updatePoiOvernightDOM(dayIdx);
+}
+
+function updatePoiOvernightDOM(dayIdx) {
+  // Remove all pinned states in this day
+  const dayCard = document.getElementById('dayCard' + dayIdx);
+  if (!dayCard) return;
+
+  dayCard.querySelectorAll('.poi-item').forEach(el => {
+    el.classList.remove('overnight-pinned');
+    const btn = el.querySelector('.btn-poi-overnight');
+    if (btn) btn.classList.remove('pinned');
+  });
+
+  // Re-apply the current pin
+  const pinnedIdx = poiOvernights[dayIdx];
+  if (pinnedIdx !== undefined) {
+    const poiEl = document.getElementById('poi-' + dayIdx + '-' + pinnedIdx);
+    if (poiEl) {
+      poiEl.classList.add('overnight-pinned');
+      const btn = poiEl.querySelector('.btn-poi-overnight');
+      if (btn) btn.classList.add('pinned');
+    }
+  }
+
+  // Also update the overnight badge position
+  updateOvernightBadgeForDay(dayIdx);
+}
+
+function updateOvernightBadgeForDay(dayIdx) {
+  // Remove existing badges in this day
+  const dayCard = document.getElementById('dayCard' + dayIdx);
+  if (!dayCard) return;
+  dayCard.querySelectorAll('.overnight-badge').forEach(b => b.remove());
+
+  // Add badge to pinned POI (or auto-detected if no pin)
+  const pinnedIdx = poiOvernights[dayIdx];
+  let targetEl = null;
+
+  if (pinnedIdx !== undefined) {
+    targetEl = document.getElementById('poi-' + dayIdx + '-' + pinnedIdx);
+  } else if (lastPlanData?.days?.[dayIdx]) {
+    // Fall back to auto-detect (first camp type or last POI)
+    const pois = lastPlanData.days[dayIdx].pois || [];
+    const campTypes = ['camp', 'food'];
+    let autoIdx = -1;
+    for (let j = pois.length - 1; j >= 0; j--) {
+      if (campTypes.includes(pois[j].type)) { autoIdx = j; break; }
+    }
+    if (autoIdx === -1 && pois.length > 0) autoIdx = pois.length - 1;
+    if (autoIdx >= 0) targetEl = document.getElementById('poi-' + dayIdx + '-' + autoIdx);
+  }
+
+  if (targetEl) {
+    if (targetEl.querySelector('.overnight-badge')) return;
+    const badge = document.createElement('span');
+    badge.className = 'overnight-badge';
+    badge.textContent = '🌙 Overnight';
+    const nameEl = targetEl.querySelector('.poi-name');
+    if (nameEl) nameEl.appendChild(badge);
+  }
+}
+
 // ──────────────────────────────────────────────
 // STATE
 // ──────────────────────────────────────────────
@@ -4391,15 +4547,18 @@ When planning routes, structure your response as valid JSON only (no markdown, n
   ],
   "tips": ["tip 1", "tip 2", "tip 3", "tip 4"]
 }
-POI types: camp, fuel, dump, sight, food, water`;
+POI types: camp, fuel, dump, sight, food, water
+IMPORTANT: Do NOT suggest POIs in the departure/origin town itself — only suggest POIs along the route and at overnight stops. The traveller is already at the start location.`;
 
   const userMsg = `Plan a caravan trip:
 - FROM: ${from}
 - ROUTE: ${routeStr}${stops.length ? '\n- VIA TOWNS (must route through each in order, use each as a leg start/end point): ' + stops.join(' → ') : ''}
+- TRIP TYPE: ${from.trim().toLowerCase().replace(/[^a-z0-9]/g,'') === dest.trim().toLowerCase().replace(/[^a-z0-9]/g,'') ? 'Loop/circuit (returns to origin — show total loop distance once, not doubled)' : 'Point to point'}
 - DEPARTURE DATE: ${startDateAU ? startDateAU + ' (' + startMonth + ')' : 'not specified — advise best season'}
 - DURATION: ${durText}
 ${getRigContext()}
 - TRAVELLERS: ${getTravellerContext() || 'not specified'}
+- OVERNIGHT STOPS: ${getOvernightWaypointNames().length ? getOvernightWaypointNames().join(', ') + ' — ensure these towns are leg endpoints with overnight accommodation nearby' : 'not specified — AI to suggest based on distance and facilities'}
 - MAX DAILY DRIVE: ${getMaxDailyKm() ? getMaxDailyKm() + ' km per day — do not exceed this in any single leg' : 'no limit set'}
 - PREFERENCES: ${prefs || 'none specified'}
 - ACCOMMODATION: ${accom}
@@ -4490,15 +4649,34 @@ function renderRoute(plan, from, dest) {
 
     const pois = d.pois || [];
 
-    const poisHtml = pois.map((poi, pi) => {
+    // Filter POIs at the origin (first leg only) — no POIs needed at departure town
+    const isOriginLeg = (i === 0);
+    const originTown  = from.replace(/\s+(QLD|NSW|VIC|SA|WA|NT|TAS|ACT)$/i,'').trim().toLowerCase();
+    const filteredPois = isOriginLeg
+      ? pois.filter(poi => {
+          const pn = (poi.name || '').toLowerCase();
+          // Remove POIs whose name starts with or contains the origin town
+          return !pn.startsWith(originTown) && !pn.includes(originTown + ' ');
+        })
+      : pois;
+
+    const poisHtml = filteredPois.map((poi, pi) => {
       const poiUrl = mapsSearchUrl(poi.name);
+      const isPinnedOvernight = poiOvernights[i] === pi;
       return `
-        <div class="poi-item ${poi.type}" id="poi-${i}-${pi}">
+        <div class="poi-item ${poi.type}${isPinnedOvernight ? ' overnight-pinned' : ''}" id="poi-${i}-${pi}">
           <div class="poi-icon" aria-hidden="true">${poiIcon(poi.type)}</div>
           <div class="poi-info">
             <div class="poi-name">${poi.name || ''}</div>
             <div class="poi-detail">${poi.detail || ''}</div>
           </div>
+          <button
+            class="btn-poi-overnight${isPinnedOvernight ? ' pinned' : ''}"
+            onclick="togglePoiOvernight(${i}, ${pi})"
+            aria-label="${isPinnedOvernight ? 'Remove as overnight stop' : 'Set as overnight stop'}"
+            aria-pressed="${isPinnedOvernight}"
+            title="${isPinnedOvernight ? 'Pinned overnight stop — click to unpin' : 'Set as overnight stop'}"
+          >🌙</button>
           <a class="poi-maps-link" href="${poiUrl}" target="_blank" rel="noopener" title="Find on Google Maps">
             📍 Maps
           </a>
@@ -4557,12 +4735,24 @@ function renderRoute(plan, from, dest) {
     </div>
   ` : '';
 
+  // Detect loop trip (start == end, normalised)
+  const isLoop = from.trim().toLowerCase().replace(/[^a-z0-9]/g,'') ===
+                 dest.trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+
+  // For loop trips: show one-way distance if AI returned the full loop distance
+  // Label it "One-way" vs "Total (Loop)"
+  const distLabel   = isLoop ? 'Total Distance (Loop)' : 'Total Distance';
+  const routeSubtitle = isLoop
+    ? `${from} — Loop Route`
+    : `${from} → ${dest}`;
+
   el.innerHTML = `
     <div class="route-summary">
       <div class="route-name">${plan.routeName || 'YOUR ROUTE'}</div>
-      <div style="color:var(--muted);font-size:0.75rem;letter-spacing:1px;margin-bottom:6px">${from} → ${dest}</div>
+      <div style="color:var(--muted);font-size:0.75rem;letter-spacing:1px;margin-bottom:6px">${routeSubtitle}</div>
+      ${isLoop ? `<div style="display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:2px 10px;font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#059669;margin-bottom:8px">🔄 Loop / Return Route</div>` : ''}
       <div class="route-meta">
-        <div class="route-stat"><div class="stat-val">${plan.totalDistance || '—'}</div><div class="stat-key">Total Distance</div></div>
+        <div class="route-stat"><div class="stat-val">${plan.totalDistance || '—'}</div><div class="stat-key">${distLabel}</div></div>
         <div class="route-stat"><div class="stat-val">${plan.estimatedDays || '—'}</div><div class="stat-key">Days</div></div>
         <div class="route-stat"><div class="stat-val" style="color:${diffColor[plan.difficulty] || 'var(--ochre)'}">${plan.difficulty || '—'}</div><div class="stat-key">Difficulty</div></div>
         <div class="route-stat"><div class="stat-val">${plan.bestSeason || '—'}</div><div class="stat-key">Best Season</div></div>
@@ -5195,6 +5385,8 @@ function clearTrip() {
   lastPlanData = null;
   chatHistory  = [];
   currentTab   = 'route';
+  waypointOvernights = new Set();
+  poiOvernights = {};
 
   // Reset results panel
   document.getElementById('resultsTitle').textContent = 'PLAN YOUR ADVENTURE';
