@@ -2390,6 +2390,134 @@
     font-size: 0.75rem;
   }
 
+
+  /* ── WAYPOINT DATE PICKER ── */
+  .wp-date-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0 4px 28px;
+    flex-wrap: wrap;
+  }
+  .wp-date-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    white-space: nowrap;
+  }
+  .wp-date-input {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .wp-date-input:focus { border-color: #b45309; box-shadow: 0 0 0 2px rgba(180,83,9,0.1); }
+  .wp-date-sep {
+    font-size: 0.65rem;
+    color: #94a3b8;
+  }
+  .wp-date-clear {
+    background: none;
+    border: none;
+    color: #cbd5e1;
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0 3px;
+    border-radius: 3px;
+    transition: color 0.12s;
+    line-height: 1;
+  }
+  .wp-date-clear:hover { color: #dc2626; }
+  .wp-date-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #059669;
+    padding: 1px 6px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  /* ── ADD POI TO LEG ── */
+  .add-poi-bar {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 0 0;
+    border-top: 1px dashed #e2e8f0;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .add-poi-input {
+    flex: 1;
+    min-width: 140px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .add-poi-input:focus { border-color: #b45309; box-shadow: 0 0 0 2px rgba(180,83,9,0.1); }
+  .add-poi-input::placeholder { color: #94a3b8; font-size: 0.75rem; }
+  .btn-add-poi {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border: none;
+    color: #080c14;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-add-poi:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-add-poi:disabled { opacity: 0.45; cursor: not-allowed; }
+  .add-poi-status {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    color: #94a3b8;
+    width: 100%;
+    padding-top: 2px;
+  }
+  .add-poi-type-select {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 5px 8px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .add-poi-type-select:focus { border-color: #b45309; }
+
 </style>
 </head>
 <body>
@@ -2930,6 +3058,35 @@ function renderWaypoints() {
       ` : ''}
     `;
     list.appendChild(row);
+
+    // Date row — for all non-start waypoints
+    if (!isFirst) {
+      const d = waypointDates[i] || {};
+      const dateRow = document.createElement('div');
+      dateRow.className = 'wp-date-row';
+      const arrVal = d.arrive || '';
+      const depVal = d.depart || '';
+      const hasDates = arrVal || depVal;
+      dateRow.innerHTML = `
+        <span class="wp-date-label">Date:</span>
+        <input type="date" class="wp-date-input" value="${arrVal}"
+          aria-label="Arrive at ${label}"
+          title="Optional arrival date"
+          onchange="setWaypointDate(${i}, 'arrive', this.value)"
+          placeholder="Arrive">
+        <span class="wp-date-sep">→</span>
+        <input type="date" class="wp-date-input" value="${depVal}"
+          aria-label="Depart from ${label}"
+          title="Optional departure date"
+          onchange="setWaypointDate(${i}, 'depart', this.value)"
+          placeholder="Depart">
+        ${hasDates ? `<button class="wp-date-clear" onclick="clearWaypointDates(${i})" title="Clear dates" aria-label="Clear dates for this waypoint">✕</button>` : ''}
+        <span class="wp-date-badge" id="wp-date-badge-${i}" style="display:${hasDates ? 'inline' : 'none'}">
+          ${[arrVal ? 'Arr: ' + formatDateAU(arrVal) : '', depVal ? 'Dep: ' + formatDateAU(depVal) : ''].filter(Boolean).join(' · ')}
+        </span>
+      `;
+      list.appendChild(dateRow);
+    }
   });
 
   // Sync hidden compat fields
@@ -4288,6 +4445,147 @@ function updateOvernightBadgeForDay(dayIdx) {
   }
 }
 
+
+// ══════════════════════════════════════════════════════════════════════
+// WAYPOINT DATES — optional arrive/depart per stop
+// ══════════════════════════════════════════════════════════════════════
+// waypointDates[i] = { arrive: 'YYYY-MM-DD', depart: 'YYYY-MM-DD' }
+let waypointDates = {};
+
+function setWaypointDate(idx, field, val) {
+  if (!waypointDates[idx]) waypointDates[idx] = {};
+  if (val) {
+    waypointDates[idx][field] = val;
+  } else {
+    delete waypointDates[idx][field];
+    if (Object.keys(waypointDates[idx]).length === 0) delete waypointDates[idx];
+  }
+  // Update the badge in the row without full re-render
+  updateWaypointDateBadge(idx);
+}
+
+function clearWaypointDates(idx) {
+  delete waypointDates[idx];
+  renderWaypoints();
+}
+
+function updateWaypointDateBadge(idx) {
+  const badge = document.getElementById('wp-date-badge-' + idx);
+  const d = waypointDates[idx];
+  if (!badge || !d) return;
+  const parts = [];
+  if (d.arrive) parts.push('Arr: ' + formatDateAU(d.arrive));
+  if (d.depart) parts.push('Dep: ' + formatDateAU(d.depart));
+  badge.textContent = parts.join(' · ');
+  badge.style.display = parts.length ? 'inline' : 'none';
+}
+
+function formatDateAU(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return d + '/' + m + '/' + y;
+}
+
+function getWaypointDateContext() {
+  const parts = [];
+  Object.entries(waypointDates).forEach(([idx, d]) => {
+    const town = waypoints[parseInt(idx)] || '';
+    if (!town) return;
+    const arrStr = d.arrive ? 'arrive ' + formatDateAU(d.arrive) : '';
+    const depStr = d.depart ? 'depart ' + formatDateAU(d.depart) : '';
+    const dateStr = [arrStr, depStr].filter(Boolean).join(', ');
+    if (dateStr) parts.push(town + ': ' + dateStr);
+  });
+  return parts.length ? parts.join(' | ') : '';
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ADD POI TO EXISTING LEG — AI-powered search
+// ══════════════════════════════════════════════════════════════════════
+async function addPoiToLeg(dayIdx) {
+  if (!lastPlanData?.days?.[dayIdx]) return;
+
+  const inputEl  = document.getElementById('add-poi-input-' + dayIdx);
+  const statusEl = document.getElementById('add-poi-status-' + dayIdx);
+  const btnEl    = document.getElementById('add-poi-btn-' + dayIdx);
+  const typeEl   = document.getElementById('add-poi-type-' + dayIdx);
+
+  const query = inputEl?.value?.trim();
+  if (!query) { if (statusEl) statusEl.textContent = 'Enter a POI name or type to search for.'; return; }
+
+  const day     = lastPlanData.days[dayIdx];
+  const legFrom = day.from || '';
+  const legTo   = day.to   || '';
+  const poiType = typeEl?.value || 'camp';
+
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Searching…'; }
+  if (statusEl) statusEl.textContent = 'Asking AI for suggestions…';
+
+  const systemPrompt = `You are an Australian caravan and RV travel expert. When asked to find a point of interest, respond ONLY with a JSON object — no markdown, no preamble. Use this exact format:
+{"name":"Place Name","type":"camp","detail":"Brief description — facilities, cost, distance from road etc."}
+Type must be one of: camp, fuel, dump, sight, food, water.
+Keep name and detail concise. Always use Australian context, km distances, and AUD prices.`;
+
+  const userMsg = `Find a ${query} ${poiType !== 'any' ? '(type: ' + poiType + ')' : ''} between ${legFrom} and ${legTo} in Australia. Return one specific, real location as JSON.`;
+
+  try {
+    const raw = await groqCall([{ role: 'user', content: userMsg }], systemPrompt);
+
+    // Parse the JSON response
+    let poi;
+    try {
+      const cleaned = raw.replace(/```json\n?|```/g, '').trim();
+      poi = JSON.parse(cleaned);
+    } catch {
+      const match = raw.match(/\{[^}]+\}/);
+      if (match) poi = JSON.parse(match[0]);
+      else throw new Error('Could not parse AI response');
+    }
+
+    if (!poi.name) throw new Error('Invalid POI data returned');
+
+    // Add to lastPlanData
+    if (!day.pois) day.pois = [];
+    day.pois.push(poi);
+    const newPoiIdx = day.pois.length - 1;
+
+    // Inject into DOM without full re-render
+    const poiList = document.querySelector('#dayCard' + dayIdx + ' .poi-list');
+    if (poiList) {
+      const poiUrl = mapsSearchUrl(poi.name);
+      const isPinned = poiOvernights[dayIdx] === newPoiIdx;
+      const div = document.createElement('div');
+      div.className = 'poi-item ' + (poi.type || 'sight');
+      div.id = 'poi-' + dayIdx + '-' + newPoiIdx;
+      div.innerHTML = `
+        <div class="poi-icon" aria-hidden="true">${poiIcon(poi.type || 'sight')}</div>
+        <div class="poi-info">
+          <div class="poi-name">${poi.name}</div>
+          <div class="poi-detail">${poi.detail || ''}</div>
+        </div>
+        <button class="btn-poi-overnight" onclick="togglePoiOvernight(${dayIdx}, ${newPoiIdx})" aria-label="Set as overnight stop" title="Set as overnight stop">🌙</button>
+        <a class="poi-maps-link" href="${poiUrl}" target="_blank" rel="noopener" title="Find on Google Maps">📍 Maps</a>
+        <button class="btn-poi-delete" onclick="deletePoi(${dayIdx}, ${newPoiIdx})" aria-label="Remove ${poi.name}" title="Remove this POI">×</button>
+      `;
+      div.style.animation = 'fadeUp 0.3s ease';
+      poiList.appendChild(div);
+    }
+
+    if (inputEl) inputEl.value = '';
+    if (statusEl) statusEl.textContent = '✅ ' + poi.name + ' added to this leg.';
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = '+ Add'; }
+
+    // Recalculate fuel if needed
+    if (vehicle) recalcFuel();
+
+    setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
+
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '⚠️ ' + (e.message || 'Search failed — try a different description.');
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = '+ Add'; }
+  }
+}
+
 // ──────────────────────────────────────────────
 // STATE
 // ──────────────────────────────────────────────
@@ -4574,6 +4872,7 @@ IMPORTANT: Do NOT suggest POIs in the departure/origin town itself — only sugg
 ${getRigContext()}
 - TRAVELLERS: ${getTravellerContext() || 'not specified'}
 - OVERNIGHT STOPS: ${getOvernightWaypointNames().length ? getOvernightWaypointNames().join(', ') + ' — ensure these towns are leg endpoints with overnight accommodation nearby' : 'not specified — AI to suggest based on distance and facilities'}
+- WAYPOINT DATES: ${getWaypointDateContext() || 'no dates specified — AI to estimate timing'}
 - MAX DAILY DRIVE: ${getMaxDailyKm() ? getMaxDailyKm() + ' km per day — do not exceed this in any single leg' : 'no limit set'}
 - PREFERENCES: ${prefs || 'none specified'}
 - ACCOMMODATION: ${accom}
@@ -4733,6 +5032,31 @@ function renderRoute(plan, from, dest) {
         </div>
 
         <div class="poi-list">${poisHtml}</div>
+
+        <!-- Add POI search bar -->
+        <div class="add-poi-bar">
+          <select class="add-poi-type-select" id="add-poi-type-${i}" aria-label="POI category to search">
+            <option value="any">Any type</option>
+            <option value="camp">⛺ Free Camp</option>
+            <option value="camp">🏕️ Caravan Park</option>
+            <option value="fuel">⛽ Fuel Stop</option>
+            <option value="dump">🚿 Dump Point</option>
+            <option value="sight">🏔️ Attraction</option>
+            <option value="food">🍳 Roadhouse</option>
+            <option value="water">🚰 Water Refill</option>
+            <option value="sight">🌊 Waterfall</option>
+            <option value="sight">🏖️ Beach</option>
+          </select>
+          <input type="text" class="add-poi-input" id="add-poi-input-${i}"
+            placeholder="e.g. free camp near river, dump point, lookout…"
+            aria-label="Search for a point of interest to add to this leg"
+            onkeydown="if(event.key==='Enter')addPoiToLeg(${i})">
+          <button class="btn-add-poi" id="add-poi-btn-${i}"
+            onclick="addPoiToLeg(${i})"
+            aria-label="Search for and add a POI to this leg"
+            ${!getApiKey() ? 'disabled' : ''}>+ Add</button>
+          <div class="add-poi-status" id="add-poi-status-${i}"></div>
+        </div>
       </div>
     </div>
     `;
@@ -5402,6 +5726,7 @@ function clearTrip() {
   currentTab   = 'route';
   waypointOvernights = new Set();
   poiOvernights = {};
+  waypointDates = {};
 
   // Reset results panel
   document.getElementById('resultsTitle').textContent = 'PLAN YOUR ADVENTURE';
