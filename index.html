@@ -3727,8 +3727,8 @@ function injectRigWarningCard(plan) {
   card.innerHTML = `
     <div class="rw-icon" aria-hidden="true">⚠️</div>
     <div class="rw-body">
-      <div class="rw-title">Road Suitability Check — \${getRigProfile().label}</div>
-      <div class="rw-text">\${warnings.map(w => '• ' + w).join('<br>')}</div>
+      <div class="rw-title">Road Suitability Check — ${getRigProfile().label}</div>
+      <div class="rw-text">${warnings.map(w => '• ' + w).join('<br>')}</div>
     </div>
   `;
 
